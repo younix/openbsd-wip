@@ -282,6 +282,10 @@ file	dev/pci/ppb.c			ppb
 attach	cy at pci with cy_pci
 file	dev/pci/cy_pci.c		cy_pci
 
+# Comtrol RocketPort
+attach	rp at pci with rp_pci
+file	dev/pci/rp_pci.c		rp_pci
+
 # Myson Century MTD800/MTD803/MTD891
 attach	mtd at pci with mtd_pci
 file	dev/pci/if_mtd_pci.c		mtd_pci
