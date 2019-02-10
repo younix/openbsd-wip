@@ -143,6 +143,7 @@ int sReadAiopID(struct rp_softc *sc, int aiop)
    rp_writeaiop1(sc, aiop, _CMD_REG, RESET_ALL);     /* reset AIOP */
    rp_writeaiop1(sc, aiop, _CMD_REG, 0x0);
    AiopID = rp_readaiop1(sc, aiop, _CHN_STAT0) & 0x07;
+
    if(AiopID == 0x06)
       return(1);
    else 			       /* AIOP does not exist */
@@ -567,11 +568,13 @@ void sDisInterrupts(CHANNEL_T *ChP,Word_t Flags)
  * The top-level routines begin here
  */
 
-void	rpclose(struct tty *tp);
+//XXX:void	rpclose(struct tty *tp);
+int	rpclose(dev_t dev, int flag, int mode, struct proc *p);
 void	rphardclose(struct tty *tp, struct rp_port *rp);
 int	rpmodem(struct tty *, int, int);
 int	rpparam(struct tty *, struct termios *);
 void	rpstart(struct tty *);
+struct tty * rptty(dev_t);
 int	rpioctl(dev_t dev, u_long , caddr_t , int , struct proc *);
 //static	int	rpopen(struct tty *);
 int	rpopen(dev_t dev, int flag, int mode, struct proc *p);
@@ -846,7 +849,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	}
 
 #ifdef RP_DEBUG
-	printf("%s open port %d flag 0x%x mode 0x%x\n", sc->sc_dev.dv_xname,
+	printf("%s open port %d flag 0x%x mode 0x%x\n", sc->dev.dv_xname,
 	    port, flag, mode);
 #endif
 
@@ -899,7 +902,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 
 int
 //rpclose(struct tty *tp)
-cyclose(dev_t dev, int flag, int mode, struct proc *p)
+rpclose(dev_t dev, int flag, int mode, struct proc *p)
 {
 	int card = RP_CARD(dev);
 	int port = RP_PORT(dev);
@@ -945,6 +948,52 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 	wakeup(&tp->t_actout);
 	wakeup(TSA_CARR_ON(tp));
 #endif /* DJA */
+}
+
+int
+rpread(dev_t dev, struct uio *uio, int flag)
+{
+	int card = RP_CARD(dev);
+	int port = RP_PORT(dev);
+	struct rp_softc *sc = rp_cd.cd_devs[card];
+	struct rp_port *rp = &sc->rp[port];
+	struct tty *tp = rp->rp_tty;
+
+#ifdef RP_DEBUG
+	printf("%s read port %d uio %p flag 0x%x\n", sc->dev.dv_xname,
+	    port, uio, flag);
+#endif
+
+	return ((*linesw[tp->t_line].l_read)(tp, uio, flag));
+}
+
+int
+rpwrite(dev_t dev, struct uio *uio, int flag)
+{
+	int card = RP_CARD(dev);
+	int port = RP_PORT(dev);
+	struct rp_softc *sc = rp_cd.cd_devs[card];
+	struct rp_port *rp = &sc->rp[port];
+	struct tty *tp = rp->rp_tty;
+
+#ifdef RP_DEBUG
+	printf("%s write port %d uio %p flag 0x%x\n", sc->dev.dv_xname,
+	    port, uio, flag);
+#endif
+
+	return ((*linesw[tp->t_line].l_write)(tp, uio, flag));
+}
+
+struct tty *
+rptty(dev_t dev)
+{
+	int card = RP_CARD(dev);
+	int port = RP_PORT(dev);
+	struct rp_softc *sc = rp_cd.cd_devs[card];
+	struct rp_port *rp = &sc->rp[port];
+	struct tty *tp = rp->rp_tty;
+
+	return (tp);
 }
 
 int
@@ -1036,6 +1085,20 @@ static int rp_convert_baud(int baud) {
 	}
 
 	return baud_table[i].conversion;
+}
+
+int
+rpstop(struct tty *tp, int flag)
+{
+	int card = RP_CARD(tp->t_dev);
+	int port = RP_PORT(tp->t_dev);
+	struct rp_softc *sc = rp_cd.cd_devs[card];
+	//struct rp_port *rp = &sc->rp[port];
+
+	printf("%s port %d stop tty %p flag 0x%x NOT IMPLEMENTED!!!\n",
+	    sc->dev.dv_xname, port, tp, flag);
+
+	return (0);
 }
 
 int
@@ -1155,8 +1218,8 @@ rpstart(struct tty *tp)
 	int	xmit_fifo_room;
 	int	i, count, wcount;
 
-#ifdef CY_DEBUG
-	printf("%s port %d start, tty %p\n", sc->sc_dev.dv_xname, port, tp);
+#ifdef RP_DEBUG
+	printf("%s port %d start, tty %p\n", sc->dev.dv_xname, port, tp);
 #endif
 
 //	rp = tty_softc(tp);

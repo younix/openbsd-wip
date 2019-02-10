@@ -47,14 +47,14 @@ typedef uint16_t WordIO_t;
 typedef uint32_t DWord_t;
 typedef uint32_t DWordIO_t;
 
-#define rp_readio(size, ctlp, rid, offset) \
-	(bus_read_##size(ctlp->io[rid], offset))
-#define rp_readmultiio(size, ctlp, rid, offset, addr, count) \
-	(bus_read_multi_##size(ctlp->io[rid], offset, addr, count))
-#define rp_writeio(size, ctlp, rid, offset, data) \
-	(bus_write_##size(ctlp->io[rid], offset, data))
-#define rp_writemultiio(size, ctlp, rid, offset, addr, count) \
-	(bus_write_multi_##size(ctlp->io[rid], offset, addr, count))
+#define rp_readio(size, sc, rid, offset) \
+	(bus_space_read_##size((sc)->sc_iot, (sc)->sc_ioh, offset))
+#define rp_readmultiio(size, sc, rid, offset, addr, count) \
+	(bus_space_read_multi_##size((sc)->sc_iot, (sc)->sc_ioh, offset, addr, count))
+#define rp_writeio(size, sc, rid, offset, data) \
+	(bus_space_write_##size((sc)->sc_iot, (sc)->sc_ioh, offset, data))
+#define rp_writemultiio(size, sc, rid, offset, addr, count) \
+	(bus_space_write_multi_##size((sc)->sc_iot, (sc)->sc_ioh, offset, addr, count))
 
 #define rp_readio1(ctlp, rid, offset)				rp_readio(1, ctlp, rid, offset)
 #define rp_readio2(ctlp, rid, offset)				rp_readio(2, ctlp, rid, offset)
@@ -118,6 +118,16 @@ typedef uint32_t DWordIO_t;
 	(rp_writemultiaiop2((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
 #define rp_writemultich4(chp, offset, addr, count) \
 	(rp_writemultiaiop4((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
+
+/*
+ * Port number on card encoded in low 5 bits
+ * card number in next 2 bits (only space for 4 cards)
+ * high bit reserved for dialout flag
+ */
+#define RP_PORT(x) (minor(x) & 0xf)
+#define RP_CARD(x) ((minor(x) >> 5) & 3)
+//XXX: #define RP_DIALOUT(x) ((minor(x) & 0x80) != 0)
+//XXX: #define RP_DIALIN(x) (!RP_DIALOUT(x))
 
 /*
  * End of OS-specific defines
@@ -339,6 +349,9 @@ Channel Register Offsets - Indexed - Internal - Fixed
 #define RDATASIZE 72
 #define RREGDATASIZE 52
 
+#define RP_PCI_BAR_1		PCI_MAPREG_START
+#define RP_PCI_BAR_2		PCI_MAPREG_START + 8
+
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -347,32 +360,32 @@ Channel Register Offsets - Indexed - Internal - Fixed
 #define FALSE 0
 #endif
 
-struct CONTROLLER_str;
+struct rp_softc;
 struct CHANNEL_str;
 
 /* The types of bus-specific methods */
 typedef int rp_aiop2rid_t(int, int);
 typedef int rp_aiop2off_t(int, int);
-typedef unsigned char rp_ctlmask_t(struct CONTROLLER_str *);
+typedef unsigned char rp_ctlmask_t(struct rp_softc *);
 
 /* Controller level information structure */
-struct CONTROLLER_str
-{
+struct rp_softc {
+	/* Device and resource management */
+	struct device		dev;		/* device */
+
 	int		CtlID;
 	int		NumAiop;
 	int		AiopID[AIOP_CTL_SIZE];
 	int		AiopNumChan[AIOP_CTL_SIZE];
 
-        struct mtx	hwmtx;     /* Spinlock protecting hardware. */
+        struct mutex	hwmtx;     /* Spinlock protecting hardware. */
 	int		hwmtx_init;
 	int		free;
 	int		num_ports;
 
-	/* Device and resource management */
-	device_t		dev;		/* device */
-	int			io_num;		/* Number of IO resources */
-	int			*io_rid;	/* IO resource IDs */
-	struct resource		**io;		/* IO resources */
+	bus_space_tag_t		sc_iot;
+	bus_space_handle_t	sc_ioh;
+	bus_size_t		sc_ios;
 
 	struct rp_port		*rp;		/* port */
 
@@ -387,13 +400,13 @@ struct CONTROLLER_str
 	rp_aiop2off_t		*aiop2off;	/* (aiop, offset) -> off */
 	rp_ctlmask_t		*ctlmask;	/* Int status */
 };
-typedef struct CONTROLLER_str CONTROLLER_T;
-typedef CONTROLLER_T CONTROLLER_t;
+//typedef struct CONTROLLER_str CONTROLLER_T;
+//typedef CONTROLLER_T CONTROLLER_t;
 
 /* Channel level information structure */
 struct CHANNEL_str
 {
-	CONTROLLER_t	*CtlP;
+	struct rp_softc	*CtlP;
 	int		AiopNum;
 	int		ChanID;
 	int		ChanNum;
@@ -435,7 +448,7 @@ Call:	  sClrBreak(ChP)
 #define sClrBreak(ChP) \
 { \
    (ChP)->TxControl[3] &= ~SETBREAK; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -447,7 +460,7 @@ Call:	  sClrDTR(ChP)
 #define sClrDTR(ChP) \
 { \
    (ChP)->TxControl[3] &= ~SET_DTR; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -459,7 +472,7 @@ Call:	  sClrRTS(ChP)
 #define sClrRTS(ChP) \
 { \
    (ChP)->TxControl[3] &= ~SET_RTS; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -483,7 +496,7 @@ Call:	  sDisCTSFlowCtl(ChP)
 #define sDisCTSFlowCtl(ChP) \
 { \
    (ChP)->TxControl[2] &= ~CTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -497,7 +510,7 @@ Comments: Function sSetParity() can be used in place of functions sEnParity(),
 #define sDisParity(ChP) \
 { \
    (ChP)->TxControl[2] &= ~PARITY_EN; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -509,7 +522,7 @@ Call:	  sDisRxFIFO(ChP)
 #define sDisRxFIFO(ChP) \
 { \
    (ChP)->R[0x32] = 0x0a; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->R + 0x30)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30)); \
 }
 
 /***************************************************************************
@@ -536,7 +549,7 @@ Call:	  sDisTransmit(ChP)
 #define sDisTransmit(ChP) \
 { \
    (ChP)->TxControl[3] &= ~TX_ENABLE; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -548,7 +561,7 @@ Call:	  sDisTxSoftFlowCtl(ChP)
 #define sDisTxSoftFlowCtl(ChP) \
 { \
    (ChP)->R[0x06] = 0x8a; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->R + 0x04)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x04)); \
 }
 
 /***************************************************************************
@@ -560,7 +573,7 @@ Call:	  sEnCTSFlowCtl(ChP)
 #define sEnCTSFlowCtl(ChP) \
 { \
    (ChP)->TxControl[2] |= CTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -577,7 +590,7 @@ Warnings: Before enabling parity odd or even parity should be chosen using
 #define sEnParity(ChP) \
 { \
    (ChP)->TxControl[2] |= PARITY_EN; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -588,9 +601,9 @@ Return: void
 { \
 	(ChP)->TxControl[2] &= ~RTSTOG_EN; \
 	(ChP)->TxControl[3] &= ~SET_RTS; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 	(ChP)->RxControl[2] |= RTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->RxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
 }
 
 /***************************************************************************
@@ -600,7 +613,7 @@ Return: void
 #define sDisRTSFlowCtl(ChP) \
 { \
 	(ChP)->RxControl[2] &= ~RTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->RxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
 }
 
 /***************************************************************************
@@ -612,7 +625,7 @@ Call:	  sEnRxFIFO(ChP)
 #define sEnRxFIFO(ChP) \
 { \
    (ChP)->R[0x32] = 0x08; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->R + 0x30)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30)); \
 }
 
 /***************************************************************************
@@ -633,7 +646,7 @@ Warnings: This function must be called after valid microcode has been
 #define sEnRxProcessor(ChP) \
 { \
    (ChP)->RxControl[2] |= RXPROC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->RxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
 }
 
 /***************************************************************************
@@ -657,7 +670,7 @@ Call:	  sEnTransmit(ChP)
 #define sEnTransmit(ChP) \
 { \
    (ChP)->TxControl[3] |= TX_ENABLE; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -822,7 +835,7 @@ Call:	  sSendBreak(ChP)
 #define sSendBreak(ChP) \
 { \
    (ChP)->TxControl[3] |= SETBREAK; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -836,7 +849,7 @@ Call:	  sSetBaud(ChP,Divisor)
 { \
    (ChP)->BaudDiv[2] = (Byte_t)(DIVISOR); \
    (ChP)->BaudDiv[3] = (Byte_t)((DIVISOR) >> 8); \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->BaudDiv)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->BaudDiv)); \
 }
 
 /***************************************************************************
@@ -848,7 +861,7 @@ Call:	  sSetData7(ChP)
 #define sSetData7(ChP) \
 { \
    (ChP)->TxControl[2] &= ~DATA8BIT; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -860,7 +873,7 @@ Call:	  sSetData8(ChP)
 #define sSetData8(ChP) \
 { \
    (ChP)->TxControl[2] |= DATA8BIT; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -872,7 +885,7 @@ Call:	  sSetDTR(ChP)
 #define sSetDTR(ChP) \
 { \
    (ChP)->TxControl[3] |= SET_DTR; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -889,7 +902,7 @@ Warnings: This function has no effect unless parity is enabled with function
 #define sSetEvenParity(ChP) \
 { \
    (ChP)->TxControl[2] |= EVEN_PAR; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -906,7 +919,7 @@ Warnings: This function has no effect unless parity is enabled with function
 #define sSetOddParity(ChP) \
 { \
    (ChP)->TxControl[2] &= ~EVEN_PAR; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -918,7 +931,7 @@ Call:	  sSetRTS(ChP)
 #define sSetRTS(ChP) \
 { \
    (ChP)->TxControl[3] |= SET_RTS; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -944,7 +957,7 @@ Comments: An interrupt will be generated when the trigger level is reached
 { \
    (ChP)->RxControl[2] &= ~TRIG_MASK; \
    (ChP)->RxControl[2] |= LEVEL; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->RxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
 }
 
 /***************************************************************************
@@ -956,7 +969,7 @@ Call:	  sSetStop1(ChP)
 #define sSetStop1(ChP) \
 { \
    (ChP)->TxControl[2] &= ~STOP2; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -968,7 +981,7 @@ Call:	  sSetStop2(ChP)
 #define sSetStop2(ChP) \
 { \
    (ChP)->TxControl[2] |= STOP2; \
-   rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->TxControl)); \
+   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
 }
 
 /***************************************************************************
@@ -981,7 +994,7 @@ Comments: This function is used to start a Rx processor after it was
 	  will restart both the Rx processor and software input flow control.
 
 */
-#define sStartRxProcessor(ChP) rp_writech4(ChP,_INDX_ADDR,le32dec((ChP)->R))
+#define sStartRxProcessor(ChP) rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R))
 
 /***************************************************************************
 Function: sWriteTxByte
@@ -995,9 +1008,9 @@ Warnings: This function writes the data byte without checking to see if
 */
 #define sWriteTxByte(ChP,IO,DATA) rp_writech1(ChP,IO,DATA)
 
-int sReadAiopID(CONTROLLER_T *CtlP, int aiop);
-int sReadAiopNumChan(CONTROLLER_T *CtlP, int aiop);
-int sInitChan(	CONTROLLER_T *CtlP,
+int sReadAiopID(struct rp_softc *sc, int aiop);
+int sReadAiopNumChan(struct rp_softc *sc, int aiop);
+int sInitChan(struct rp_softc *sc,
 		CHANNEL_T *ChP,
 		int AiopNum,
 		int ChanNum);
@@ -1009,24 +1022,24 @@ void sFlushTxFIFO(CHANNEL_T *ChP);
 int sWriteTxPrioByte(CHANNEL_T *ChP, Byte_t Data);
 void sEnInterrupts(CHANNEL_T *ChP,Word_t Flags);
 void sDisInterrupts(CHANNEL_T *ChP,Word_t Flags);
-int rp_attachcommon(CONTROLLER_T *ctlp, int num_aiops, int num_ports);
-void rp_releaseresource(CONTROLLER_t *ctlp);
+int rp_attachcommon(struct rp_softc* sc, int num_aiops, int num_ports);
+void rp_releaseresource(struct rp_softc *sc);
 static __inline void
-rp_lock(CONTROLLER_T *CtlP)
+rp_lock(struct rp_softc *sc)
 {
-        if (CtlP->hwmtx_init != 0)
-                mtx_lock(&CtlP->hwmtx);
+	if (sc->hwmtx_init != 0)
+		mtx_enter(&sc->hwmtx);
 }
 static __inline void
-rp_unlock(CONTROLLER_T *CtlP)
+rp_unlock(struct rp_softc *sc)
 {
-        if (CtlP->hwmtx_init != 0)
-                mtx_unlock(&CtlP->hwmtx);
+	if (sc->hwmtx_init != 0)
+		mtx_leave(&sc->hwmtx);
 }
 
 #ifndef ROCKET_C
 extern Byte_t R[RDATASIZE];
-extern CONTROLLER_T sController[CTL_SIZE];
+extern struct rp_softc sController[CTL_SIZE];
 extern Byte_t sIRQMap[16];
 #endif
 extern Byte_t rp_sBitMapClrTbl[8];

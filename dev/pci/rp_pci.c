@@ -36,7 +36,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+//XXX: __FBSDID("$FreeBSD$");
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -45,18 +45,40 @@ __FBSDID("$FreeBSD$");
 #include <sys/tty.h>
 #include <sys/conf.h>
 #include <sys/kernel.h>
-#include <sys/module.h>
-#include <machine/resource.h>
+//XXX: #include <sys/module.h>
+//XXX: #include <machine/resource.h>
 #include <machine/bus.h>
-#include <sys/bus.h>
-#include <sys/rman.h>
+//XXX: #include <sys/bus.h>
+//XXX: #include <sys/rman.h>
+
+#include <dev/pci/pcivar.h>
+#include <dev/pci/pcireg.h>
+#include <dev/pci/pcidevs.h>
 
 #define ROCKET_C
-#include <dev/rp/rpreg.h>
-#include <dev/rp/rpvar.h>
+#include <dev/ic/rpreg.h>
+#include <dev/ic/rpvar.h>
 
 #include <dev/pci/pcireg.h>
 #include <dev/pci/pcivar.h>
+
+int rp_pci_match(struct device *, void *, void *);
+void rp_pci_attach(struct device *, struct device *, void *);
+
+struct rp_pci_softc {
+	struct rp_softc		sc_rp;		/* real softc */
+
+	bus_space_tag_t		sc_iot;		/* PLX i/o tag */
+	bus_space_handle_t	sc_ioh;		/* PLX i/o handle */
+};
+
+struct cfattach rp_pci_ca = {
+	sizeof(struct rp_pci_softc), rp_pci_match, rp_pci_attach
+};
+
+const struct pci_matchid rp_pci_devices[] = {
+	{ PCI_VENDOR_COMCORP, PCI_PRODUCT_COMCORP_ROCKETPORT_16 },
+};
 
 /* PCI IDs  */
 #define RP_VENDOR_ID		0x11FE
@@ -104,156 +126,168 @@ Return:   Byte_t: The controller interrupt status in the lower 4
 */
 #define sPCIGetControllerIntStatus(CTLP) ((rp_readio2(CTLP, 0, _PCI_INT_FUNC) >> 8) & 0x1f)
 
-static devclass_t rp_devclass;
+//XXX: static devclass_t rp_devclass;
 
-static int rp_pciprobe(device_t dev);
-static int rp_pciattach(device_t dev);
+int rp_pci_match(struct device *, void *, void *);
+void rp_pci_attach(struct device *, struct device *, void *);
 #ifdef notdef
-static int rp_pcidetach(device_t dev);
-static int rp_pcishutdown(device_t dev);
+static int rp_pcidetach(struct device dev);
+static int rp_pcishutdown(struct device dev);
 #endif /* notdef */
-static void rp_pcireleaseresource(CONTROLLER_t *ctlp);
-static int sPCIInitController( CONTROLLER_t *CtlP,
+//XXX: static void rp_pcireleaseresource(struct rp_softc *sc);
+static int sPCIInitController( struct rp_softc *sc,
 			       int AiopNum,
 			       int IRQNum,
 			       Byte_t Frequency,
 			       int PeriodicOnly,
 			       int VendorDevice);
-static rp_aiop2rid_t rp_pci_aiop2rid;
-static rp_aiop2off_t rp_pci_aiop2off;
-static rp_ctlmask_t rp_pci_ctlmask;
+//XXX: static rp_aiop2rid_t rp_pci_aiop2rid;
+//XXX: static rp_aiop2off_t rp_pci_aiop2off;
+//XXX: static rp_ctlmask_t rp_pci_ctlmask;
+
+static int rp_pci_aiop2rid(int aiop, int offset);		/* XXX */
+static int rp_pci_aiop2off(int aiop, int offset);		/* XXX */
+static unsigned char rp_pci_ctlmask(struct rp_softc *sc);	/* XXX */
 
 /*
  * The following functions are the pci-specific part
  * of rp driver.
  */
 
-static int
-rp_pciprobe(device_t dev)
+int
+rp_pci_match(struct device *parent, void *match, void *aux)
 {
-	char *s;
-
-	s = NULL;
-	if (pci_get_vendor(dev) == RP_VENDOR_ID)
-		s = "RocketPort PCI";
-
-	if (s != NULL) {
-		device_set_desc(dev, s);
-		return (BUS_PROBE_DEFAULT);
-	}
-
-	return (ENXIO);
+	return (pci_matchbyid((struct pci_attach_args *)aux, rp_pci_devices,
+	    nitems(rp_pci_devices)));
 }
 
-static int
-rp_pciattach(device_t dev)
+void
+rp_pci_attach(struct device *parent, struct device *self, void *aux)
 {
 	int	num_ports, num_aiops;
 	int	aiop;
-	CONTROLLER_t	*ctlp;
-	int	unit;
+	struct rp_softc *sc = (struct rp_softc *)self;
 	int	retval;
+	pcireg_t	maptype;
+	struct pci_attach_args	*pa = aux;
 
-	ctlp = device_get_softc(dev);
-	bzero(ctlp, sizeof(*ctlp));
-	ctlp->dev = dev;
-	unit = device_get_unit(dev);
-	ctlp->aiop2rid = rp_pci_aiop2rid;
-	ctlp->aiop2off = rp_pci_aiop2off;
-	ctlp->ctlmask = rp_pci_ctlmask;
+//XXX:	sc = device_get_softc(dev);
+//XXX:	bzero(sc, sizeof(*sc));
+//XXX:	sc->dev = dev;
+	sc->aiop2rid = rp_pci_aiop2rid;
+	sc->aiop2off = rp_pci_aiop2off;
+	sc->ctlmask = rp_pci_ctlmask;
 
+#if 0
 	/* The IO ports of AIOPs for a PCI controller are continuous. */
-	ctlp->io_num = 1;
-	ctlp->io_rid = malloc(sizeof(*(ctlp->io_rid)) * ctlp->io_num, M_DEVBUF, M_NOWAIT | M_ZERO);
-	ctlp->io = malloc(sizeof(*(ctlp->io)) * ctlp->io_num, M_DEVBUF, M_NOWAIT | M_ZERO);
-	if (ctlp->io_rid == NULL || ctlp->io == NULL) {
+	sc->io_num = 1;
+	sc->io_rid = malloc(sizeof(*(sc->io_rid)) * sc->io_num, M_DEVBUF, M_NOWAIT | M_ZERO);
+	sc->io = malloc(sizeof(*(sc->io)) * sc->io_num, M_DEVBUF, M_NOWAIT | M_ZERO);
+	if (sc->io_rid == NULL || sc->io == NULL) {
 		device_printf(dev, "rp_pciattach: Out of memory.\n");
 		retval = ENOMEM;
 		goto nogo;
 	}
+#endif
 
-	ctlp->bus_ctlp = NULL;
+	sc->bus_ctlp = NULL;
 
-	switch (pci_get_device(dev)) {
+//XXX:	switch (pci_get_device(dev)) {
+	switch (PCI_PRODUCT(pa->pa_id)) {
 	case RP_DEVICE_ID_UPCI_16:
 	case RP_DEVICE_ID_UPCI_32:
 	case RP_DEVICE_ID_UPCI_8O:
-		ctlp->io_rid[0] = PCIR_BAR(2);
+//XXX:		sc->io_rid[0] = PCIR_BAR(2);
 		break;
 	default:
-		ctlp->io_rid[0] = PCIR_BAR(0);
+//XXX:		sc->io_rid[0] = PCIR_BAR(0);
 		break;
 	}
-	ctlp->io[0] = bus_alloc_resource_any(dev, SYS_RES_IOPORT,
-		&ctlp->io_rid[0], RF_ACTIVE);
-	if(ctlp->io[0] == NULL) {
+
+#if 0
+	sc->io[0] = bus_alloc_resource_any(dev, SYS_RES_IOPORT,
+		&sc->io_rid[0], RF_ACTIVE);
+	if(sc->io[0] == NULL) {
 		device_printf(dev, "ioaddr mapping failed for RocketPort(PCI).\n");
 		retval = ENXIO;
 		goto nogo;
 	}
+#endif
 
-	num_aiops = sPCIInitController(ctlp,
-				       MAX_AIOPS_PER_BOARD, 0,
-				       FREQ_DIS, 0, pci_get_device(dev));
-
-	num_ports = 0;
-	for(aiop=0; aiop < num_aiops; aiop++) {
-		sResetAiopByNum(ctlp, aiop);
-		num_ports += sGetAiopNumChan(ctlp, aiop);
+printf("%s:%d\n", __func__, __LINE__);
+	maptype = pci_mapreg_type(pa->pa_pc, pa->pa_tag, RP_PCI_BAR_1);
+	if (pci_mapreg_map(pa, RP_PCI_BAR_1, maptype, 0, &sc->sc_iot,
+	    &sc->sc_ioh, NULL, &sc->sc_ios, 0) != 0) {
+		printf(" unable to map registers\n");
+		return;
 	}
 
-	retval = rp_attachcommon(ctlp, num_aiops, num_ports);
+printf("%s:%d\n", __func__, __LINE__);
+	num_aiops = sPCIInitController(sc,
+				       MAX_AIOPS_PER_BOARD, 0,
+//XXX:				       FREQ_DIS, 0, pci_get_device(dev));
+				       FREQ_DIS, 0, PCI_PRODUCT(pa->pa_id));
+
+printf("%s:%d\n", __func__, __LINE__);
+	num_ports = 0;
+	for(aiop=0; aiop < num_aiops; aiop++) {
+		sResetAiopByNum(sc, aiop);
+		num_ports += sGetAiopNumChan(sc, aiop);
+	}
+
+printf("%s:%d\n", __func__, __LINE__);
+	retval = rp_attachcommon(sc, num_aiops, num_ports);
 	if (retval != 0)
 		goto nogo;
 
-	return (0);
+	return;
 
 nogo:
-	rp_pcireleaseresource(ctlp);
+//XXX:	rp_pcireleaseresource(sc);
 
-	return (retval);
+	return;
 }
-
+#if 0
 static int
-rp_pcidetach(device_t dev)
+rp_pcidetach(struct device *dev)
 {
-	CONTROLLER_t	*ctlp;
+	struct rp_softc *sc;
 
-	ctlp = device_get_softc(dev);
-	rp_pcireleaseresource(ctlp);
+	sc = device_get_softc(dev);
+	rp_pcireleaseresource(sc);
 
 	return (0);
 }
 
 static int
-rp_pcishutdown(device_t dev)
+rp_pcishutdown(struct device *dev)
 {
-	CONTROLLER_t	*ctlp;
+	struct rp_softc *sc;
 
-	ctlp = device_get_softc(dev);
-	rp_pcireleaseresource(ctlp);
+	sc = device_get_softc(dev);
+	rp_pcireleaseresource(sc);
 
 	return (0);
 }
 
 static void
-rp_pcireleaseresource(CONTROLLER_t *ctlp)
+rp_pcireleaseresource(struct rp_softc *sc)
 {
-	rp_releaseresource(ctlp);
-	if (ctlp->io != NULL) {
-		if (ctlp->io[0] != NULL)
-			bus_release_resource(ctlp->dev, SYS_RES_IOPORT, ctlp->io_rid[0], ctlp->io[0]);
-		free(ctlp->io, M_DEVBUF);
-		ctlp->io = NULL;
+	rp_releaseresource(sc);
+	if (sc->io != NULL) {
+		if (sc->io[0] != NULL)
+			bus_release_resource(sc->dev, SYS_RES_IOPORT, sc->io_rid[0], sc->io[0]);
+		free(sc->io, M_DEVBUF);
+		sc->io = NULL;
 	}
-	if (ctlp->io_rid != NULL) {
-		free(ctlp->io_rid, M_DEVBUF);
-		ctlp->io = NULL;
+	if (sc->io_rid != NULL) {
+		free(sc->io_rid, M_DEVBUF);
+		sc->io = NULL;
 	}
 }
-
+#endif
 static int
-sPCIInitController( CONTROLLER_t *CtlP,
+sPCIInitController( struct rp_softc *CtlP,
 		    int AiopNum,
 		    int IRQNum,
 		    Byte_t Frequency,
@@ -340,11 +374,11 @@ rp_pci_aiop2off(int aiop, int offset)
 
 /* Read the int status for a PCI controller. */
 static unsigned char
-rp_pci_ctlmask(CONTROLLER_t *ctlp)
+rp_pci_ctlmask(struct rp_softc *sc)
 {
-	return sPCIGetControllerIntStatus(ctlp);
+	return sPCIGetControllerIntStatus(sc);
 }
-
+#if 0
 static device_method_t rp_pcimethods[] = {
 	/* Device interface */
 	DEVMETHOD(device_probe,		rp_pciprobe),
@@ -358,10 +392,11 @@ static device_method_t rp_pcimethods[] = {
 static driver_t rp_pcidriver = {
 	"rp",
 	rp_pcimethods,
-	sizeof(CONTROLLER_t),
+	sizeof(struct rp_softc),
 };
 
 /*
  * rp can be attached to a pci bus.
  */
 DRIVER_MODULE(rp, pci, rp_pcidriver, rp_devclass, 0, 0);
+#endif

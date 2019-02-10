@@ -39,13 +39,24 @@
  */
 
 #define RP_UNIT(x) dv_unit(x)
-#define RP_PORT(x) (dev2unit(x) & 0x3f)
+//#define RP_PORT(x) (dev2unit(x) & 0x3f)
 #define MAX_RP_PORTS	128
+
+/*
+ * Port number on card encoded in low 5 bits
+ * card number in next 2 bits (only space for 4 cards)
+ * high bit reserved for dialout flag
+ */
+#define RP_PORT(x) (minor(x) & 0xf)
+#define RP_CARD(x) ((minor(x) >> 5) & 3)
+//XXX: #define RP_DIALOUT(x) ((minor(x) & 0x80) != 0)
+//XXX: #define RP_DIALIN(x) (!RP_DIALOUT(x))
+
 
 
 struct rp_port {
 	struct tty *		rp_tty; /* cross reference */
-	struct callout		rp_timer;
+	struct timeout		rp_timer;
 
 	unsigned char		state;	/* state of dtr */
 
@@ -64,7 +75,7 @@ struct rp_port {
 	int			rp_cts:1;
 	int			rp_waiting:1;
 	int			rp_xmit_stopped:1;
-	CONTROLLER_t *		rp_ctlp;
+	struct rp_softc		*rp_ctlp;
 	CHANNEL_t		rp_channel;
 	unsigned char		TxBuf[TXFIFO_SIZE];
 	unsigned char		RxBuf[RXFIFO_SIZE];
