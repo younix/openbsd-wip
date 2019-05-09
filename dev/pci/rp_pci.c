@@ -214,7 +214,6 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 	}
 #endif
 
-printf("%s:%d\n", __func__, __LINE__);
 	maptype = pci_mapreg_type(pa->pa_pc, pa->pa_tag, RP_PCI_BAR_1);
 	if (pci_mapreg_map(pa, RP_PCI_BAR_1, maptype, 0, &sc->sc_iot,
 	    &sc->sc_ioh, NULL, &sc->sc_ios, 0) != 0) {
@@ -222,20 +221,17 @@ printf("%s:%d\n", __func__, __LINE__);
 		return;
 	}
 
-printf("%s:%d\n", __func__, __LINE__);
 	num_aiops = sPCIInitController(sc,
 				       MAX_AIOPS_PER_BOARD, 0,
 //XXX:				       FREQ_DIS, 0, pci_get_device(dev));
 				       FREQ_DIS, 0, PCI_PRODUCT(pa->pa_id));
 
-printf("%s:%d\n", __func__, __LINE__);
 	num_ports = 0;
 	for(aiop=0; aiop < num_aiops; aiop++) {
 		sResetAiopByNum(sc, aiop);
 		num_ports += sGetAiopNumChan(sc, aiop);
 	}
 
-printf("%s:%d\n", __func__, __LINE__);
 	retval = rp_attachcommon(sc, num_aiops, num_ports);
 	if (retval != 0)
 		goto nogo;

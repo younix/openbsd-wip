@@ -894,6 +894,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	ChanStatus = sGetChanStatus(&rp->rp_channel);
 
 //XXX:	callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_do_poll, rp);
+	timeout_set(&rp->rp_timer, rp_do_poll, rp);
 	timeout_add(&rp->rp_timer, POLL_INTERVAL);
 
 //XXX:	device_busy(rp->rp_ctlp->dev);
@@ -1003,9 +1004,25 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 	int port = RP_PORT(dev);
 	struct rp_softc *sc = rp_cd.cd_devs[card];
 	struct rp_port *rp = &sc->rp[port];
+	struct tty *tp = rp->rp_tty;
+	int error;
 
 //XXX:	struct rp_port	*rp;
 //XXX:	rp = tty_softc(dev);
+
+#ifdef RP_DEBUG
+	printf("%s port %d ioctl cmd 0x%lx data %p flag 0x%x\n",
+	    sc->dev.dv_xname, port, cmd, data, flag);
+#endif
+
+	error = (*linesw[tp->t_line].l_ioctl)(tp, cmd, data, flag, p);
+	if (error >= 0)
+		return (error);
+
+	error = ttioctl(tp, cmd, data, flag, p);
+	if (error >= 0)
+		return (error);
+
 	switch (cmd) {
 	case TIOCSBRK:
 		sSendBreak(&rp->rp_channel);
@@ -1013,7 +1030,33 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 	case TIOCCBRK:
 		sClrBreak(&rp->rp_channel);
 		return (0);
+	case TIOCSDTR:	/* DIR on */
+// TIOCM_DTR, DMBIS
+		printf("%s: TIOCSDTR\n", __func__);
+		return ENOTTY;
+	case TIOCCDTR:	/* DIR off */
+		printf("%s: TIOCCDTR\n", __func__);
+		return ENOTTY;
+	case TIOCMSET:	/* set new modem control line values */
+		printf("%s: TIOCMSET\n", __func__);
+		return ENOTTY;
+	case TIOCMBIS:	/* turn modem control bits on */
+		printf("%s: TIOCMBIS\n", __func__);
+		return ENOTTY;
+	case TIOCMBIC:	/* turn modem control bits off */
+		printf("%s: TIOCMBIC\n", __func__);
+		return ENOTTY;
+	case TIOCMGET:	/* get modem control/status line state */
+		printf("%s: TIOCMGET\n", __func__);
+		return ENOTTY;
+	case TIOCGFLAGS:/* set flags */
+		printf("%s: TIOCGFLAGS\n", __func__);
+		return ENOTTY;
+	case TIOCSFLAGS:/* get flags */
+		printf("%s: TIOCSFLAGS\n", __func__);
+		return ENOTTY;
 	default:
+printf("%s:%d cmd %lu\n", __func__, __LINE__, cmd);
 //XXX:		return ENOIOCTL;
 		return ENOTTY;
 	}
@@ -1219,7 +1262,7 @@ rpstart(struct tty *tp)
 	int	i, count, wcount;
 
 #ifdef RP_DEBUG
-	printf("%s port %d start, tty %p\n", sc->dev.dv_xname, port, tp);
+//	printf("%s port %d start, tty %p\n", sc->dev.dv_xname, port, tp);
 #endif
 
 //	rp = tty_softc(tp);
