@@ -1276,7 +1276,7 @@ rpstart(struct tty *tp)
 
 	xmit_fifo_room = TXFIFO_SIZE - sGetTxCnt(cp);
 //XXX:	count = ttydisc_getc(tp, &rp->TxBuf, xmit_fifo_room);
-	count = getc(&tp->t_outq);
+	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
 	if(xmit_fifo_room > 0) {
 		for( i = 0, wcount = count >> 1; wcount > 0; i += 2, wcount-- ) {
 			rp_writech2(cp, sGetTxRxDataIO(cp), lemtoh16(&rp->TxBuf[i]));
