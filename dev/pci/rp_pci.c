@@ -118,7 +118,7 @@ Function: sPCIGetControllerIntStatus
 Purpose:  Get the controller interrupt status
 Call:	  sPCIGetControllerIntStatus(CtlP)
 	  CONTROLLER_T *CtlP; Ptr to controller structure
-Return:   Byte_t: The controller interrupt status in the lower 4
+Return:   uint8_t: The controller interrupt status in the lower 4
 			 bits.	Bits 0 through 3 represent AIOP's 0
 			 through 3 respectively.  If a bit is set that
 			 AIOP is interrupting.	Bits 4 through 7 will
@@ -138,7 +138,7 @@ static int rp_pcishutdown(struct device dev);
 static int sPCIInitController( struct rp_softc *sc,
 			       int AiopNum,
 			       int IRQNum,
-			       Byte_t Frequency,
+			       uint8_t Frequency,
 			       int PeriodicOnly,
 			       int VendorDevice);
 //XXX: static rp_aiop2rid_t rp_pci_aiop2rid;
@@ -286,7 +286,7 @@ static int
 sPCIInitController( struct rp_softc *CtlP,
 		    int AiopNum,
 		    int IRQNum,
-		    Byte_t Frequency,
+		    uint8_t Frequency,
 		    int PeriodicOnly,
 		    int VendorDevice)
 {

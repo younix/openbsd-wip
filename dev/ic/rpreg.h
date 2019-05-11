@@ -38,15 +38,6 @@
  * Begin OS-specific defines -  rpreg.h - for RocketPort FreeBSD
  */
 
-typedef uint8_t Byte_t;
-typedef uint8_t ByteIO_t;
-
-typedef uint16_t Word_t;
-typedef uint16_t WordIO_t;
-
-typedef uint32_t DWord_t;
-typedef uint32_t DWordIO_t;
-
 #define rp_readio(size, sc, rid, offset) \
 	(bus_space_read_##size((sc)->sc_iot, (sc)->sc_ioh, offset))
 #define rp_readmultiio(size, sc, rid, offset, addr, count) \
@@ -407,27 +398,27 @@ struct rp_softc {
 struct CHANNEL_str
 {
 	struct rp_softc	*CtlP;
-	int		AiopNum;
-	int		ChanID;
-	int		ChanNum;
+	int		 AiopNum;
+	int		 ChanID;
+	int		 ChanNum;
 
-	Word_t		TxFIFO;
-	Word_t		TxFIFOPtrs;
-	Word_t		RxFIFO;
-	Word_t		RxFIFOPtrs;
-	Word_t		TxPrioCnt;
-	Word_t		TxPrioPtr;
-	Word_t		TxPrioBuf;
+	uint32_t	 TxFIFO;
+	uint32_t	 TxFIFOPtrs;
+	uint32_t	 RxFIFO;
+	uint32_t	 RxFIFOPtrs;
+	uint32_t	 TxPrioCnt;
+	uint32_t	 TxPrioPtr;
+	uint32_t	 TxPrioBuf;
 
-	Byte_t		R[RREGDATASIZE];
+	uint8_t		 R[RREGDATASIZE];
 
-	Byte_t		BaudDiv[4];
-	Byte_t		TxControl[4];
-	Byte_t		RxControl[4];
-	Byte_t		TxEnables[4];
-	Byte_t		TxCompare[4];
-	Byte_t		TxReplace1[4];
-	Byte_t		TxReplace2[4];
+	uint8_t		 BaudDiv[4];
+	uint8_t		 TxControl[4];
+	uint8_t		 RxControl[4];
+	uint8_t		 TxEnables[4];
+	uint8_t		 TxCompare[4];
+	uint8_t		 TxReplace1[4];
+	uint8_t		 TxReplace2[4];
 };
 
 typedef struct CHANNEL_str CHANNEL_T;
@@ -483,8 +474,8 @@ Call:	  sClrTxXOFF(ChP)
 */
 #define sClrTxXOFF(ChP) \
 { \
-   rp_writech1(ChP,_CMD_REG,TXOVERIDE | (Byte_t)(ChP)->ChanNum); \
-   rp_writech1(ChP,_CMD_REG,(Byte_t)(ChP)->ChanNum); \
+   rp_writech1(ChP,_CMD_REG,TXOVERIDE | (uint8_t)(ChP)->ChanNum); \
+   rp_writech1(ChP,_CMD_REG,(uint8_t)(ChP)->ChanNum); \
 }
 
 /***************************************************************************
@@ -679,7 +670,7 @@ Purpose:  Get the AIOP interrupt status
 Call:	  sGetAiopIntStatus(CtlP,AiopNum)
 	  CONTROLLER_T *CtlP; Ptr to controller structure
 	  int AiopNum; AIOP number
-Return:   Byte_t: The AIOP interrupt status.  Bits 0 through 7
+Return:   uint8_t: The AIOP interrupt status.  Bits 0 through 7
 			 represent channels 0 through 7 respectively.  If a
 			 bit is set that channel is interrupting.
 */
@@ -700,7 +691,7 @@ Function: sGetChanIntID
 Purpose:  Get a channel's interrupt identification byte
 Call:	  sGetChanIntID(ChP)
 	  CHANNEL_T *ChP; Ptr to channel structure
-Return:   Byte_t: The channel interrupt ID.  Can be any
+Return:   uint8_t: The channel interrupt ID.  Can be any
 	     combination of the following flags:
 		RXF_TRIG:     Rx FIFO trigger level interrupt
 		TXFIFO_MT:    Tx FIFO empty interrupt
@@ -726,7 +717,7 @@ Function: sGetChanStatus
 Purpose:  Get the channel status
 Call:	  sGetChanStatus(ChP)
 	  CHANNEL_T *ChP; Ptr to channel structure
-Return:   Word_t: The channel status.  Can be any combination of
+Return:   uint16_t: The channel status.  Can be any combination of
 	     the following flags:
 		LOW BYTE FLAGS
 		CTS_ACT:      CTS input asserted
@@ -754,7 +745,7 @@ Function: sGetChanStatusLo
 Purpose:  Get the low byte only of the channel status
 Call:	  sGetChanStatusLo(ChP)
 	  CHANNEL_T *ChP; Ptr to channel structure
-Return:   Byte_t: The channel status low byte.	Can be any combination
+Return:   uint8_t: The channel status low byte.	Can be any combination
 	     of the following flags:
 		CTS_ACT:      CTS input asserted
 		DSR_ACT:      DSR input asserted
@@ -781,7 +772,7 @@ Function: sGetTxCnt
 Purpose:  Get the number of data bytes in the Tx FIFO
 Call:	  sGetTxCnt(ChP)
 	  CHANNEL_T *ChP; Ptr to channel structure
-Return:   Byte_t: The number of data bytes in the Tx FIFO.
+Return:   uint8_t: The number of data bytes in the Tx FIFO.
 Comments: Byte read of count register is required to obtain Tx count.
 
 */
@@ -843,12 +834,12 @@ Function: sSetBaud
 Purpose:  Set baud rate
 Call:	  sSetBaud(ChP,Divisor)
 	  CHANNEL_T *ChP; Ptr to channel structure
-	  Word_t Divisor; 16 bit baud rate divisor for channel
+	  uint16_t Divisor; 16 bit baud rate divisor for channel
 */
 #define sSetBaud(ChP,DIVISOR) \
 { \
-   (ChP)->BaudDiv[2] = (Byte_t)(DIVISOR); \
-   (ChP)->BaudDiv[3] = (Byte_t)((DIVISOR) >> 8); \
+   (ChP)->BaudDiv[2] = (uint8_t)(DIVISOR); \
+   (ChP)->BaudDiv[3] = (uint8_t)((DIVISOR) >> 8); \
    rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->BaudDiv)); \
 }
 
@@ -939,7 +930,7 @@ Function: sSetRxTrigger
 Purpose:  Set the Rx FIFO trigger level
 Call:	  sSetRxProcessor(ChP,Level)
 	  CHANNEL_T *ChP; Ptr to channel structure
-	  Byte_t Level; Number of characters in Rx FIFO at which the
+	  uint8_t Level; Number of characters in Rx FIFO at which the
 	     interrupt will be generated.  Can be any of the following flags:
 
 	     TRIG_NO:	no trigger
@@ -1002,7 +993,7 @@ Purpose:  Write a transmit data byte to a channel.
 	  CHANNEL_T *ChP; Ptr to channel structure
 	  ByteIO_t io: Channel transmit register I/O address.  This can
 			   be obtained with sGetTxRxDataIO().
-	  Byte_t Data; The transmit data byte.
+	  uint8_t Data; The transmit data byte.
 Warnings: This function writes the data byte without checking to see if
 	  sMaxTxSize is exceeded in the Tx FIFO.
 */
@@ -1014,14 +1005,14 @@ int sInitChan(struct rp_softc *sc,
 		CHANNEL_T *ChP,
 		int AiopNum,
 		int ChanNum);
-Byte_t sGetRxErrStatus(CHANNEL_T *ChP);
+uint8_t sGetRxErrStatus(CHANNEL_T *ChP);
 void sStopRxProcessor(CHANNEL_T *ChP);
 void sStopSWInFlowCtl(CHANNEL_T *ChP);
 void sFlushRxFIFO(CHANNEL_T *ChP);
 void sFlushTxFIFO(CHANNEL_T *ChP);
-int sWriteTxPrioByte(CHANNEL_T *ChP, Byte_t Data);
-void sEnInterrupts(CHANNEL_T *ChP,Word_t Flags);
-void sDisInterrupts(CHANNEL_T *ChP,Word_t Flags);
+int sWriteTxPrioByte(CHANNEL_T *ChP, uint8_t Data);
+void sEnInterrupts(CHANNEL_T *ChP,uint16_t Flags);
+void sDisInterrupts(CHANNEL_T *ChP,uint16_t Flags);
 int rp_attachcommon(struct rp_softc* sc, int num_aiops, int num_ports);
 void rp_releaseresource(struct rp_softc *sc);
 static __inline void
@@ -1038,9 +1029,9 @@ rp_unlock(struct rp_softc *sc)
 }
 
 #ifndef ROCKET_C
-extern Byte_t R[RDATASIZE];
-extern struct rp_softc sController[CTL_SIZE];
-extern Byte_t sIRQMap[16];
+extern uint8_t R[RDATASIZE];
+//XXX: extern struct rp_softc sController[CTL_SIZE];
+extern uint8_t sIRQMap[16];
 #endif
-extern Byte_t rp_sBitMapClrTbl[8];
-extern Byte_t rp_sBitMapSetTbl[8];
+extern uint8_t rp_sBitMapClrTbl[8];
+extern uint8_t rp_sBitMapSetTbl[8];

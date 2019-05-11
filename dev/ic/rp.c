@@ -61,7 +61,7 @@
 
 static const char RocketPortVersion[] = "3.02";
 
-static Byte_t RData[RDATASIZE] =
+static uint8_t RData[RDATASIZE] =
 {
    0x00, 0x09, 0xf6, 0x82,
    0x02, 0x09, 0x86, 0xfb,
@@ -83,7 +83,7 @@ static Byte_t RData[RDATASIZE] =
    0x22, 0x09, 0x0a, 0x0a
 };
 
-static Byte_t RRegData[RREGDATASIZE]=
+static uint8_t RRegData[RREGDATASIZE]=
 {
    0x00, 0x09, 0xf6, 0x82,	       /* 00: Stop Rx processor */
    0x08, 0x09, 0x8a, 0x13,	       /* 04: Tx software flow control */
@@ -108,12 +108,12 @@ Byte_t sIRQMap[16] =
 };
 #endif
 
-Byte_t rp_sBitMapClrTbl[8] =
+uint8_t rp_sBitMapClrTbl[8] =
 {
    0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f
 };
 
-Byte_t rp_sBitMapSetTbl[8] =
+uint8_t rp_sBitMapSetTbl[8] =
 {
    0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80
 };
@@ -138,7 +138,7 @@ Warnings: No context switches are allowed while executing this function.
 */
 int sReadAiopID(struct rp_softc *sc, int aiop)
 {
-   Byte_t AiopID;		/* ID byte from AIOP */
+   uint8_t AiopID;		/* ID byte from AIOP */
 
    rp_writeaiop1(sc, aiop, _CMD_REG, RESET_ALL);     /* reset AIOP */
    rp_writeaiop1(sc, aiop, _CMD_REG, 0x0);
@@ -166,7 +166,7 @@ Warnings: No context switches are allowed while executing this function.
 */
 int sReadAiopNumChan(struct rp_softc *sc, int aiop)
 {
-   Word_t x, y;
+   uint16_t x, y;
 
    rp_writeaiop4(sc, aiop, _INDX_ADDR,0x12340000L); /* write to chan 0 SRAM */
    rp_writeaiop2(sc, aiop, _INDX_ADDR,0);	   /* read from SRAM, chan 0 */
@@ -200,8 +200,8 @@ int sInitChan(struct rp_softc *sc,
 		int ChanNum)
 {
    int i, ChOff;
-   Byte_t *ChR;
-   static Byte_t R[4];
+   uint8_t *ChR;
+   static uint8_t R[4];
 
    if(ChanNum >= sc->AiopNumChan[AiopNum])
       return(FALSE);		       /* exceeds num chans in AIOP */
@@ -232,46 +232,46 @@ int sInitChan(struct rp_softc *sc,
    }
 
    /* Indexed registers */
-   ChOff = (Word_t)ChanNum * 0x1000;
+   ChOff = (uint16_t)ChanNum * 0x1000;
 
-   ChP->BaudDiv[0] = (Byte_t)(ChOff + _BAUD);
-   ChP->BaudDiv[1] = (Byte_t)((ChOff + _BAUD) >> 8);
-   ChP->BaudDiv[2] = (Byte_t)BRD9600;
-   ChP->BaudDiv[3] = (Byte_t)(BRD9600 >> 8);
+   ChP->BaudDiv[0] = (uint8_t)(ChOff + _BAUD);
+   ChP->BaudDiv[1] = (uint8_t)((ChOff + _BAUD) >> 8);
+   ChP->BaudDiv[2] = (uint8_t)RP_BRD9600;
+   ChP->BaudDiv[3] = (uint8_t)(RP_BRD9600 >> 8);
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->BaudDiv));
 
-   ChP->TxControl[0] = (Byte_t)(ChOff + _TX_CTRL);
-   ChP->TxControl[1] = (Byte_t)((ChOff + _TX_CTRL) >> 8);
+   ChP->TxControl[0] = (uint8_t)(ChOff + _TX_CTRL);
+   ChP->TxControl[1] = (uint8_t)((ChOff + _TX_CTRL) >> 8);
    ChP->TxControl[2] = 0;
    ChP->TxControl[3] = 0;
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
 
-   ChP->RxControl[0] = (Byte_t)(ChOff + _RX_CTRL);
-   ChP->RxControl[1] = (Byte_t)((ChOff + _RX_CTRL) >> 8);
+   ChP->RxControl[0] = (uint8_t)(ChOff + _RX_CTRL);
+   ChP->RxControl[1] = (uint8_t)((ChOff + _RX_CTRL) >> 8);
    ChP->RxControl[2] = 0;
    ChP->RxControl[3] = 0;
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
 
-   ChP->TxEnables[0] = (Byte_t)(ChOff + _TX_ENBLS);
-   ChP->TxEnables[1] = (Byte_t)((ChOff + _TX_ENBLS) >> 8);
+   ChP->TxEnables[0] = (uint8_t)(ChOff + _TX_ENBLS);
+   ChP->TxEnables[1] = (uint8_t)((ChOff + _TX_ENBLS) >> 8);
    ChP->TxEnables[2] = 0;
    ChP->TxEnables[3] = 0;
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxEnables));
 
-   ChP->TxCompare[0] = (Byte_t)(ChOff + _TXCMP1);
-   ChP->TxCompare[1] = (Byte_t)((ChOff + _TXCMP1) >> 8);
+   ChP->TxCompare[0] = (uint8_t)(ChOff + _TXCMP1);
+   ChP->TxCompare[1] = (uint8_t)((ChOff + _TXCMP1) >> 8);
    ChP->TxCompare[2] = 0;
    ChP->TxCompare[3] = 0;
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxCompare));
 
-   ChP->TxReplace1[0] = (Byte_t)(ChOff + _TXREP1B1);
-   ChP->TxReplace1[1] = (Byte_t)((ChOff + _TXREP1B1) >> 8);
+   ChP->TxReplace1[0] = (uint8_t)(ChOff + _TXREP1B1);
+   ChP->TxReplace1[1] = (uint8_t)((ChOff + _TXREP1B1) >> 8);
    ChP->TxReplace1[2] = 0;
    ChP->TxReplace1[3] = 0;
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxReplace1));
 
-   ChP->TxReplace2[0] = (Byte_t)(ChOff + _TXREP2);
-   ChP->TxReplace2[1] = (Byte_t)((ChOff + _TXREP2) >> 8);
+   ChP->TxReplace2[0] = (uint8_t)(ChOff + _TXREP2);
+   ChP->TxReplace2[1] = (uint8_t)((ChOff + _TXREP2) >> 8);
    ChP->TxReplace2[2] = 0;
    ChP->TxReplace2[3] = 0;
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxReplace2));
@@ -279,15 +279,15 @@ int sInitChan(struct rp_softc *sc,
    ChP->TxFIFOPtrs = ChOff + _TXF_OUTP;
    ChP->TxFIFO = ChOff + _TX_FIFO;
 
-   rp_writech1(ChP,_CMD_REG,(Byte_t)ChanNum | RESTXFCNT); /* apply reset Tx FIFO count */
-   rp_writech1(ChP,_CMD_REG,(Byte_t)ChanNum);  /* remove reset Tx FIFO count */
+   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum | RESTXFCNT); /* apply reset Tx FIFO count */
+   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum);  /* remove reset Tx FIFO count */
    rp_writech2(ChP,_INDX_ADDR,ChP->TxFIFOPtrs); /* clear Tx in/out ptrs */
    rp_writech2(ChP,_INDX_DATA,0);
    ChP->RxFIFOPtrs = ChOff + _RXF_OUTP;
    ChP->RxFIFO = ChOff + _RX_FIFO;
 
-   rp_writech1(ChP,_CMD_REG,(Byte_t)ChanNum | RESRXFCNT); /* apply reset Rx FIFO count */
-   rp_writech1(ChP,_CMD_REG,(Byte_t)ChanNum);  /* remove reset Rx FIFO count */
+   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum | RESRXFCNT); /* apply reset Rx FIFO count */
+   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum);  /* remove reset Rx FIFO count */
    rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs); /* clear Rx out ptr */
    rp_writech2(ChP,_INDX_DATA,0);
    rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs + 2); /* clear Rx in ptr */
@@ -324,7 +324,7 @@ Warnings: No context switches are allowed while executing this function.
 */
 void sStopRxProcessor(CHANNEL_T *ChP)
 {
-   Byte_t R[4];
+   uint8_t R[4];
 
    R[0] = ChP->R[0];
    R[1] = ChP->R[1];
@@ -350,7 +350,7 @@ Warnings: No context switches are allowed while executing this function.
 void sFlushRxFIFO(CHANNEL_T *ChP)
 {
    int i;
-   Byte_t Ch;			/* channel number within AIOP */
+   uint8_t Ch;			/* channel number within AIOP */
    int RxFIFOEnabled;		       /* TRUE if Rx FIFO enabled */
 
    if(sGetRxCnt(ChP) == 0)	       /* Rx FIFO empty */
@@ -365,7 +365,7 @@ void sFlushRxFIFO(CHANNEL_T *ChP)
 	 rp_readch1(ChP,_INT_CHAN);		/* depends on bus i/o timing */
    }
    sGetChanStatus(ChP); 	 /* clear any pending Rx errors in chan stat */
-   Ch = (Byte_t)sGetChanNum(ChP);
+   Ch = (uint8_t)sGetChanNum(ChP);
    rp_writech1(ChP,_CMD_REG,Ch | RESRXFCNT);     /* apply reset Rx FIFO count */
    rp_writech1(ChP,_CMD_REG,Ch);		       /* remove reset Rx FIFO count */
    rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs); /* clear Rx out ptr */
@@ -393,7 +393,7 @@ Warnings: No context switches are allowed while executing this function.
 void sFlushTxFIFO(CHANNEL_T *ChP)
 {
    int i;
-   Byte_t Ch;			/* channel number within AIOP */
+   uint8_t Ch;			/* channel number within AIOP */
    int TxEnabled;		       /* TRUE if transmitter enabled */
 
    if(sGetTxCnt(ChP) == 0)	       /* Tx FIFO empty */
@@ -408,7 +408,7 @@ void sFlushTxFIFO(CHANNEL_T *ChP)
    sStopRxProcessor(ChP);	       /* stop Rx processor */
    for(i = 0; i < 4000/200; i++)	 /* delay 4 uS to allow proc to stop */
       rp_readch1(ChP,_INT_CHAN);	/* depends on bus i/o timing */
-   Ch = (Byte_t)sGetChanNum(ChP);
+   Ch = (uint8_t)sGetChanNum(ChP);
    rp_writech1(ChP,_CMD_REG,Ch | RESTXFCNT);     /* apply reset Tx FIFO count */
    rp_writech1(ChP,_CMD_REG,Ch);		       /* remove reset Tx FIFO count */
    rp_writech2(ChP,_INDX_ADDR,ChP->TxFIFOPtrs); /* clear Tx in/out ptrs */
@@ -423,7 +423,7 @@ Function: sWriteTxPrioByte
 Purpose:  Write a byte of priority transmit data to a channel
 Call:	  sWriteTxPrioByte(ChP,Data)
 	  CHANNEL_T *ChP; Ptr to channel structure
-	  Byte_t Data; The transmit data byte
+	  uint8_t Data; The transmit data byte
 
 Return:   int: 1 if the bytes is successfully written, otherwise 0.
 
@@ -431,9 +431,9 @@ Comments: The priority byte is transmitted before any data in the Tx FIFO.
 
 Warnings: No context switches are allowed while executing this function.
 */
-int sWriteTxPrioByte(CHANNEL_T *ChP, Byte_t Data)
+int sWriteTxPrioByte(CHANNEL_T *ChP, uint8_t Data)
 {
-   Byte_t DWBuf[4];		/* buffer for double word writes */
+   uint8_t DWBuf[4];		/* buffer for double word writes */
 
    if(sGetTxCnt(ChP) > 1)	       /* write it to Tx priority buffer */
    {
@@ -465,7 +465,7 @@ Function: sEnInterrupts
 Purpose:  Enable one or more interrupts for a channel
 Call:	  sEnInterrupts(ChP,Flags)
 	  CHANNEL_T *ChP; Ptr to channel structure
-	  Word_t Flags: Interrupt enable flags, can be any combination
+	  uint16_t Flags: Interrupt enable flags, can be any combination
 	     of the following flags:
 		TXINT_EN:   Interrupt on Tx FIFO empty
 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
@@ -492,16 +492,16 @@ Comments: If an interrupt enable flag is set in Flags, that interrupt will be
 	  enable channel interrupts.  This would allow the global interrupt
 	  status register to be used to determine which AIOPs need service.
 */
-void sEnInterrupts(CHANNEL_T *ChP,Word_t Flags)
+void sEnInterrupts(CHANNEL_T *ChP,uint16_t Flags)
 {
-   Byte_t Mask; 		/* Interrupt Mask Register */
+   uint8_t Mask; 		/* Interrupt Mask Register */
 
    ChP->RxControl[2] |=
-      ((Byte_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+      ((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
 
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
 
-   ChP->TxControl[2] |= ((Byte_t)Flags & TXINT_EN);
+   ChP->TxControl[2] |= ((uint8_t)Flags & TXINT_EN);
 
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
 
@@ -517,7 +517,7 @@ Function: sDisInterrupts
 Purpose:  Disable one or more interrupts for a channel
 Call:	  sDisInterrupts(ChP,Flags)
 	  CHANNEL_T *ChP; Ptr to channel structure
-	  Word_t Flags: Interrupt flags, can be any combination
+	  uint16_t Flags: Interrupt flags, can be any combination
 	     of the following flags:
 		TXINT_EN:   Interrupt on Tx FIFO empty
 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
@@ -537,14 +537,14 @@ Comments: If an interrupt flag is set in Flags, that interrupt will be
 	  this channel's bit from being set in the AIOP's Interrupt Channel
 	  Register.
 */
-void sDisInterrupts(CHANNEL_T *ChP,Word_t Flags)
+void sDisInterrupts(CHANNEL_T *ChP,uint16_t Flags)
 {
-   Byte_t Mask; 		/* Interrupt Mask Register */
+   uint8_t Mask; 		/* Interrupt Mask Register */
 
    ChP->RxControl[2] &=
-	 ~((Byte_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+	 ~((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
-   ChP->TxControl[2] &= ~((Byte_t)Flags & TXINT_EN);
+   ChP->TxControl[2] &= ~((uint8_t)Flags & TXINT_EN);
    rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
 
    if(Flags & CHANINT_EN)
