@@ -347,7 +347,7 @@
 #endif
 
 struct rp_softc;
-struct CHANNEL_str;
+struct rp_chan;
 
 /* The types of bus-specific methods */
 typedef int rp_aiop2rid_t(int, int);
@@ -388,7 +388,7 @@ struct rp_softc {
 };
 
 /* Channel level information structure */
-struct CHANNEL_str
+struct rp_chan
 {
 	struct rp_softc	*CtlP;
 	int		 AiopNum;
@@ -423,7 +423,7 @@ struct CHANNEL_str
 Function: sClrBreak
 Purpose:  Stop sending a transmit BREAK signal
 Call:	  sClrBreak(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sClrBreak(ChP) \
 { \
@@ -435,7 +435,7 @@ Call:	  sClrBreak(ChP)
 Function: sClrDTR
 Purpose:  Clr the DTR output
 Call:	  sClrDTR(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sClrDTR(ChP) \
 { \
@@ -447,7 +447,7 @@ Call:	  sClrDTR(ChP)
 Function: sClrRTS
 Purpose:  Clr the RTS output
 Call:	  sClrRTS(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sClrRTS(ChP) \
 { \
@@ -459,7 +459,7 @@ Call:	  sClrRTS(ChP)
 Function: sClrTxXOFF
 Purpose:  Clear any existing transmit software flow control off condition
 Call:	  sClrTxXOFF(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sClrTxXOFF(ChP) \
 { \
@@ -471,7 +471,7 @@ Call:	  sClrTxXOFF(ChP)
 Function: sDisCTSFlowCtl
 Purpose:  Disable output flow control using CTS
 Call:	  sDisCTSFlowCtl(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sDisCTSFlowCtl(ChP) \
 { \
@@ -483,7 +483,7 @@ Call:	  sDisCTSFlowCtl(ChP)
 Function: DisParity
 Purpose:  Disable parity
 Call:	  sDisParity(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: Function sSetParity() can be used in place of functions sEnParity(),
 	  sDisParity(), sSetOddParity(), and sSetEvenParity().
 */
@@ -497,7 +497,7 @@ Comments: Function sSetParity() can be used in place of functions sEnParity(),
 Function: sDisRxFIFO
 Purpose:  Disable Rx FIFO
 Call:	  sDisRxFIFO(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sDisRxFIFO(ChP) \
 { \
@@ -509,7 +509,7 @@ Call:	  sDisRxFIFO(ChP)
 Function: sDisRxStatusMode
 Purpose:  Disable the Rx status mode
 Call:	  sDisRxStatusMode(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: This takes the channel out of the receive status mode.  All
 	  subsequent reads of receive data using sReadRxWord() will return
 	  two data bytes.
@@ -520,7 +520,7 @@ Comments: This takes the channel out of the receive status mode.  All
 Function: sDisTransmit
 Purpose:  Disable transmit
 Call:	  sDisTransmit(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 	  This disables movement of Tx data from the Tx FIFO into the 1 byte
 	  Tx buffer.  Therefore there could be up to a 2 byte latency
 	  between the time sDisTransmit() is called and the transmit buffer
@@ -536,7 +536,7 @@ Call:	  sDisTransmit(ChP)
 Function: sDisTxSoftFlowCtl
 Purpose:  Disable Tx Software Flow Control
 Call:	  sDisTxSoftFlowCtl(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sDisTxSoftFlowCtl(ChP) \
 { \
@@ -548,7 +548,7 @@ Call:	  sDisTxSoftFlowCtl(ChP)
 Function: sEnCTSFlowCtl
 Purpose:  Enable output flow control using CTS
 Call:	  sEnCTSFlowCtl(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sEnCTSFlowCtl(ChP) \
 { \
@@ -560,7 +560,7 @@ Call:	  sEnCTSFlowCtl(ChP)
 Function: EnParity
 Purpose:  Enable parity
 Call:	  sEnParity(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: Function sSetParity() can be used in place of functions sEnParity(),
 	  sDisParity(), sSetOddParity(), and sSetEvenParity().
 
@@ -600,7 +600,7 @@ Return: void
 Function: sEnRxFIFO
 Purpose:  Enable Rx FIFO
 Call:	  sEnRxFIFO(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sEnRxFIFO(ChP) \
 { \
@@ -612,7 +612,7 @@ Call:	  sEnRxFIFO(ChP)
 Function: sEnRxProcessor
 Purpose:  Enable the receive processor
 Call:	  sEnRxProcessor(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: This function is used to start the receive processor.  When
 	  the channel is in the reset state the receive processor is not
 	  running.  This is done to prevent the receive processor from
@@ -633,7 +633,7 @@ Warnings: This function must be called after valid microcode has been
 Function: sEnRxStatusMode
 Purpose:  Enable the Rx status mode
 Call:	  sEnRxStatusMode(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: This places the channel in the receive status mode.  All subsequent
 	  reads of receive data using sReadRxWord() will return a data byte
 	  in the low word and a status byte in the high word.
@@ -645,7 +645,7 @@ Comments: This places the channel in the receive status mode.  All subsequent
 Function: sEnTransmit
 Purpose:  Enable transmit
 Call:	  sEnTransmit(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sEnTransmit(ChP) \
 { \
@@ -679,7 +679,7 @@ Return:   int: The number of channels supported by the AIOP
 Function: sGetChanIntID
 Purpose:  Get a channel's interrupt identification byte
 Call:	  sGetChanIntID(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Return:   uint8_t: The channel interrupt ID.  Can be any
 	     combination of the following flags:
 		RXF_TRIG:     Rx FIFO trigger level interrupt
@@ -695,7 +695,7 @@ Return:   uint8_t: The channel interrupt ID.  Can be any
 Function: sGetChanNum
 Purpose:  Get the number of a channel within an AIOP
 Call:	  sGetChanNum(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Return:   int: Channel number within AIOP, or NULLCHAN if channel does
 	       not exist.
 */
@@ -705,7 +705,7 @@ Return:   int: Channel number within AIOP, or NULLCHAN if channel does
 Function: sGetChanStatus
 Purpose:  Get the channel status
 Call:	  sGetChanStatus(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Return:   uint16_t: The channel status.  Can be any combination of
 	     the following flags:
 		LOW BYTE FLAGS
@@ -733,7 +733,7 @@ Warnings: This function will clear the high byte flags in the Channel
 Function: sGetChanStatusLo
 Purpose:  Get the low byte only of the channel status
 Call:	  sGetChanStatusLo(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Return:   uint8_t: The channel status low byte.	Can be any combination
 	     of the following flags:
 		CTS_ACT:      CTS input asserted
@@ -749,7 +749,7 @@ Return:   uint8_t: The channel status low byte.	Can be any combination
 Function: sGetRxCnt
 Purpose:  Get the number of data bytes in the Rx FIFO
 Call:	  sGetRxCnt(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Return:   int: The number of data bytes in the Rx FIFO.
 Comments: Byte read of count register is required to obtain Rx count.
 
@@ -760,7 +760,7 @@ Comments: Byte read of count register is required to obtain Rx count.
 Function: sGetTxCnt
 Purpose:  Get the number of data bytes in the Tx FIFO
 Call:	  sGetTxCnt(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Return:   uint8_t: The number of data bytes in the Tx FIFO.
 Comments: Byte read of count register is required to obtain Tx count.
 
@@ -771,7 +771,7 @@ Comments: Byte read of count register is required to obtain Tx count.
 Function: sGetTxRxDataIO
 Purpose:  Get the offset of a channel's TxRx Data register
 Call:	  sGetTxRxDataIO(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Return:   WordIO_t: offset of a channel's TxRx Data register
 */
 #define sGetTxRxDataIO(ChP) CHNOFF_TXRXDATA(ChP)
@@ -780,7 +780,7 @@ Return:   WordIO_t: offset of a channel's TxRx Data register
 Function: sInitChanDefaults
 Purpose:  Initialize a channel structure to its default state.
 Call:	  sInitChanDefaults(ChP)
-	  struct CHANNEL_str *ChP; Ptr to the channel structure
+	  struct rp_chan *ChP; Ptr to the channel structure
 Comments: This function must be called once for every channel structure
 	  that exists before any other SSCI calls can be made.
 
@@ -810,7 +810,7 @@ Call:	  sResetAiopByNum(CTLP,AIOPNUM)
 Function: sSendBreak
 Purpose:  Send a transmit BREAK signal
 Call:	  sSendBreak(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sSendBreak(ChP) \
 { \
@@ -822,7 +822,7 @@ Call:	  sSendBreak(ChP)
 Function: sSetBaud
 Purpose:  Set baud rate
 Call:	  sSetBaud(ChP,Divisor)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 	  uint16_t Divisor; 16 bit baud rate divisor for channel
 */
 #define sSetBaud(ChP,DIVISOR) \
@@ -836,7 +836,7 @@ Call:	  sSetBaud(ChP,Divisor)
 Function: sSetData7
 Purpose:  Set data bits to 7
 Call:	  sSetData7(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sSetData7(ChP) \
 { \
@@ -848,7 +848,7 @@ Call:	  sSetData7(ChP)
 Function: sSetData8
 Purpose:  Set data bits to 8
 Call:	  sSetData8(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sSetData8(ChP) \
 { \
@@ -860,7 +860,7 @@ Call:	  sSetData8(ChP)
 Function: sSetDTR
 Purpose:  Set the DTR output
 Call:	  sSetDTR(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sSetDTR(ChP) \
 { \
@@ -872,7 +872,7 @@ Call:	  sSetDTR(ChP)
 Function: sSetEvenParity
 Purpose:  Set even parity
 Call:	  sSetEvenParity(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: Function sSetParity() can be used in place of functions sEnParity(),
 	  sDisParity(), sSetOddParity(), and sSetEvenParity().
 
@@ -889,7 +889,7 @@ Warnings: This function has no effect unless parity is enabled with function
 Function: sSetOddParity
 Purpose:  Set odd parity
 Call:	  sSetOddParity(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: Function sSetParity() can be used in place of functions sEnParity(),
 	  sDisParity(), sSetOddParity(), and sSetEvenParity().
 
@@ -906,7 +906,7 @@ Warnings: This function has no effect unless parity is enabled with function
 Function: sSetRTS
 Purpose:  Set the RTS output
 Call:	  sSetRTS(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sSetRTS(ChP) \
 { \
@@ -918,7 +918,7 @@ Call:	  sSetRTS(ChP)
 Function: sSetRxTrigger
 Purpose:  Set the Rx FIFO trigger level
 Call:	  sSetRxProcessor(ChP,Level)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 	  uint8_t Level; Number of characters in Rx FIFO at which the
 	     interrupt will be generated.  Can be any of the following flags:
 
@@ -944,7 +944,7 @@ Comments: An interrupt will be generated when the trigger level is reached
 Function: sSetStop1
 Purpose:  Set stop bits to 1
 Call:	  sSetStop1(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sSetStop1(ChP) \
 { \
@@ -956,7 +956,7 @@ Call:	  sSetStop1(ChP)
 Function: sSetStop2
 Purpose:  Set stop bits to 2
 Call:	  sSetStop2(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 */
 #define sSetStop2(ChP) \
 { \
@@ -968,7 +968,7 @@ Call:	  sSetStop2(ChP)
 Function: sStartRxProcessor
 Purpose:  Start a channel's receive processor
 Call:	  sStartRxProcessor(ChP)
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 Comments: This function is used to start a Rx processor after it was
 	  stopped with sStopRxProcessor() or sStopSWInFlowCtl().  It
 	  will restart both the Rx processor and software input flow control.
@@ -979,7 +979,7 @@ Comments: This function is used to start a Rx processor after it was
 /***************************************************************************
 Function: sWriteTxByte
 Purpose:  Write a transmit data byte to a channel.
-	  struct CHANNEL_str *ChP; Ptr to channel structure
+	  struct rp_chan *ChP; Ptr to channel structure
 	  ByteIO_t io: Channel transmit register I/O address.  This can
 			   be obtained with sGetTxRxDataIO().
 	  uint8_t Data; The transmit data byte.
@@ -991,17 +991,17 @@ Warnings: This function writes the data byte without checking to see if
 int sReadAiopID(struct rp_softc *sc, int aiop);
 int sReadAiopNumChan(struct rp_softc *sc, int aiop);
 int sInitChan(struct rp_softc *sc,
-		struct CHANNEL_str *ChP,
+		struct rp_chan *ChP,
 		int AiopNum,
 		int ChanNum);
-uint8_t sGetRxErrStatus(struct CHANNEL_str *ChP);
-void sStopRxProcessor(struct CHANNEL_str *ChP);
-void sStopSWInFlowCtl(struct CHANNEL_str *ChP);
-void sFlushRxFIFO(struct CHANNEL_str *ChP);
-void sFlushTxFIFO(struct CHANNEL_str *ChP);
-int sWriteTxPrioByte(struct CHANNEL_str *ChP, uint8_t Data);
-void sEnInterrupts(struct CHANNEL_str *ChP,uint16_t Flags);
-void sDisInterrupts(struct CHANNEL_str *ChP,uint16_t Flags);
+uint8_t sGetRxErrStatus(struct rp_chan *ChP);
+void sStopRxProcessor(struct rp_chan *ChP);
+void sStopSWInFlowCtl(struct rp_chan *ChP);
+void sFlushRxFIFO(struct rp_chan *ChP);
+void sFlushTxFIFO(struct rp_chan *ChP);
+int sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data);
+void sEnInterrupts(struct rp_chan *ChP,uint16_t Flags);
+void sDisInterrupts(struct rp_chan *ChP,uint16_t Flags);
 int rp_attachcommon(struct rp_softc* sc, int num_aiops, int num_ports);
 void rp_releaseresource(struct rp_softc *sc);
 static __inline void
