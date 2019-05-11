@@ -125,14 +125,14 @@ Return:   uint8_t: The controller interrupt status in the lower 4
 int rp_pci_match(struct device *, void *, void *);
 void rp_pci_attach(struct device *, struct device *, void *);
 #ifdef notdef
-static int rp_pcidetach(struct device dev);
-static int rp_pcishutdown(struct device dev);
+static int rp_pcidetach(struct device);
+static int rp_pcishutdown(struct device);
 #endif /* notdef */
 static int sPCIInitController(struct rp_softc *, int, int, uint8_t, int, int);
 
-static int rp_pci_aiop2rid(int aiop, int offset);		/* XXX */
-static int rp_pci_aiop2off(int aiop, int offset);		/* XXX */
-static unsigned char rp_pci_ctlmask(struct rp_softc *sc);	/* XXX */
+static int rp_pci_aiop2rid(int, int);			/* XXX */
+static int rp_pci_aiop2off(int, int);			/* XXX */
+static unsigned char rp_pci_ctlmask(struct rp_softc *);	/* XXX */
 
 /*
  * The following functions are the pci-specific part
@@ -225,12 +225,8 @@ nogo:
 }
 
 static int
-sPCIInitController( struct rp_softc *CtlP,
-		    int AiopNum,
-		    int IRQNum,
-		    uint8_t Frequency,
-		    int PeriodicOnly,
-		    int VendorDevice)
+sPCIInitController(struct rp_softc *CtlP, int AiopNum, int IRQNum,
+    uint8_t Frequency, int PeriodicOnly, int VendorDevice)
 {
 	int		i;
 

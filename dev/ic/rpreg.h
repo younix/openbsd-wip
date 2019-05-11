@@ -980,21 +980,18 @@ Warnings: This function writes the data byte without checking to see if
 */
 #define sWriteTxByte(ChP,IO,DATA) rp_writech1(ChP,IO,DATA)
 
-int sReadAiopID(struct rp_softc *sc, int aiop);
-int sReadAiopNumChan(struct rp_softc *sc, int aiop);
-int sInitChan(struct rp_softc *sc,
-		struct rp_chan *ChP,
-		int AiopNum,
-		int ChanNum);
-uint8_t sGetRxErrStatus(struct rp_chan *ChP);
-void sStopRxProcessor(struct rp_chan *ChP);
-void sStopSWInFlowCtl(struct rp_chan *ChP);
-void sFlushRxFIFO(struct rp_chan *ChP);
-void sFlushTxFIFO(struct rp_chan *ChP);
-int sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data);
-void sEnInterrupts(struct rp_chan *ChP,uint16_t Flags);
-void sDisInterrupts(struct rp_chan *ChP,uint16_t Flags);
-int rp_attachcommon(struct rp_softc* sc, int num_aiops, int num_ports);
+int sReadAiopID(struct rp_softc *, int);
+int sReadAiopNumChan(struct rp_softc *sc, int);
+int sInitChan(struct rp_softc *, struct rp_chan *, int, int);
+uint8_t sGetRxErrStatus(struct rp_chan *);
+void sStopRxProcessor(struct rp_chan *);
+void sStopSWInFlowCtl(struct rp_chan *);
+void sFlushRxFIFO(struct rp_chan *);
+void sFlushTxFIFO(struct rp_chan *);
+int sWriteTxPrioByte(struct rp_chan *, uint8_t);
+void sEnInterrupts(struct rp_chan *, uint16_t);
+void sDisInterrupts(struct rp_chan *, uint16_t);
+int rp_attachcommon(struct rp_softc* sc, int, int);
 void rp_releaseresource(struct rp_softc *sc);
 static __inline void
 rp_lock(struct rp_softc *sc)

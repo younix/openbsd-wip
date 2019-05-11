@@ -192,10 +192,8 @@ Warnings: No range checking on any of the parameters is done.
 
 	  No context switches are allowed while executing this function.
 */
-int sInitChan(struct rp_softc *sc,
-		struct rp_chan *ChP,
-		int AiopNum,
-		int ChanNum)
+int
+sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
 {
    int i, ChOff;
    uint8_t *ChR;
@@ -320,7 +318,8 @@ Warnings: No context switches are allowed while executing this function.
 	  After calling this function a delay of 4 uS is required to ensure
 	  that the receive processor is no longer processing this channel.
 */
-void sStopRxProcessor(struct rp_chan *ChP)
+void
+sStopRxProcessor(struct rp_chan *ChP)
 {
    uint8_t R[4];
 
@@ -345,7 +344,8 @@ Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
 	  this function.
 Warnings: No context switches are allowed while executing this function.
 */
-void sFlushRxFIFO(struct rp_chan *ChP)
+void
+sFlushRxFIFO(struct rp_chan *ChP)
 {
    int i;
    uint8_t Ch;			/* channel number within AIOP */
@@ -388,7 +388,8 @@ Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
 	  this function.
 Warnings: No context switches are allowed while executing this function.
 */
-void sFlushTxFIFO(struct rp_chan *ChP)
+void
+sFlushTxFIFO(struct rp_chan *ChP)
 {
    int i;
    uint8_t Ch;			/* channel number within AIOP */
@@ -429,7 +430,8 @@ Comments: The priority byte is transmitted before any data in the Tx FIFO.
 
 Warnings: No context switches are allowed while executing this function.
 */
-int sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
+int
+sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
 {
    uint8_t DWBuf[4];		/* buffer for double word writes */
 
@@ -490,7 +492,8 @@ Comments: If an interrupt enable flag is set in Flags, that interrupt will be
 	  enable channel interrupts.  This would allow the global interrupt
 	  status register to be used to determine which AIOPs need service.
 */
-void sEnInterrupts(struct rp_chan *ChP,uint16_t Flags)
+void
+sEnInterrupts(struct rp_chan *ChP,uint16_t Flags)
 {
    uint8_t Mask; 		/* Interrupt Mask Register */
 
@@ -535,7 +538,8 @@ Comments: If an interrupt flag is set in Flags, that interrupt will be
 	  this channel's bit from being set in the AIOP's Interrupt Channel
 	  Register.
 */
-void sDisInterrupts(struct rp_chan *ChP,uint16_t Flags)
+void
+sDisInterrupts(struct rp_chan *ChP,uint16_t Flags)
 {
    uint8_t Mask; 		/* Interrupt Mask Register */
 
@@ -566,17 +570,18 @@ void sDisInterrupts(struct rp_chan *ChP,uint16_t Flags)
  * The top-level routines begin here
  */
 
-int	rpclose(dev_t dev, int flag, int mode, struct proc *p);
-void	rphardclose(struct tty *tp, struct rp_port *rp);
+int	rpclose(dev_t dev, int, int, struct proc *);
+void	rphardclose(struct tty *, struct rp_port *);
 int	rpmodem(struct tty *, int, int);
 int	rpparam(struct tty *, struct termios *);
 void	rpstart(struct tty *);
-struct tty * rptty(dev_t);
-int	rpioctl(dev_t dev, u_long , caddr_t , int , struct proc *);
-int	rpopen(dev_t dev, int flag, int mode, struct proc *p);
+struct tty *rptty(dev_t);
+int	rpioctl(dev_t dev, u_long , caddr_t, int, struct proc *);
+int	rpopen(dev_t dev, int, int, struct proc *);
 
-static void rp_do_receive(struct rp_port *rp, struct tty *tp,
-			struct rp_chan *cp, unsigned int ChanStatus)
+static void
+rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
+    unsigned int ChanStatus)
 {
 	unsigned	int	CharNStat;
 	int	ToRecv, ch, s;
@@ -639,7 +644,8 @@ printf("tty overrun\n");	//XXX: print correct message
         splx(s);
 }
 
-static void rp_handle_port(struct rp_port *rp)
+static void
+rp_handle_port(struct rp_port *rp)
 {
 	struct rp_chan	*cp;
 	struct	tty	*tp;
@@ -670,7 +676,8 @@ static void rp_handle_port(struct rp_port *rp)
 */
 }
 
-void rp_do_poll(void *arg)
+void
+rp_do_poll(void *arg)
 {
 	struct rp_softc *sc;
 	struct rp_port	*rp;
@@ -1096,7 +1103,9 @@ static struct
 	{-1,	-1}
 };
 
-static int rp_convert_baud(int baud) {
+static int
+rp_convert_baud(int baud)
+{
 	int i;
 
 	for (i = 0; baud_table[i].baud >= 0; i++) {
@@ -1122,9 +1131,7 @@ rpstop(struct tty *tp, int flag)
 }
 
 int
-rpparam(tp, t)
-	struct tty *tp;
-	struct termios *t;
+rpparam(struct tty *tp, struct termios *t)
 {
 	int card = RP_CARD(tp->t_dev);
 	int port = RP_PORT(tp->t_dev);
