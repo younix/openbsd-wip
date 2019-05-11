@@ -338,14 +338,6 @@
 #define RP_PCI_BAR_1	PCI_MAPREG_START
 #define RP_PCI_BAR_2	PCI_MAPREG_START + 8
 
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 struct rp_softc;
 struct rp_chan;
 

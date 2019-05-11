@@ -185,7 +185,7 @@ Call:	  sInitChan(CtlP,ChP,AiopNum,ChanNum)
 	  struct rp_chan *ChP; Ptr to channel structure
 	  int AiopNum; AIOP number within controller
 	  int ChanNum; Channel number within AIOP
-Return:   int: TRUE if initialization succeeded, FALSE if it fails because channel
+Return:   int: true if initialization succeeded, false if it fails because channel
 	       number exceeds number of channels available in AIOP.
 Comments: This function must be called before a channel can be used.
 Warnings: No range checking on any of the parameters is done.
@@ -202,7 +202,7 @@ int sInitChan(struct rp_softc *sc,
    static uint8_t R[4];
 
    if(ChanNum >= sc->AiopNumChan[AiopNum])
-      return(FALSE);		       /* exceeds num chans in AIOP */
+      return(false);		       /* exceeds num chans in AIOP */
 
    /* Channel, AIOP, and controller identifiers */
    ChP->CtlP = sc;
@@ -299,7 +299,7 @@ int sInitChan(struct rp_softc *sc,
    ChP->TxPrioBuf = ChOff + _TXP_BUF;
    sEnRxProcessor(ChP); 	       /* start the Rx processor */
 
-   return(TRUE);
+   return(true);
 }
 
 /***************************************************************************
@@ -349,15 +349,15 @@ void sFlushRxFIFO(struct rp_chan *ChP)
 {
    int i;
    uint8_t Ch;			/* channel number within AIOP */
-   int RxFIFOEnabled;		       /* TRUE if Rx FIFO enabled */
+   int RxFIFOEnabled;		       /* true if Rx FIFO enabled */
 
    if(sGetRxCnt(ChP) == 0)	       /* Rx FIFO empty */
       return;			       /* don't need to flush */
 
-   RxFIFOEnabled = FALSE;
+   RxFIFOEnabled = false;
    if(ChP->R[0x32] == 0x08) /* Rx FIFO is enabled */
    {
-      RxFIFOEnabled = TRUE;
+      RxFIFOEnabled = true;
       sDisRxFIFO(ChP);		       /* disable it */
       for(i=0; i < 2000/200; i++)	/* delay 2 uS to allow proc to disable FIFO*/
 	 rp_readch1(ChP,_INT_CHAN);		/* depends on bus i/o timing */
@@ -392,15 +392,15 @@ void sFlushTxFIFO(struct rp_chan *ChP)
 {
    int i;
    uint8_t Ch;			/* channel number within AIOP */
-   int TxEnabled;		       /* TRUE if transmitter enabled */
+   int TxEnabled;		       /* true if transmitter enabled */
 
    if(sGetTxCnt(ChP) == 0)	       /* Tx FIFO empty */
       return;			       /* don't need to flush */
 
-   TxEnabled = FALSE;
+   TxEnabled = false;
    if(ChP->TxControl[3] & TX_ENABLE)
    {
-      TxEnabled = TRUE;
+      TxEnabled = true;
       sDisTransmit(ChP);	       /* disable transmitter */
    }
    sStopRxProcessor(ChP);	       /* stop Rx processor */
@@ -926,7 +926,7 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 	if(ISCALLOUT(tp->t_dev)) {
 		sClrDTR(cp);
 	}
-	tp->t_actout = FALSE;
+	tp->t_actout = false;
 	wakeup(&tp->t_actout);
 	wakeup(TSA_CARR_ON(tp));
 #endif /* DJA */
