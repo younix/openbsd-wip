@@ -222,7 +222,7 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 	}
 
 	num_aiops = sPCIInitController(sc,
-				       MAX_AIOPS_PER_BOARD, 0,
+				       RP_MAX_AIOPS_PER_BOARD, 0,
 //XXX:				       FREQ_DIS, 0, pci_get_device(dev));
 				       FREQ_DIS, 0, PCI_PRODUCT(pa->pa_id));
 

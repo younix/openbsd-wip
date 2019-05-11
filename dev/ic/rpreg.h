@@ -117,25 +117,21 @@
  */
 #define RP_PORT(x) (minor(x) & 0xf)
 #define RP_CARD(x) ((minor(x) >> 5) & 3)
-//XXX: #define RP_DIALOUT(x) ((minor(x) & 0x80) != 0)
-//XXX: #define RP_DIALIN(x) (!RP_DIALOUT(x))
 
 /*
  * End of OS-specific defines
  */
 
-#define ROCKET_H
-
-#define CTL_SIZE 4
-#define AIOP_CTL_SIZE 4
-#define CHAN_AIOP_SIZE 8
-#define MAX_PORTS_PER_AIOP 8
-#define MAX_AIOPS_PER_BOARD 4
-#define MAX_PORTS_PER_BOARD 32
+#define RP_CTL_SIZE		 4
+#define RP_AIOP_CTL_SIZE	 4
+#define RP_CHAN_AIOP_SIZE	 8
+#define RP_MAX_PORTS_PER_AIOP	 8
+#define RP_MAX_AIOPS_PER_BOARD	 4
+#define RP_MAX_PORTS_PER_BOARD	32
 
 /* Controller ID numbers */
-#define CTLID_NULL  -1		    /* no controller exists */
-#define CTLID_0001  0x0001	    /* controller release 1 */
+#define CTLID_NULL	-1	/* no controller exists */
+#define CTLID_0001	0x0001	/* controller release 1 */
 
 /* AIOP ID numbers, identifies AIOP type implementing channel */
 #define AIOPID_NULL -1		    /* no AIOP or channel exists */
@@ -177,171 +173,171 @@
 #define _TXREP1B2  0x98B    /* Tx Replace Value #1 - Byte 2  8 Read / Write */
 #define _TXREP2    0x98C    /* Transmit Replace Value #2     8 Read / Write */
 
-/************************************************************************
- Receive FIFO
-************************************************************************/
+/*
+ * Receive FIFO
+ */
 #define RXFIFO_DATA	0x5f
 #define RXFIFO_OUT	0x5c
 #define RXFIFO_EN	0x08
 #define RXFIFO_DIS	0xa7
 
-/************************************************************************
-Memory Controller Register Offsets - Indexed - External - Fixed
-************************************************************************/
+/*
+ * Memory Controller Register Offsets - Indexed - External - Fixed
+ */
 #define _RX_FIFO    0x000    /* Rx FIFO */
 #define _TX_FIFO    0x800    /* Tx FIFO */
-#define _RXF_OUTP   0x990    /* Rx FIFO OUT pointer	   16 Read / Write */
-#define _RXF_INP    0x992    /* Rx FIFO IN pointer	   16 Read / Write */
-#define _TXF_OUTP   0x994    /* Tx FIFO OUT pointer	   8  Read / Write */
-#define _TXF_INP    0x995    /* Tx FIFO IN pointer	   8  Read / Write */
-#define _TXP_CNT    0x996    /* Tx Priority Count	   8  Read / Write */
-#define _TXP_PNTR   0x997    /* Tx Priority Pointer	   8  Read / Write */
+#define _RXF_OUTP   0x990    /* Rx FIFO OUT pointer	16 Read / Write */
+#define _RXF_INP    0x992    /* Rx FIFO IN pointer	16 Read / Write */
+#define _TXF_OUTP   0x994    /* Tx FIFO OUT pointer	 8 Read / Write */
+#define _TXF_INP    0x995    /* Tx FIFO IN pointer	 8 Read / Write */
+#define _TXP_CNT    0x996    /* Tx Priority Count	 8 Read / Write */
+#define _TXP_PNTR   0x997    /* Tx Priority Pointer	 8 Read / Write */
 
 #define PRI_PEND    0x80     /* Priority data pending (bit7, Tx pri cnt) */
 #define TXFIFO_SIZE 255      /* size of Tx FIFO */
 #define RXFIFO_SIZE 1023     /* size of Rx FIFO */
 
-/************************************************************************
-Tx Priority Buffer - Indexed - External - Fixed
-************************************************************************/
+/*
+ * Tx Priority Buffer - Indexed - External - Fixed
+ */
 #define _TXP_BUF    0x9C0    /* Tx Priority Buffer  32	Bytes	Read / Write */
 #define TXP_SIZE    0x20     /* 32 bytes */
 
-/************************************************************************
-Channel Register Offsets - Indexed - Internal - Fixed
-************************************************************************/
+/*
+ * Channel Register Offsets - Indexed - Internal - Fixed
+ */
+#define _TX_CTRL	0xFF0	/* Transmit Control	16  Write */
+#define _RX_CTRL	0xFF2	/* Receive Control 	 8  Write */
+#define _BAUD		0xFF4	/* Baud Rate		16  Write */
+#define _CLK_PRE	0xFF6	/* Clock Prescaler 	 8  Write */
 
-#define _TX_CTRL    0xFF0    /* Transmit Control	       16  Write */
-#define _RX_CTRL    0xFF2    /* Receive Control 		8  Write */
-#define _BAUD	    0xFF4    /* Baud Rate		       16  Write */
-#define _CLK_PRE    0xFF6    /* Clock Prescaler 		8  Write */
+#define CLOCK_PRESC 0x19	/* mod 9 (divide by 10) prescale */
 
-#define CLOCK_PRESC 0x19	  /* mod 9 (divide by 10) prescale */
+#define RP_BRD50	4607
+#define RP_BRD75	3071
+#define RP_BRD110	2094
+#define RP_BRD134	1712
+#define RP_BRD150	1535
+#define RP_BRD200	1151
+#define RP_BRD300	 767
+#define RP_BRD600	 383
+#define RP_BRD1200 	 191
+#define RP_BRD1800 	 127
+#define RP_BRD2000 	 114
+#define RP_BRD2400 	  95
+#define RP_BRD3600 	  64
+#define RP_BRD4800 	  47
+#define RP_BRD7200 	  31
+#define RP_BRD9600 	  23
+#define RP_BRD14400	  15
+#define RP_BRD19200	  11
+#define RP_BRD38400	   5
+#define RP_BRD57600	   3
+#define RP_BRD76800	   2
+#define RP_BRD115200	   1
+#define RP_BRD230400	   0
 
-#define BRD50		  4607
-#define BRD75		  3071
-#define BRD110		  2094
-#define BRD134		  1712
-#define BRD150		  1535
-#define BRD200		  1151
-#define BRD300		  767
-#define BRD600		  383
-#define BRD1200 	  191
-#define BRD1800 	  127
-#define BRD2000 	  114
-#define BRD2400 	  95
-#define BRD3600 	  64
-#define BRD4800 	  47
-#define BRD7200 	  31
-#define BRD9600 	  23
-#define BRD14400	  15
-#define BRD19200	  11
-#define BRD38400	  5
-#define BRD57600	  3
-#define BRD76800	  2
-#define BRD115200	  1
-#define BRD230400	  0
+#define STMPARITY	0x01	/* parity error */
+#define STMRCVROVR	0x02	/* receiver over run error */
+#define STMFRAME	0x04	/* framing error */
+#define STMBREAK	0x08	/* BREAK */
+#define STMERROR	(STMBREAK | STMFRAME | STMPARITY)
+#define STMPARITYH	0x100	/* parity error */
+#define STMRCVROVRH	0x200	/* receiver over run error */
+#define STMFRAMEH	0x400	/* framing error */
+#define STMBREAKH	0x800	/* BREAK */
+#define STMERRORH	(STMBREAKH | STMFRAMEH | STMPARITYH)
 
-#define STMBREAK   0x08        /* BREAK */
-#define STMFRAME   0x04        /* framing error */
-#define STMRCVROVR 0x02        /* receiver over run error */
-#define STMPARITY  0x01        /* parity error */
-#define STMERROR   (STMBREAK | STMFRAME | STMPARITY)
-#define STMBREAKH   0x800      /* BREAK */
-#define STMFRAMEH   0x400      /* framing error */
-#define STMRCVROVRH 0x200      /* receiver over run error */
-#define STMPARITYH  0x100      /* parity error */
-#define STMERRORH   (STMBREAKH | STMFRAMEH | STMPARITYH)
+#define RDA		0x01	/* Rx data available */
+#define TXSHRMT		0x02	/* Tx shift register is empty */
+#define TXFIFOMT	0x04	/* Tx FIFO is empty */
+#define CD_ACT		0x08	/* CD input asserted */
+#define DSR_ACT		0x10	/* DSR input asserted */
+#define CTS_ACT		0x20	/* CTS input asserted */
+#define DRAINED		(TXFIFOMT | TXSHRMT)	/* indicates Tx is drained */
 
-#define CTS_ACT   0x20	      /* CTS input asserted */
-#define DSR_ACT   0x10	      /* DSR input asserted */
-#define CD_ACT	  0x08	      /* CD input asserted */
-#define TXFIFOMT  0x04	      /* Tx FIFO is empty */
-#define TXSHRMT   0x02	      /* Tx shift register is empty */
-#define RDA	  0x01	      /* Rx data available */
-#define DRAINED (TXFIFOMT | TXSHRMT)  /* indicates Tx is drained */
-
-#define STATMODE  0x8000      /* status mode enable bit */
-#define RXFOVERFL 0x2000      /* receive FIFO overflow */
-#define RX2MATCH  0x1000      /* receive compare byte 2 match */
-#define RX1MATCH  0x0800      /* receive compare byte 1 match */
-#define RXBREAK   0x0400      /* received BREAK */
-#define RXFRAME   0x0200      /* received framing error */
-#define RXPARITY  0x0100      /* received parity error */
+#define RXPARITY	0x0100	/* received parity error */
+#define RXFRAME		0x0200	/* received framing error */
+#define RXBREAK		0x0400	/* received BREAK */
+#define RX1MATCH	0x0800	/* receive compare byte 1 match */
+#define RX2MATCH	0x1000	/* receive compare byte 2 match */
+#define RXFOVERFL	0x2000	/* receive FIFO overflow */
+#define STATMODE	0x8000	/* status mode enable bit */
 #define STATERROR (RXBREAK | RXFRAME | RXPARITY)
 
-#define CTSFC_EN  0x80	      /* CTS flow control enable bit */
-#define RTSTOG_EN 0x40	      /* RTS toggle enable bit */
-#define TXINT_EN  0x10	      /* transmit interrupt enable */
-#define STOP2	  0x08	      /* enable 2 stop bits (0 = 1 stop) */
-#define PARITY_EN 0x04	      /* enable parity (0 = no parity) */
-#define EVEN_PAR  0x02	      /* even parity (0 = odd parity) */
-#define DATA8BIT  0x01	      /* 8 bit data (0 = 7 bit data) */
+#define DATA8BIT	0x01	/* 8 bit data (0 = 7 bit data) */
+#define EVEN_PAR	0x02	/* even parity (0 = odd parity) */
+#define PARITY_EN	0x04	/* enable parity (0 = no parity) */
+#define STOP2		0x08	/* enable 2 stop bits (0 = 1 stop) */
+#define TXINT_EN	0x10	/* transmit interrupt enable */
+#define RTSTOG_EN	0x40	/* RTS toggle enable bit */
+#define CTSFC_EN	0x80	/* CTS flow control enable bit */
 
-#define SETBREAK  0x10	      /* send break condition (must clear) */
-#define LOCALLOOP 0x08	      /* local loopback set for test */
-#define SET_DTR   0x04	      /* assert DTR */
-#define SET_RTS   0x02	      /* assert RTS */
-#define TX_ENABLE 0x01	      /* enable transmitter */
+#define TX_ENABLE	0x01	/* enable transmitter */
+#define SET_RTS		0x02	/* assert RTS */
+#define SET_DTR		0x04	/* assert DTR */
+#define LOCALLOOP	0x08	/* local loopback set for test */
+#define SETBREAK	0x10	/* send break condition (must clear) */
 
-#define RTSFC_EN  0x40	      /* RTS flow control enable */
-#define RXPROC_EN 0x20	      /* receive processor enable */
-#define TRIG_NO   0x00	      /* Rx FIFO trigger level 0 (no trigger) */
-#define TRIG_1	  0x08	      /* trigger level 1 char */
-#define TRIG_1_2  0x10	      /* trigger level 1/2 */
-#define TRIG_7_8  0x18	      /* trigger level 7/8 */
-#define TRIG_MASK 0x18	      /* trigger level mask */
-#define SRCINT_EN 0x04	      /* special Rx condition interrupt enable */
-#define RXINT_EN  0x02	      /* Rx interrupt enable */
-#define MCINT_EN  0x01	      /* modem change interrupt enable */
+#define TRIG_NO		0x00	/* Rx FIFO trigger level 0 (no trigger) */
+#define MCINT_EN	0x01	/* modem change interrupt enable */
+#define RXINT_EN	0x02	/* Rx interrupt enable */
+#define SRCINT_EN	0x04	/* special Rx condition interrupt enable */
+#define TRIG_1		0x08	/* trigger level 1 char */
+#define TRIG_1_2	0x10	/* trigger level 1/2 */
+#define TRIG_7_8	0x18	/* trigger level 7/8 */
+#define TRIG_MASK	0x18	/* trigger level mask */
+#define RXPROC_EN	0x20	/* receive processor enable */
+#define RTSFC_EN	0x40	/* RTS flow control enable */
 
-#define RXF_TRIG  0x20	      /* Rx FIFO trigger level interrupt */
-#define TXFIFO_MT 0x10	      /* Tx FIFO empty interrupt */
-#define SRC_INT   0x08	      /* special receive condition interrupt */
-#define DELTA_CD  0x04	      /* CD change interrupt */
-#define DELTA_CTS 0x02	      /* CTS change interrupt */
-#define DELTA_DSR 0x01	      /* DSR change interrupt */
+#define DELTA_DSR	0x01	/* DSR change interrupt */
+#define DELTA_CTS	0x02	/* CTS change interrupt */
+#define DELTA_CD	0x04	/* CD change interrupt */
+#define SRC_INT		0x08	/* special receive condition interrupt */
+#define TXFIFO_MT	0x10	/* Tx FIFO empty interrupt */
+#define RXF_TRIG	0x20	/* Rx FIFO trigger level interrupt */
 
-#define REP1W2_EN 0x10	      /* replace byte 1 with 2 bytes enable */
-#define IGN2_EN   0x08	      /* ignore byte 2 enable */
-#define IGN1_EN   0x04	      /* ignore byte 1 enable */
-#define COMP2_EN  0x02	      /* compare byte 2 enable */
-#define COMP1_EN  0x01	      /* compare byte 1 enable */
+#define COMP1_EN	0x01	/* compare byte 1 enable */
+#define COMP2_EN	0x02	/* compare byte 2 enable */
+#define IGN1_EN		0x04	/* ignore byte 1 enable */
+#define IGN2_EN		0x08	/* ignore byte 2 enable */
+#define REP1W2_EN	0x10	/* replace byte 1 with 2 bytes enable */
 
-#define RESET_ALL 0x80	      /* reset AIOP (all channels) */
-#define TXOVERIDE 0x40	      /* Transmit software off override */
-#define RESETUART 0x20	      /* reset channel's UART */
-#define RESTXFCNT 0x10	      /* reset channel's Tx FIFO count register */
-#define RESRXFCNT 0x08	      /* reset channel's Rx FIFO count register */
+#define RESET_ALL	0x80	/* reset AIOP (all channels) */
+#define TXOVERIDE	0x40	/* Transmit software off override */
+#define RESETUART	0x20	/* reset channel's UART */
+#define RESTXFCNT	0x10	/* reset channel's Tx FIFO count register */
+#define RESRXFCNT	0x08	/* reset channel's Rx FIFO count register */
 
-#define INTSTAT0  0x01	      /* AIOP 0 interrupt status */
-#define INTSTAT1  0x02	      /* AIOP 1 interrupt status */
-#define INTSTAT2  0x04	      /* AIOP 2 interrupt status */
-#define INTSTAT3  0x08	      /* AIOP 3 interrupt status */
+#define INTSTAT0	0x01	/* AIOP 0 interrupt status */
+#define INTSTAT1	0x02	/* AIOP 1 interrupt status */
+#define INTSTAT2	0x04	/* AIOP 2 interrupt status */
+#define INTSTAT3	0x08	/* AIOP 3 interrupt status */
 
-#define INTR_EN   0x08	      /* allow interrupts to host */
-#define INT_STROB 0x04	      /* strobe and clear interrupt line (EOI) */
+#define INTR_EN		0x08	/* allow interrupts to host */
+#define INT_STROB	0x04	/* strobe and clear interrupt line (EOI) */
 
-#define CHAN3_EN  0x08	      /* enable AIOP 3 */
-#define CHAN2_EN  0x04	      /* enable AIOP 2 */
-#define CHAN1_EN  0x02	      /* enable AIOP 1 */
-#define CHAN0_EN  0x01	      /* enable AIOP 0 */
-#define FREQ_DIS  0x00
-#define FREQ_274HZ 0x60
-#define FREQ_137HZ 0x50
-#define FREQ_69HZ  0x40
-#define FREQ_34HZ  0x30
-#define FREQ_17HZ  0x20
-#define FREQ_9HZ   0x10
-#define PERIODIC_ONLY 0x80    /* only PERIODIC interrupt */
+#define CHAN0_EN	0x01	/* enable AIOP 0 */
+#define CHAN1_EN	0x02	/* enable AIOP 1 */
+#define CHAN2_EN	0x04	/* enable AIOP 2 */
+#define CHAN3_EN	0x08	/* enable AIOP 3 */
 
-#define CHANINT_EN 0x0100	    /* flags to enable/disable channel ints */
+#define FREQ_DIS	0x00
+#define FREQ_9HZ	0x10
+#define FREQ_17HZ	0x20
+#define FREQ_34HZ	0x30
+#define FREQ_69HZ	0x40
+#define FREQ_137HZ	0x50
+#define FREQ_274HZ	0x60
+#define PERIODIC_ONLY	0x80	/* only PERIODIC interrupt */
 
-#define RDATASIZE 72
-#define RREGDATASIZE 52
+#define CHANINT_EN	0x0100	/* flags to enable/disable channel ints */
 
-#define RP_PCI_BAR_1		PCI_MAPREG_START
-#define RP_PCI_BAR_2		PCI_MAPREG_START + 8
+#define RDATASIZE	72
+#define RREGDATASIZE	52
+
+#define RP_PCI_BAR_1	PCI_MAPREG_START
+#define RP_PCI_BAR_2	PCI_MAPREG_START + 8
 
 #ifndef TRUE
 #define TRUE 1
@@ -366,8 +362,8 @@ struct rp_softc {
 
 	int		CtlID;
 	int		NumAiop;
-	int		AiopID[AIOP_CTL_SIZE];
-	int		AiopNumChan[AIOP_CTL_SIZE];
+	int		AiopID[RP_AIOP_CTL_SIZE];
+	int		AiopNumChan[RP_AIOP_CTL_SIZE];
 
         struct mutex	hwmtx;     /* Spinlock protecting hardware. */
 	int		hwmtx_init;
