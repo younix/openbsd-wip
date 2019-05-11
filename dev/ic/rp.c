@@ -554,9 +554,9 @@ void sDisInterrupts(CHANNEL_T *ChP,uint16_t Flags)
    }
 }
 
-/*********************************************************************
-  Begin FreeBsd-specific driver code
-**********************************************************************/
+/*
+ * Begin FreeBsd-specific driver code
+ */
 
 #define POLL_INTERVAL		(hz / 100)
 

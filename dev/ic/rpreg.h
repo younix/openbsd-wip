@@ -143,10 +143,9 @@
 #define NULLAIOP -1		    /* identifies non-existant AIOP */
 #define NULLCHAN -1		    /* identifies non-existant channel */
 
-/************************************************************************
- Global Register Offsets - Direct Access - Fixed values
-************************************************************************/
-
+/*
+ * Global Register Offsets - Direct Access - Fixed values
+ */
 #define _CMD_REG   0x38   /* Command Register		 8    Write */
 #define _INT_CHAN  0x39   /* Interrupt Channel Register  8    Read */
 #define _INT_MASK  0x3A   /* Interrupt Mask Register	 8    Read / Write */
@@ -154,18 +153,18 @@
 #define _INDX_ADDR 0x3C   /* Index Register Address	 16   Write */
 #define _INDX_DATA 0x3E   /* Index Register Data	 8/16 Read / Write */
 
-/************************************************************************
- Channel Register Offsets for 1st channel in AIOP - Direct Access
-************************************************************************/
+/*
+ * Channel Register Offsets for 1st channel in AIOP - Direct Access
+ */
 #define _TD0	   0x00  /* Transmit Data		16   Write */
 #define _RD0	   0x00  /* Receive Data		16   Read */
 #define _CHN_STAT0 0x20  /* Channel Status		8/16 Read / Write */
 #define _FIFO_CNT0 0x10  /* Transmit/Receive FIFO Count 16   Read */
 #define _INT_ID0   0x30  /* Interrupt Identification	8    Read */
 
-/************************************************************************
- Tx Control Register Offsets - Indexed - External - Fixed
-************************************************************************/
+/*
+ * Tx Control Register Offsets - Indexed - External - Fixed
+ */
 #define _TX_ENBLS  0x980    /* Tx Processor Enables Register 8 Read / Write */
 #define _TXCMP1    0x988    /* Transmit Compare Value #1     8 Read / Write */
 #define _TXCMP2    0x989    /* Transmit Compare Value #2     8 Read / Write */
