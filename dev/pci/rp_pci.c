@@ -238,45 +238,7 @@ nogo:
 
 	return;
 }
-#if 0
-static int
-rp_pcidetach(struct device *dev)
-{
-	struct rp_softc *sc;
 
-	sc = device_get_softc(dev);
-	rp_pcireleaseresource(sc);
-
-	return (0);
-}
-
-static int
-rp_pcishutdown(struct device *dev)
-{
-	struct rp_softc *sc;
-
-	sc = device_get_softc(dev);
-	rp_pcireleaseresource(sc);
-
-	return (0);
-}
-
-static void
-rp_pcireleaseresource(struct rp_softc *sc)
-{
-	rp_releaseresource(sc);
-	if (sc->io != NULL) {
-		if (sc->io[0] != NULL)
-			bus_release_resource(sc->dev, SYS_RES_IOPORT, sc->io_rid[0], sc->io[0]);
-		free(sc->io, M_DEVBUF);
-		sc->io = NULL;
-	}
-	if (sc->io_rid != NULL) {
-		free(sc->io_rid, M_DEVBUF);
-		sc->io = NULL;
-	}
-}
-#endif
 static int
 sPCIInitController( struct rp_softc *CtlP,
 		    int AiopNum,
@@ -320,11 +282,7 @@ sPCIInitController( struct rp_softc *CtlP,
       			CtlP->AiopNumChan[i] = 8;
 			break;
 		default:
-#ifdef notdef
-      			CtlP->AiopNumChan[i] = 8;
-#else
       			CtlP->AiopNumChan[i] = sReadAiopNumChan(CtlP, i);
-#endif /* notdef */
 			break;
 		}
 		/*device_printf(CtlP->dev, "%d channels.\n", CtlP->AiopNumChan[i]);*/
@@ -369,25 +327,3 @@ rp_pci_ctlmask(struct rp_softc *sc)
 {
 	return sPCIGetControllerIntStatus(sc);
 }
-#if 0
-static device_method_t rp_pcimethods[] = {
-	/* Device interface */
-	DEVMETHOD(device_probe,		rp_pciprobe),
-	DEVMETHOD(device_attach,	rp_pciattach),
-	DEVMETHOD(device_detach,	rp_pcidetach),
-	DEVMETHOD(device_shutdown,	rp_pcishutdown),
-
-	{ 0, 0 }
-};
-
-static driver_t rp_pcidriver = {
-	"rp",
-	rp_pcimethods,
-	sizeof(struct rp_softc),
-};
-
-/*
- * rp can be attached to a pci bus.
- */
-DRIVER_MODULE(rp, pci, rp_pcidriver, rp_devclass, 0, 0);
-#endif
