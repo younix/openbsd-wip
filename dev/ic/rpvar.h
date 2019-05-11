@@ -38,8 +38,7 @@
  * rpvar.h --- RocketPort data structure includes for FreeBSD
  */
 
-#define RP_UNIT(x) dv_unit(x)
-//#define RP_PORT(x) (dev2unit(x) & 0x3f)
+#define RP_UNIT(x)	dv_unit(x)
 #define MAX_RP_PORTS	128
 
 /*
@@ -49,10 +48,6 @@
  */
 #define RP_PORT(x) (minor(x) & 0xf)
 #define RP_CARD(x) ((minor(x) >> 5) & 3)
-//XXX: #define RP_DIALOUT(x) ((minor(x) & 0x80) != 0)
-//XXX: #define RP_DIALIN(x) (!RP_DIALOUT(x))
-
-
 
 struct rp_port {
 	struct tty *		rp_tty; /* cross reference */
@@ -80,8 +75,3 @@ struct rp_port {
 	unsigned char		TxBuf[TXFIFO_SIZE];
 	unsigned char		RxBuf[RXFIFO_SIZE];
 };
-
-/* Actually not used */
-#ifdef notdef
-extern struct termios deftermios;
-#endif /* notdef */
