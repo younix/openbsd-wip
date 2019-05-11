@@ -45,11 +45,7 @@
 #include <sys/tty.h>
 #include <sys/conf.h>
 #include <sys/kernel.h>
-//XXX: #include <sys/module.h>
-//XXX: #include <machine/resource.h>
 #include <machine/bus.h>
-//XXX: #include <sys/bus.h>
-//XXX: #include <sys/rman.h>
 
 #include <dev/pci/pcivar.h>
 #include <dev/pci/pcireg.h>
@@ -126,19 +122,13 @@ Return:   uint8_t: The controller interrupt status in the lower 4
 */
 #define sPCIGetControllerIntStatus(CTLP) ((rp_readio2(CTLP, 0, _PCI_INT_FUNC) >> 8) & 0x1f)
 
-//XXX: static devclass_t rp_devclass;
-
 int rp_pci_match(struct device *, void *, void *);
 void rp_pci_attach(struct device *, struct device *, void *);
 #ifdef notdef
 static int rp_pcidetach(struct device dev);
 static int rp_pcishutdown(struct device dev);
 #endif /* notdef */
-//XXX: static void rp_pcireleaseresource(struct rp_softc *sc);
 static int sPCIInitController(struct rp_softc *, int, int, uint8_t, int, int);
-//XXX: static rp_aiop2rid_t rp_pci_aiop2rid;
-//XXX: static rp_aiop2off_t rp_pci_aiop2off;
-//XXX: static rp_ctlmask_t rp_pci_ctlmask;
 
 static int rp_pci_aiop2rid(int aiop, int offset);		/* XXX */
 static int rp_pci_aiop2off(int aiop, int offset);		/* XXX */
@@ -166,9 +156,6 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 	int retval;
 	pcireg_t maptype;
 
-//XXX:	sc = device_get_softc(dev);
-//XXX:	bzero(sc, sizeof(*sc));
-//XXX:	sc->dev = dev;
 	sc->aiop2rid = rp_pci_aiop2rid;
 	sc->aiop2off = rp_pci_aiop2off;
 	sc->ctlmask = rp_pci_ctlmask;
@@ -187,7 +174,6 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 
 	sc->bus_ctlp = NULL;
 
-//XXX:	switch (pci_get_device(dev)) {
 	switch (PCI_PRODUCT(pa->pa_id)) {
 	case RP_DEVICE_ID_UPCI_16:
 	case RP_DEVICE_ID_UPCI_32:
@@ -218,7 +204,6 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 
 	num_aiops = sPCIInitController(sc,
 				       RP_MAX_AIOPS_PER_BOARD, 0,
-//XXX:				       FREQ_DIS, 0, pci_get_device(dev));
 				       FREQ_DIS, 0, PCI_PRODUCT(pa->pa_id));
 
 	num_ports = 0;

@@ -46,14 +46,10 @@
 #include <sys/endian.h>
 #include <sys/fcntl.h>
 #include <sys/malloc.h>
-//#include <sys/serial.h>
 #include <sys/tty.h>
 #include <sys/conf.h>
 #include <sys/kernel.h>
-//#include <machine/resource.h>
 #include <machine/bus.h>
-//#include <sys/bus.h>
-//#include <sys/rman.h>
 
 #define ROCKET_C
 #include <dev/ic/rpreg.h>
@@ -568,7 +564,6 @@ void sDisInterrupts(CHANNEL_T *ChP,uint16_t Flags)
  * The top-level routines begin here
  */
 
-//XXX:void	rpclose(struct tty *tp);
 int	rpclose(dev_t dev, int flag, int mode, struct proc *p);
 void	rphardclose(struct tty *tp, struct rp_port *rp);
 int	rpmodem(struct tty *, int, int);
@@ -576,7 +571,6 @@ int	rpparam(struct tty *, struct termios *);
 void	rpstart(struct tty *);
 struct tty * rptty(dev_t);
 int	rpioctl(dev_t dev, u_long , caddr_t , int , struct proc *);
-//static	int	rpopen(struct tty *);
 int	rpopen(dev_t dev, int flag, int mode, struct proc *p);
 
 static void rp_do_receive(struct rp_port *rp, struct tty *tp,
@@ -605,21 +599,18 @@ static void rp_do_receive(struct rp_port *rp, struct tty *tp,
 	FIFO one word at a time, pulling apart the character and
 	the status. Update error counters depending on status.
 */
-	s = spltty();	//tty_lock(tp);
+	s = spltty();
 	if(ChanStatus & STATMODE) {
 		while(ToRecv) {
 			CharNStat = rp_readch2(cp,sGetTxRxDataIO(cp));
 			ch = CharNStat & 0xff;
 
 			if((CharNStat & STMBREAK) || (CharNStat & STMFRAMEH))
-				//err |= TRE_FRAMING;
 				ch |= TTY_FE;
 			else if (CharNStat & STMPARITYH)
-				//err |= TRE_PARITY;
 				ch |= TTY_PE;
 			else if (CharNStat & STMRCVROVRH) {
 				rp->rp_overflows++;
-				//err |= TRE_OVERRUN;
 printf("tty overrun\n");	//XXX: print correct message
 			}
 
@@ -638,13 +629,12 @@ printf("tty overrun\n");	//XXX: print correct message
 		ToRecv = sGetRxCnt(cp);
 		while (ToRecv) {
 			ch = rp_readch1(cp,sGetTxRxDataIO(cp));
-			//ttydisc_rint(tp, ch & 0xff, err);
 			(*linesw[tp->t_line].l_rint)(ch & 0xff, tp);
 			ToRecv--;
 		}
 	}
         //XXX: do we need this?! -> ttydisc_rint_done(tp);
-        splx(s);	//tty_unlock(tp);
+        splx(s);
 }
 
 static void rp_handle_port(struct rp_port *rp)
@@ -665,10 +655,8 @@ static void rp_handle_port(struct rp_port *rp)
 		rp_do_receive(rp, tp, cp, ChanStatus);
 	if(IntMask & DELTA_CD) {
 		if(ChanStatus & CD_ACT) {
-		//	(void)ttydisc_modem(tp, 1);
 			(void)(*linesw[tp->t_line].l_modem)(tp, 1);
 		} else {
-		//	(void)ttydisc_modem(tp, 0);
 			(void)(*linesw[tp->t_line].l_modem)(tp, 0);
 		}
 	}
@@ -704,7 +692,6 @@ void rp_do_poll(void *arg)
 	if (count >= 0  && (count <= rp->rp_restart)) {
 		rpstart(tp);
 	}
-//	callout_schedule(&rp->rp_timer, POLL_INTERVAL);
 	timeout_add(&rp->rp_timer, POLL_INTERVAL);
 }
 
@@ -762,7 +749,6 @@ rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 	for(aiop=0; aiop < num_aiops; aiop++) {
 		num_chan = sGetAiopNumChan(sc, aiop);
 		for(chan=0; chan < num_chan; chan++, port++, rp++) {
-//			rp->rp_tty = tp = tty_alloc(&rp_tty_class, rp);
 			rp->rp_tty = tp = ttymalloc(0);
 			tp->t_oproc = rpstart;
 			tp->t_param = rpparam;
@@ -811,7 +797,7 @@ rp_releaseresource(struct rp_softc *sc)
 	if (sc->rp != NULL) {
 		for (i = 0; i < sc->num_ports; i++) {
 			rp = sc->rp + i;
-//			atomic_add_32(&sc->free, 1);
+//XXX: atomic_add_int	atomic_add_32(&sc->free, 1);
 			sc->free++;
 //XXX: do we need this:	s = spltty();	//tty_lock(rp->rp_tty);
 //			tty_rel_gone(rp->rp_tty);
@@ -832,7 +818,6 @@ rp_releaseresource(struct rp_softc *sc)
 }
 
 int
-//rpopen(struct tty *tp)
 rpopen(dev_t dev, int flag, int mode, struct proc *p)
 {
 	struct	rp_softc *sc;
@@ -842,7 +827,6 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	int card = RP_CARD(dev);
 	int port = RP_PORT(dev);
 
-//XXX:	rp = tty_softc(tp);
 	if (card >= rp_cd.cd_ndevs ||
 	    (sc = rp_cd.cd_devs[card]) == NULL) {
 		return (ENXIO);
@@ -902,7 +886,6 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 }
 
 int
-//rpclose(struct tty *tp)
 rpclose(dev_t dev, int flag, int mode, struct proc *p)
 {
 	int card = RP_CARD(dev);
@@ -911,8 +894,6 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	struct rp_port *rp = &sc->rp[port];
 	struct tty *tp = rp->rp_tty;
 
-//XXX:	rp = tty_softc(tp);
-//XXX:	callout_stop(&rp->rp_timer);
 	timeout_del(&rp->rp_timer);
 	rphardclose(tp, rp);
 //XXX:	device_unbusy(rp->rp_ctlp->dev);
@@ -1007,9 +988,6 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 	struct tty *tp = rp->rp_tty;
 	int error;
 
-//XXX:	struct rp_port	*rp;
-//XXX:	rp = tty_softc(dev);
-
 #ifdef RP_DEBUG
 	printf("%s port %d ioctl cmd 0x%lx data %p flag 0x%x\n",
 	    sc->dev.dv_xname, port, cmd, data, flag);
@@ -1057,7 +1035,6 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 		return ENOTTY;
 	default:
 printf("%s:%d cmd %lu\n", __func__, __LINE__, cmd);
-//XXX:		return ENOIOCTL;
 		return ENOTTY;
 	}
 }
@@ -1161,7 +1138,6 @@ rpparam(tp, t)
 	int	devshift;
 #endif
 
-//XXX:	rp = tty_softc(tp);
 	cp = &rp->rp_channel;
 
 	cflag = t->c_cflag;
@@ -1265,7 +1241,6 @@ rpstart(struct tty *tp)
 //	printf("%s port %d start, tty %p\n", sc->dev.dv_xname, port, tp);
 #endif
 
-//	rp = tty_softc(tp);
 	cp = &rp->rp_channel;
 	flags = rp->rp_channel.TxControl[3];
 
@@ -1275,7 +1250,6 @@ rpstart(struct tty *tp)
 	}
 
 	xmit_fifo_room = TXFIFO_SIZE - sGetTxCnt(cp);
-//XXX:	count = ttydisc_getc(tp, &rp->TxBuf, xmit_fifo_room);
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
 	if(xmit_fifo_room > 0) {
 		for( i = 0, wcount = count >> 1; wcount > 0; i += 2, wcount-- ) {

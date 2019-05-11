@@ -386,8 +386,6 @@ struct rp_softc {
 	rp_aiop2off_t		*aiop2off;	/* (aiop, offset) -> off */
 	rp_ctlmask_t		*ctlmask;	/* Int status */
 };
-//typedef struct CONTROLLER_str CONTROLLER_T;
-//typedef CONTROLLER_T CONTROLLER_t;
 
 /* Channel level information structure */
 struct CHANNEL_str
