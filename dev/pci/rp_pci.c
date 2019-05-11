@@ -72,7 +72,7 @@ struct rp_pci_softc {
 	bus_space_handle_t	sc_ioh;		/* PLX i/o handle */
 };
 
-struct cfattach rp_pci_ca = {
+const struct cfattach rp_pci_ca = {
 	sizeof(struct rp_pci_softc), rp_pci_match, rp_pci_attach
 };
 
