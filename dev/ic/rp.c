@@ -41,6 +41,8 @@
  * rp.c - for RocketPort FreeBSD
  */
 
+#include <sys/types.h>
+#include <sys/atomic.h>
 #include <sys/param.h>
 #include <sys/systm.h>
 #include <sys/endian.h>
@@ -715,8 +717,7 @@ rpfree(void *softc)
 	struct rp_port *rp = softc;
 	struct rp_softc *sc = rp->rp_ctlp;
 
-//	atomic_subtract_32(&sc->free, 1);
-	sc->free--;
+	atomic_sub_int(&sc->free, 1);
 }
 
 int
@@ -797,8 +798,7 @@ rp_releaseresource(struct rp_softc *sc)
 	if (sc->rp != NULL) {
 		for (i = 0; i < sc->num_ports; i++) {
 			rp = sc->rp + i;
-//XXX: atomic_add_int	atomic_add_32(&sc->free, 1);
-			sc->free++;
+			atomic_add_int(&sc->free, 1);
 //XXX: do we need this:	s = spltty();	//tty_lock(rp->rp_tty);
 //			tty_rel_gone(rp->rp_tty);
 			ttyfree(rp->rp_tty);
