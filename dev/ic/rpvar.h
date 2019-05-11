@@ -76,7 +76,7 @@ struct rp_port {
 	int			rp_waiting:1;
 	int			rp_xmit_stopped:1;
 	struct rp_softc		*rp_ctlp;
-	CHANNEL_t		rp_channel;
+	struct CHANNEL_str	rp_channel;
 	unsigned char		TxBuf[TXFIFO_SIZE];
 	unsigned char		RxBuf[RXFIFO_SIZE];
 };

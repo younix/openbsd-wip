@@ -182,7 +182,7 @@ Function: sInitChan
 Purpose:  Initialization of a channel and channel structure
 Call:	  sInitChan(CtlP,ChP,AiopNum,ChanNum)
 	  CONTROLLER_T *CtlP; Ptr to controller structure
-	  CHANNEL_T *ChP; Ptr to channel structure
+	  struct CHANNEL_str *ChP; Ptr to channel structure
 	  int AiopNum; AIOP number within controller
 	  int ChanNum; Channel number within AIOP
 Return:   int: TRUE if initialization succeeded, FALSE if it fails because channel
@@ -193,7 +193,7 @@ Warnings: No range checking on any of the parameters is done.
 	  No context switches are allowed while executing this function.
 */
 int sInitChan(struct rp_softc *sc,
-		CHANNEL_T *ChP,
+		struct CHANNEL_str *ChP,
 		int AiopNum,
 		int ChanNum)
 {
@@ -306,7 +306,7 @@ int sInitChan(struct rp_softc *sc,
 Function: sStopRxProcessor
 Purpose:  Stop the receive processor from processing a channel.
 Call:	  sStopRxProcessor(ChP)
-	  CHANNEL_T *ChP; Ptr to channel structure
+	  struct CHANNEL_str *ChP; Ptr to channel structure
 
 Comments: The receive processor can be started again with sStartRxProcessor().
 	  This function causes the receive processor to skip over the
@@ -320,7 +320,7 @@ Warnings: No context switches are allowed while executing this function.
 	  After calling this function a delay of 4 uS is required to ensure
 	  that the receive processor is no longer processing this channel.
 */
-void sStopRxProcessor(CHANNEL_T *ChP)
+void sStopRxProcessor(struct CHANNEL_str *ChP)
 {
    uint8_t R[4];
 
@@ -335,7 +335,7 @@ void sStopRxProcessor(CHANNEL_T *ChP)
 Function: sFlushRxFIFO
 Purpose:  Flush the Rx FIFO
 Call:	  sFlushRxFIFO(ChP)
-	  CHANNEL_T *ChP; Ptr to channel structure
+	  struct CHANNEL_str *ChP; Ptr to channel structure
 Return:   void
 Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
 	  while it is being flushed the receive processor is stopped
@@ -345,7 +345,7 @@ Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
 	  this function.
 Warnings: No context switches are allowed while executing this function.
 */
-void sFlushRxFIFO(CHANNEL_T *ChP)
+void sFlushRxFIFO(struct CHANNEL_str *ChP)
 {
    int i;
    uint8_t Ch;			/* channel number within AIOP */
@@ -378,7 +378,7 @@ void sFlushRxFIFO(CHANNEL_T *ChP)
 Function: sFlushTxFIFO
 Purpose:  Flush the Tx FIFO
 Call:	  sFlushTxFIFO(ChP)
-	  CHANNEL_T *ChP; Ptr to channel structure
+	  struct CHANNEL_str *ChP; Ptr to channel structure
 Return:   void
 Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
 	  while it is being flushed the receive processor is stopped
@@ -388,7 +388,7 @@ Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
 	  this function.
 Warnings: No context switches are allowed while executing this function.
 */
-void sFlushTxFIFO(CHANNEL_T *ChP)
+void sFlushTxFIFO(struct CHANNEL_str *ChP)
 {
    int i;
    uint8_t Ch;			/* channel number within AIOP */
@@ -420,7 +420,7 @@ void sFlushTxFIFO(CHANNEL_T *ChP)
 Function: sWriteTxPrioByte
 Purpose:  Write a byte of priority transmit data to a channel
 Call:	  sWriteTxPrioByte(ChP,Data)
-	  CHANNEL_T *ChP; Ptr to channel structure
+	  struct CHANNEL_str *ChP; Ptr to channel structure
 	  uint8_t Data; The transmit data byte
 
 Return:   int: 1 if the bytes is successfully written, otherwise 0.
@@ -429,7 +429,7 @@ Comments: The priority byte is transmitted before any data in the Tx FIFO.
 
 Warnings: No context switches are allowed while executing this function.
 */
-int sWriteTxPrioByte(CHANNEL_T *ChP, uint8_t Data)
+int sWriteTxPrioByte(struct CHANNEL_str *ChP, uint8_t Data)
 {
    uint8_t DWBuf[4];		/* buffer for double word writes */
 
@@ -462,7 +462,7 @@ int sWriteTxPrioByte(CHANNEL_T *ChP, uint8_t Data)
 Function: sEnInterrupts
 Purpose:  Enable one or more interrupts for a channel
 Call:	  sEnInterrupts(ChP,Flags)
-	  CHANNEL_T *ChP; Ptr to channel structure
+	  struct CHANNEL_str *ChP; Ptr to channel structure
 	  uint16_t Flags: Interrupt enable flags, can be any combination
 	     of the following flags:
 		TXINT_EN:   Interrupt on Tx FIFO empty
@@ -490,7 +490,7 @@ Comments: If an interrupt enable flag is set in Flags, that interrupt will be
 	  enable channel interrupts.  This would allow the global interrupt
 	  status register to be used to determine which AIOPs need service.
 */
-void sEnInterrupts(CHANNEL_T *ChP,uint16_t Flags)
+void sEnInterrupts(struct CHANNEL_str *ChP,uint16_t Flags)
 {
    uint8_t Mask; 		/* Interrupt Mask Register */
 
@@ -514,7 +514,7 @@ void sEnInterrupts(CHANNEL_T *ChP,uint16_t Flags)
 Function: sDisInterrupts
 Purpose:  Disable one or more interrupts for a channel
 Call:	  sDisInterrupts(ChP,Flags)
-	  CHANNEL_T *ChP; Ptr to channel structure
+	  struct CHANNEL_str *ChP; Ptr to channel structure
 	  uint16_t Flags: Interrupt flags, can be any combination
 	     of the following flags:
 		TXINT_EN:   Interrupt on Tx FIFO empty
@@ -535,7 +535,7 @@ Comments: If an interrupt flag is set in Flags, that interrupt will be
 	  this channel's bit from being set in the AIOP's Interrupt Channel
 	  Register.
 */
-void sDisInterrupts(CHANNEL_T *ChP,uint16_t Flags)
+void sDisInterrupts(struct CHANNEL_str *ChP,uint16_t Flags)
 {
    uint8_t Mask; 		/* Interrupt Mask Register */
 
@@ -576,7 +576,7 @@ int	rpioctl(dev_t dev, u_long , caddr_t , int , struct proc *);
 int	rpopen(dev_t dev, int flag, int mode, struct proc *p);
 
 static void rp_do_receive(struct rp_port *rp, struct tty *tp,
-			CHANNEL_t *cp, unsigned int ChanStatus)
+			struct CHANNEL_str *cp, unsigned int ChanStatus)
 {
 	unsigned	int	CharNStat;
 	int	ToRecv, ch, s;
@@ -641,7 +641,7 @@ printf("tty overrun\n");	//XXX: print correct message
 
 static void rp_handle_port(struct rp_port *rp)
 {
-	CHANNEL_t	*cp;
+	struct CHANNEL_str	*cp;
 	struct	tty	*tp;
 	unsigned	int	IntMask, ChanStatus;
 
@@ -905,7 +905,7 @@ void
 rphardclose(struct tty *tp, struct rp_port *rp)
 {
 //XXX:	struct	rp_port	*rp;
-	CHANNEL_t	*cp;
+	struct CHANNEL_str	*cp;
 
 //XXX:	rp = tty_softc(tp);
 	cp = &rp->rp_channel;
@@ -1131,7 +1131,7 @@ rpparam(tp, t)
 	struct rp_softc *sc = rp_cd.cd_devs[card];
 	struct rp_port *rp = &sc->rp[port];
 
-	CHANNEL_t	*cp;
+	struct CHANNEL_str	*cp;
 	int	cflag, iflag, oflag, lflag;
 	int	ospeed;
 #ifdef RPCLOCAL
@@ -1232,7 +1232,7 @@ rpstart(struct tty *tp)
 	int port = RP_PORT(tp->t_dev);
 	struct rp_softc *sc = rp_cd.cd_devs[card];
 	struct rp_port *rp = &sc->rp[port];
-	CHANNEL_t	*cp;
+	struct CHANNEL_str	*cp;
 	char	flags;
 	int	xmit_fifo_room;
 	int	i, count, wcount;
