@@ -743,7 +743,7 @@ rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 	struct	rp_port *rp;
 	struct tty *tp;
 
-	unit = sc->dev.dv_unit;
+	unit = sc->sc_dev.dv_unit;
 
 	printf("RocketPort%d (Version %s) %d ports.\n", unit,
 		RocketPortVersion, num_ports);
@@ -1139,7 +1139,7 @@ rpstop(struct tty *tp, int flag)
 	//struct rp_port *rp = &sc->rp[port];
 
 	printf("%s port %d stop tty %p flag 0x%x NOT IMPLEMENTED!!!\n",
-	    sc->dev.dv_xname, port, tp, flag);
+	    sc->sc_dev.dv_xname, port, tp, flag);
 
 	return (0);
 }

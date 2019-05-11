@@ -362,7 +362,7 @@ typedef unsigned char rp_ctlmask_t(struct rp_softc *);
 /* Controller level information structure */
 struct rp_softc {
 	/* Device and resource management */
-	struct device		dev;		/* device */
+	struct device	sc_dev;	/* device */
 
 	int		CtlID;
 	int		NumAiop;
