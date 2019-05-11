@@ -135,12 +135,7 @@ static int rp_pcidetach(struct device dev);
 static int rp_pcishutdown(struct device dev);
 #endif /* notdef */
 //XXX: static void rp_pcireleaseresource(struct rp_softc *sc);
-static int sPCIInitController( struct rp_softc *sc,
-			       int AiopNum,
-			       int IRQNum,
-			       uint8_t Frequency,
-			       int PeriodicOnly,
-			       int VendorDevice);
+static int sPCIInitController(struct rp_softc *, int, int, uint8_t, int, int);
 //XXX: static rp_aiop2rid_t rp_pci_aiop2rid;
 //XXX: static rp_aiop2off_t rp_pci_aiop2off;
 //XXX: static rp_ctlmask_t rp_pci_ctlmask;
@@ -164,12 +159,12 @@ rp_pci_match(struct device *parent, void *match, void *aux)
 void
 rp_pci_attach(struct device *parent, struct device *self, void *aux)
 {
-	int	num_ports, num_aiops;
-	int	aiop;
 	struct rp_softc *sc = (struct rp_softc *)self;
-	int	retval;
-	pcireg_t	maptype;
-	struct pci_attach_args	*pa = aux;
+	struct pci_attach_args *pa = aux;
+	int num_ports, num_aiops;
+	int aiop;
+	int retval;
+	pcireg_t maptype;
 
 //XXX:	sc = device_get_softc(dev);
 //XXX:	bzero(sc, sizeof(*sc));
