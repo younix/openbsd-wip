@@ -57,10 +57,9 @@
 #include <dev/ic/rpreg.h>
 #include <dev/ic/rpvar.h>
 
-static const char RocketPortVersion[] = "3.02";
+static const char RP_Version[] = "3.02";
 
-static uint8_t RData[RDATASIZE] =
-{
+static uint8_t RData[RDATASIZE] = {
    0x00, 0x09, 0xf6, 0x82,
    0x02, 0x09, 0x86, 0xfb,
    0x04, 0x09, 0x00, 0x0a,
@@ -81,8 +80,7 @@ static uint8_t RData[RDATASIZE] =
    0x22, 0x09, 0x0a, 0x0a
 };
 
-static uint8_t RRegData[RREGDATASIZE]=
-{
+static uint8_t RRegData[RREGDATASIZE]= {
    0x00, 0x09, 0xf6, 0x82,	       /* 00: Stop Rx processor */
    0x08, 0x09, 0x8a, 0x13,	       /* 04: Tx software flow control */
    0x0a, 0x09, 0xc5, 0x11,	       /* 08: XON char */
@@ -106,15 +104,8 @@ Byte_t sIRQMap[16] =
 };
 #endif
 
-uint8_t rp_sBitMapClrTbl[8] =
-{
-   0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f
-};
-
-uint8_t rp_sBitMapSetTbl[8] =
-{
-   0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80
-};
+uint8_t rp_sBitMapClrTbl[8] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };
+uint8_t rp_sBitMapSetTbl[8] = { 0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80 };
 
 void rpfree(void *);
 
@@ -134,18 +125,19 @@ Return:   int: Flag AIOPID_XXXX if a valid AIOP is found, where X
 Warnings: No context switches are allowed while executing this function.
 
 */
-int sReadAiopID(struct rp_softc *sc, int aiop)
+int
+sReadAiopID(struct rp_softc *sc, int aiop)
 {
-   uint8_t AiopID;		/* ID byte from AIOP */
+	uint8_t AiopID;		/* ID byte from AIOP */
 
-   rp_writeaiop1(sc, aiop, _CMD_REG, RESET_ALL);     /* reset AIOP */
-   rp_writeaiop1(sc, aiop, _CMD_REG, 0x0);
-   AiopID = rp_readaiop1(sc, aiop, _CHN_STAT0) & 0x07;
+	rp_writeaiop1(sc, aiop, _CMD_REG, RESET_ALL);	/* reset AIOP */
+	rp_writeaiop1(sc, aiop, _CMD_REG, 0x0);
+	AiopID = rp_readaiop1(sc, aiop, _CHN_STAT0) & 0x07;
 
-   if(AiopID == 0x06)
-      return(1);
-   else 			       /* AIOP does not exist */
-      return(-1);
+	if (AiopID == 0x06)
+		return (1);
+	else 			/* AIOP does not exist */
+		return (-1);
 }
 
 /***************************************************************************
@@ -162,19 +154,22 @@ Comments: The number of channels is determined by write/reads from identical
 	  AIOP, otherwise it is an 8 channel.
 Warnings: No context switches are allowed while executing this function.
 */
-int sReadAiopNumChan(struct rp_softc *sc, int aiop)
+int
+sReadAiopNumChan(struct rp_softc *sc, int aiop)
 {
-   uint16_t x, y;
+	uint16_t x, y;
 
-   rp_writeaiop4(sc, aiop, _INDX_ADDR,0x12340000L); /* write to chan 0 SRAM */
-   rp_writeaiop2(sc, aiop, _INDX_ADDR,0);	   /* read from SRAM, chan 0 */
-   x = rp_readaiop2(sc, aiop, _INDX_DATA);
-   rp_writeaiop2(sc, aiop, _INDX_ADDR,0x4000);  /* read from SRAM, chan 4 */
-   y = rp_readaiop2(sc, aiop, _INDX_DATA);
-   if(x != y)  /* if different must be 8 chan */
-      return(8);
-   else
-      return(4);
+	rp_writeaiop4(sc, aiop, _INDX_ADDR, 0x12340000L);	/* write to chan 0 SRAM */
+	rp_writeaiop2(sc, aiop, _INDX_ADDR, 0);		/* read from SRAM, chan 0 */
+	x = rp_readaiop2(sc, aiop, _INDX_DATA);
+
+	rp_writeaiop2(sc, aiop, _INDX_ADDR, 0x4000);	/* read from SRAM, chan 4 */
+	y = rp_readaiop2(sc, aiop, _INDX_DATA);
+
+	if (x != y)	/* if different must be 8 chan */
+		return (8);
+
+	return (4);
 }
 
 /***************************************************************************
@@ -195,109 +190,111 @@ Warnings: No range checking on any of the parameters is done.
 int
 sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
 {
-   int i, ChOff;
-   uint8_t *ChR;
-   static uint8_t R[4];
+	int i, ChOff;
+	uint8_t *ChR;
+	static uint8_t R[4];
 
-   if(ChanNum >= sc->AiopNumChan[AiopNum])
-      return(false);		       /* exceeds num chans in AIOP */
+	if (ChanNum >= sc->AiopNumChan[AiopNum])
+		return (false);	/* exceeds num chans in AIOP */
 
-   /* Channel, AIOP, and controller identifiers */
-   ChP->CtlP = sc;
-   ChP->ChanID = sc->AiopID[AiopNum];
-   ChP->AiopNum = AiopNum;
-   ChP->ChanNum = ChanNum;
+	/* Channel, AIOP, and controller identifiers */
+	ChP->CtlP = sc;
+	ChP->ChanID = sc->AiopID[AiopNum];
+	ChP->AiopNum = AiopNum;
+	ChP->ChanNum = ChanNum;
 
-   /* Initialize the channel from the RData array */
-   for(i=0; i < RDATASIZE; i+=4)
-   {
-      R[0] = RData[i];
-      R[1] = RData[i+1] + 0x10 * ChanNum;
-      R[2] = RData[i+2];
-      R[3] = RData[i+3];
-      rp_writech4(ChP, _INDX_ADDR, lemtoh32(R));
-   }
+	/* Initialize the channel from the RData array */
+	for (i=0; i < RDATASIZE; i+=4) {
+		R[0] = RData[i];
+		R[1] = RData[i+1] + 0x10 * ChanNum;
+		R[2] = RData[i+2];
+		R[3] = RData[i+3];
+		rp_writech4(ChP, _INDX_ADDR, lemtoh32(R));
+	}
 
-   ChR = ChP->R;
-   for(i=0; i < RREGDATASIZE; i+=4)
-   {
-      ChR[i] = RRegData[i];
-      ChR[i+1] = RRegData[i+1] + 0x10 * ChanNum;
-      ChR[i+2] = RRegData[i+2];
-      ChR[i+3] = RRegData[i+3];
-   }
+	ChR = ChP->R;
+	for (i = 0; i < RREGDATASIZE; i += 4) {
+		ChR[i] = RRegData[i];
+		ChR[i+1] = RRegData[i+1] + 0x10 * ChanNum;
+		ChR[i+2] = RRegData[i+2];
+		ChR[i+3] = RRegData[i+3];
+	}
 
-   /* Indexed registers */
-   ChOff = (uint16_t)ChanNum * 0x1000;
+	/* Indexed registers */
+	ChOff = (uint16_t)ChanNum * 0x1000;
 
-   ChP->BaudDiv[0] = (uint8_t)(ChOff + _BAUD);
-   ChP->BaudDiv[1] = (uint8_t)((ChOff + _BAUD) >> 8);
-   ChP->BaudDiv[2] = (uint8_t)RP_BRD9600;
-   ChP->BaudDiv[3] = (uint8_t)(RP_BRD9600 >> 8);
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->BaudDiv));
+	ChP->BaudDiv[0] = (uint8_t)(ChOff + _BAUD);
+	ChP->BaudDiv[1] = (uint8_t)((ChOff + _BAUD) >> 8);
+	ChP->BaudDiv[2] = (uint8_t)RP_BRD9600;
+	ChP->BaudDiv[3] = (uint8_t)(RP_BRD9600 >> 8);
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->BaudDiv));
 
-   ChP->TxControl[0] = (uint8_t)(ChOff + _TX_CTRL);
-   ChP->TxControl[1] = (uint8_t)((ChOff + _TX_CTRL) >> 8);
-   ChP->TxControl[2] = 0;
-   ChP->TxControl[3] = 0;
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
+	ChP->TxControl[0] = (uint8_t)(ChOff + _TX_CTRL);
+	ChP->TxControl[1] = (uint8_t)((ChOff + _TX_CTRL) >> 8);
+	ChP->TxControl[2] = 0;
+	ChP->TxControl[3] = 0;
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
 
-   ChP->RxControl[0] = (uint8_t)(ChOff + _RX_CTRL);
-   ChP->RxControl[1] = (uint8_t)((ChOff + _RX_CTRL) >> 8);
-   ChP->RxControl[2] = 0;
-   ChP->RxControl[3] = 0;
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
+	ChP->RxControl[0] = (uint8_t)(ChOff + _RX_CTRL);
+	ChP->RxControl[1] = (uint8_t)((ChOff + _RX_CTRL) >> 8);
+	ChP->RxControl[2] = 0;
+	ChP->RxControl[3] = 0;
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
 
-   ChP->TxEnables[0] = (uint8_t)(ChOff + _TX_ENBLS);
-   ChP->TxEnables[1] = (uint8_t)((ChOff + _TX_ENBLS) >> 8);
-   ChP->TxEnables[2] = 0;
-   ChP->TxEnables[3] = 0;
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxEnables));
+	ChP->TxEnables[0] = (uint8_t)(ChOff + _TX_ENBLS);
+	ChP->TxEnables[1] = (uint8_t)((ChOff + _TX_ENBLS) >> 8);
+	ChP->TxEnables[2] = 0;
+	ChP->TxEnables[3] = 0;
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxEnables));
 
-   ChP->TxCompare[0] = (uint8_t)(ChOff + _TXCMP1);
-   ChP->TxCompare[1] = (uint8_t)((ChOff + _TXCMP1) >> 8);
-   ChP->TxCompare[2] = 0;
-   ChP->TxCompare[3] = 0;
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxCompare));
+	ChP->TxCompare[0] = (uint8_t)(ChOff + _TXCMP1);
+	ChP->TxCompare[1] = (uint8_t)((ChOff + _TXCMP1) >> 8);
+	ChP->TxCompare[2] = 0;
+	ChP->TxCompare[3] = 0;
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxCompare));
 
-   ChP->TxReplace1[0] = (uint8_t)(ChOff + _TXREP1B1);
-   ChP->TxReplace1[1] = (uint8_t)((ChOff + _TXREP1B1) >> 8);
-   ChP->TxReplace1[2] = 0;
-   ChP->TxReplace1[3] = 0;
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxReplace1));
+	ChP->TxReplace1[0] = (uint8_t)(ChOff + _TXREP1B1);
+	ChP->TxReplace1[1] = (uint8_t)((ChOff + _TXREP1B1) >> 8);
+	ChP->TxReplace1[2] = 0;
+	ChP->TxReplace1[3] = 0;
+	rp_writech4(ChP, _INDX_ADDR,lemtoh32(ChP->TxReplace1));
 
-   ChP->TxReplace2[0] = (uint8_t)(ChOff + _TXREP2);
-   ChP->TxReplace2[1] = (uint8_t)((ChOff + _TXREP2) >> 8);
-   ChP->TxReplace2[2] = 0;
-   ChP->TxReplace2[3] = 0;
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxReplace2));
+	ChP->TxReplace2[0] = (uint8_t)(ChOff + _TXREP2);
+	ChP->TxReplace2[1] = (uint8_t)((ChOff + _TXREP2) >> 8);
+	ChP->TxReplace2[2] = 0;
+	ChP->TxReplace2[3] = 0;
+	rp_writech4(ChP, _INDX_ADDR,lemtoh32(ChP->TxReplace2));
 
-   ChP->TxFIFOPtrs = ChOff + _TXF_OUTP;
-   ChP->TxFIFO = ChOff + _TX_FIFO;
+	ChP->TxFIFOPtrs = ChOff + _TXF_OUTP;
+	ChP->TxFIFO = ChOff + _TX_FIFO;
 
-   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum | RESTXFCNT); /* apply reset Tx FIFO count */
-   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum);  /* remove reset Tx FIFO count */
-   rp_writech2(ChP,_INDX_ADDR,ChP->TxFIFOPtrs); /* clear Tx in/out ptrs */
-   rp_writech2(ChP,_INDX_DATA,0);
-   ChP->RxFIFOPtrs = ChOff + _RXF_OUTP;
-   ChP->RxFIFO = ChOff + _RX_FIFO;
+	/* apply reset Tx FIFO count */
+	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum | RESTXFCNT);
 
-   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum | RESRXFCNT); /* apply reset Rx FIFO count */
-   rp_writech1(ChP,_CMD_REG,(uint8_t)ChanNum);  /* remove reset Rx FIFO count */
-   rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs); /* clear Rx out ptr */
-   rp_writech2(ChP,_INDX_DATA,0);
-   rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs + 2); /* clear Rx in ptr */
-   rp_writech2(ChP,_INDX_DATA,0);
-   ChP->TxPrioCnt = ChOff + _TXP_CNT;
-   rp_writech2(ChP,_INDX_ADDR,ChP->TxPrioCnt);
-   rp_writech1(ChP,_INDX_DATA,0);
-   ChP->TxPrioPtr = ChOff + _TXP_PNTR;
-   rp_writech2(ChP,_INDX_ADDR,ChP->TxPrioPtr);
-   rp_writech1(ChP,_INDX_DATA,0);
-   ChP->TxPrioBuf = ChOff + _TXP_BUF;
-   sEnRxProcessor(ChP); 	       /* start the Rx processor */
+	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum);	/* remove reset Tx FIFO count */
+	rp_writech2(ChP, _INDX_ADDR, ChP->TxFIFOPtrs);	/* clear Tx in/out ptrs */
+	rp_writech2(ChP, _INDX_DATA, 0);
+	ChP->RxFIFOPtrs = ChOff + _RXF_OUTP;
+	ChP->RxFIFO = ChOff + _RX_FIFO;
 
-   return(true);
+	/* apply reset Rx FIFO count */
+	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum | RESRXFCNT);
+
+	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum);	/* remove reset Rx FIFO count */
+	rp_writech2(ChP, _INDX_ADDR, ChP->RxFIFOPtrs);	/* clear Rx out ptr */
+	rp_writech2(ChP, _INDX_DATA, 0);
+	rp_writech2(ChP, _INDX_ADDR, ChP->RxFIFOPtrs + 2);	/* clear Rx in ptr */
+	rp_writech2(ChP, _INDX_DATA, 0);
+	ChP->TxPrioCnt = ChOff + _TXP_CNT;
+	rp_writech2(ChP, _INDX_ADDR, ChP->TxPrioCnt);
+	rp_writech1(ChP, _INDX_DATA, 0);
+	ChP->TxPrioPtr = ChOff + _TXP_PNTR;
+	rp_writech2(ChP, _INDX_ADDR, ChP->TxPrioPtr);
+	rp_writech1(ChP, _INDX_DATA, 0);
+	ChP->TxPrioBuf = ChOff + _TXP_BUF;
+	sEnRxProcessor(ChP);	/* start the Rx processor */
+
+	return (true);
 }
 
 /***************************************************************************
@@ -321,13 +318,14 @@ Warnings: No context switches are allowed while executing this function.
 void
 sStopRxProcessor(struct rp_chan *ChP)
 {
-   uint8_t R[4];
+	uint8_t R[4];
 
-   R[0] = ChP->R[0];
-   R[1] = ChP->R[1];
-   R[2] = 0x0a;
-   R[3] = ChP->R[3];
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(R));
+	R[0] = ChP->R[0];
+	R[1] = ChP->R[1];
+	R[2] = 0x0a;
+	R[3] = ChP->R[3];
+
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32(R));
 }
 
 /***************************************************************************
@@ -347,31 +345,32 @@ Warnings: No context switches are allowed while executing this function.
 void
 sFlushRxFIFO(struct rp_chan *ChP)
 {
-   int i;
-   uint8_t Ch;			/* channel number within AIOP */
-   int RxFIFOEnabled;		       /* true if Rx FIFO enabled */
+	int	RxFIFOEnabled = false;	/* true if Rx FIFO enabled */
+	int	i;
+	uint8_t	Ch;			/* channel number within AIOP */
 
-   if(sGetRxCnt(ChP) == 0)	       /* Rx FIFO empty */
-      return;			       /* don't need to flush */
+	if (sGetRxCnt(ChP) == 0)	/* Rx FIFO empty */
+		return;			/* don't need to flush */
 
-   RxFIFOEnabled = false;
-   if(ChP->R[0x32] == 0x08) /* Rx FIFO is enabled */
-   {
-      RxFIFOEnabled = true;
-      sDisRxFIFO(ChP);		       /* disable it */
-      for(i=0; i < 2000/200; i++)	/* delay 2 uS to allow proc to disable FIFO*/
-	 rp_readch1(ChP,_INT_CHAN);		/* depends on bus i/o timing */
-   }
-   sGetChanStatus(ChP); 	 /* clear any pending Rx errors in chan stat */
-   Ch = (uint8_t)sGetChanNum(ChP);
-   rp_writech1(ChP,_CMD_REG,Ch | RESRXFCNT);     /* apply reset Rx FIFO count */
-   rp_writech1(ChP,_CMD_REG,Ch);		       /* remove reset Rx FIFO count */
-   rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs); /* clear Rx out ptr */
-   rp_writech2(ChP,_INDX_DATA,0);
-   rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs + 2); /* clear Rx in ptr */
-   rp_writech2(ChP,_INDX_DATA,0);
-   if(RxFIFOEnabled)
-      sEnRxFIFO(ChP);		       /* enable Rx FIFO */
+	if (ChP->R[0x32] == 0x08) {	/* Rx FIFO is enabled */
+		RxFIFOEnabled = true;
+		sDisRxFIFO(ChP);	/* disable it */
+
+		/* delay 2 uS to allow proc to disable FIFO*/
+		for (i = 0; i < 2000/200; i++)
+			rp_readch1(ChP,_INT_CHAN);	/* depends on bus i/o timing */
+	}
+	sGetChanStatus(ChP);	/* clear any pending Rx errors in chan stat */
+	Ch = (uint8_t)sGetChanNum(ChP);
+	rp_writech1(ChP,_CMD_REG,Ch | RESRXFCNT);	/* apply reset Rx FIFO count */
+	rp_writech1(ChP,_CMD_REG,Ch);			/* remove reset Rx FIFO count */
+	rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs);	/* clear Rx out ptr */
+	rp_writech2(ChP,_INDX_DATA,0);
+	rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs + 2);/* clear Rx in ptr */
+	rp_writech2(ChP,_INDX_DATA,0);
+
+	if (RxFIFOEnabled)
+		sEnRxFIFO(ChP);	/* enable Rx FIFO */
 }
 
 /***************************************************************************
@@ -391,30 +390,32 @@ Warnings: No context switches are allowed while executing this function.
 void
 sFlushTxFIFO(struct rp_chan *ChP)
 {
-   int i;
-   uint8_t Ch;			/* channel number within AIOP */
-   int TxEnabled;		       /* true if transmitter enabled */
+	int i;
+	uint8_t Ch;		/* channel number within AIOP */
+	int TxEnabled;		/* true if transmitter enabled */
 
-   if(sGetTxCnt(ChP) == 0)	       /* Tx FIFO empty */
-      return;			       /* don't need to flush */
+	if (sGetTxCnt(ChP) == 0)	/* Tx FIFO empty */
+		return;		/* don't need to flush */
 
-   TxEnabled = false;
-   if(ChP->TxControl[3] & TX_ENABLE)
-   {
-      TxEnabled = true;
-      sDisTransmit(ChP);	       /* disable transmitter */
-   }
-   sStopRxProcessor(ChP);	       /* stop Rx processor */
-   for(i = 0; i < 4000/200; i++)	 /* delay 4 uS to allow proc to stop */
-      rp_readch1(ChP,_INT_CHAN);	/* depends on bus i/o timing */
-   Ch = (uint8_t)sGetChanNum(ChP);
-   rp_writech1(ChP,_CMD_REG,Ch | RESTXFCNT);     /* apply reset Tx FIFO count */
-   rp_writech1(ChP,_CMD_REG,Ch);		       /* remove reset Tx FIFO count */
-   rp_writech2(ChP,_INDX_ADDR,ChP->TxFIFOPtrs); /* clear Tx in/out ptrs */
-   rp_writech2(ChP,_INDX_DATA,0);
-   if(TxEnabled)
-      sEnTransmit(ChP); 	       /* enable transmitter */
-   sStartRxProcessor(ChP);	       /* restart Rx processor */
+	TxEnabled = false;
+	if (ChP->TxControl[3] & TX_ENABLE) {
+		TxEnabled = true;
+		sDisTransmit(ChP);	       /* disable transmitter */
+	}
+
+	sStopRxProcessor(ChP);		/* stop Rx processor */
+	for (i = 0; i < 4000/200; i++)	/* delay 4 uS to allow proc to stop */
+		rp_readch1(ChP,_INT_CHAN);		/* depends on bus i/o timing */
+	Ch = (uint8_t)sGetChanNum(ChP);
+	rp_writech1(ChP,_CMD_REG,Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
+	rp_writech1(ChP,_CMD_REG,Ch);			/* remove reset Tx FIFO count */
+	rp_writech2(ChP,_INDX_ADDR,ChP->TxFIFOPtrs);	/* clear Tx in/out ptrs */
+	rp_writech2(ChP,_INDX_DATA,0);
+
+	if (TxEnabled)
+		sEnTransmit(ChP);	/* enable transmitter */
+
+	sStartRxProcessor(ChP);		/* restart Rx processor */
 }
 
 /***************************************************************************
@@ -433,31 +434,32 @@ Warnings: No context switches are allowed while executing this function.
 int
 sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
 {
-   uint8_t DWBuf[4];		/* buffer for double word writes */
+	uint8_t DWBuf[4];		/* buffer for double word writes */
 
-   if(sGetTxCnt(ChP) > 1)	       /* write it to Tx priority buffer */
-   {
-      rp_writech2(ChP,_INDX_ADDR,ChP->TxPrioCnt); /* get priority buffer status */
-      if(rp_readch1(ChP,_INDX_DATA) & PRI_PEND) /* priority buffer busy */
-	 return(0);		       /* nothing sent */
+	if (sGetTxCnt(ChP) > 1) {	/* write it to Tx priority buffer */
+		/* get priority buffer status */
+		rp_writech2(ChP, _INDX_ADDR, ChP->TxPrioCnt);
 
-      htolem16(DWBuf,ChP->TxPrioBuf);   /* data byte address */
+		if (rp_readch1(ChP, _INDX_DATA) & PRI_PEND)	/* priority buffer busy */
+			return (0);		/* nothing sent */
 
-      DWBuf[2] = Data;		       /* data byte value */
-      DWBuf[3] = 0;		       /* priority buffer pointer */
-      rp_writech4(ChP,_INDX_ADDR,lemtoh32(DWBuf)); /* write it out */
+		htolem16(DWBuf, ChP->TxPrioBuf);/* data byte address */
 
-      htolem16(DWBuf,ChP->TxPrioCnt);   /* Tx priority count address */
+		DWBuf[2] = Data;		/* data byte value */
+		DWBuf[3] = 0;			/* priority buffer pointer */
+		rp_writech4(ChP,_INDX_ADDR,lemtoh32(DWBuf)); /* write it out */
 
-      DWBuf[2] = PRI_PEND + 1;	       /* indicate 1 byte pending */
-      DWBuf[3] = 0;		       /* priority buffer pointer */
-      rp_writech4(ChP,_INDX_ADDR,lemtoh32(DWBuf)); /* write it out */
-   }
-   else 			       /* write it to Tx FIFO */
-   {
-      sWriteTxByte(ChP,sGetTxRxDataIO(ChP),Data);
-   }
-   return(1);			       /* 1 byte sent */
+		htolem16(DWBuf,ChP->TxPrioCnt);	/* Tx priority count address */
+
+		DWBuf[2] = PRI_PEND + 1;	/* indicate 1 byte pending */
+		DWBuf[3] = 0;			/* priority buffer pointer */
+		rp_writech4(ChP, _INDX_ADDR, lemtoh32(DWBuf));	/* write it out */
+	} else {
+		/* write it to Tx FIFO */
+		sWriteTxByte(ChP, sGetTxRxDataIO(ChP), Data);
+	}
+
+	return (1);	/* 1 byte sent */
 }
 
 /***************************************************************************
@@ -493,24 +495,20 @@ Comments: If an interrupt enable flag is set in Flags, that interrupt will be
 	  status register to be used to determine which AIOPs need service.
 */
 void
-sEnInterrupts(struct rp_chan *ChP,uint16_t Flags)
+sEnInterrupts(struct rp_chan *ChP, uint16_t Flags)
 {
-   uint8_t Mask; 		/* Interrupt Mask Register */
+	uint8_t Mask;	/* Interrupt Mask Register */
 
-   ChP->RxControl[2] |=
-      ((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+	ChP->RxControl[2] |= ((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->RxControl));
 
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
+	ChP->TxControl[2] |= ((uint8_t)Flags & TXINT_EN);
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->TxControl));
 
-   ChP->TxControl[2] |= ((uint8_t)Flags & TXINT_EN);
-
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
-
-   if(Flags & CHANINT_EN)
-   {
-      Mask = rp_readch1(ChP,_INT_MASK) | rp_sBitMapSetTbl[ChP->ChanNum];
-      rp_writech1(ChP,_INT_MASK,Mask);
-   }
+	if (Flags & CHANINT_EN) {
+		Mask = rp_readch1(ChP,_INT_MASK) | rp_sBitMapSetTbl[ChP->ChanNum];
+		rp_writech1(ChP, _INT_MASK, Mask);
+	}
 }
 
 /***************************************************************************
@@ -541,19 +539,19 @@ Comments: If an interrupt flag is set in Flags, that interrupt will be
 void
 sDisInterrupts(struct rp_chan *ChP,uint16_t Flags)
 {
-   uint8_t Mask; 		/* Interrupt Mask Register */
+	uint8_t Mask;	/* Interrupt Mask Register */
 
-   ChP->RxControl[2] &=
-	 ~((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
-   ChP->TxControl[2] &= ~((uint8_t)Flags & TXINT_EN);
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
+	ChP->RxControl[2] &=
+	    ~((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->RxControl));
 
-   if(Flags & CHANINT_EN)
-   {
-      Mask = rp_readch1(ChP,_INT_MASK) & rp_sBitMapClrTbl[ChP->ChanNum];
-      rp_writech1(ChP,_INT_MASK,Mask);
-   }
+	ChP->TxControl[2] &= ~((uint8_t)Flags & TXINT_EN);
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->TxControl));
+
+	if (Flags & CHANINT_EN) {
+		Mask = rp_readch1(ChP,_INT_MASK) & rp_sBitMapClrTbl[ChP->ChanNum];
+		rp_writech1(ChP,_INT_MASK,Mask);
+	}
 }
 
 /*
@@ -583,36 +581,36 @@ static void
 rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
     unsigned int ChanStatus)
 {
-	unsigned	int	CharNStat;
-	int	ToRecv, ch, s;
+	unsigned int CharNStat;
+	int ToRecv, ch, s;
 
 	ToRecv = sGetRxCnt(cp);
-	if(ToRecv == 0)
+	if (ToRecv == 0)
 		return;
 
-/*	If status indicates there are errored characters in the
-	FIFO, then enter status mode (a word in FIFO holds
-	characters and status)
-*/
-
-	if(ChanStatus & (RXFOVERFL | RXBREAK | RXFRAME | RXPARITY)) {
-		if(!(ChanStatus & STATMODE)) {
+	/*
+	 * If status indicates there are errored characters in the FIFO, then
+	 * enter status mode (a word in FIFO holds characters and status)
+	 */
+	if (ChanStatus & (RXFOVERFL | RXBREAK | RXFRAME | RXPARITY)) {
+		if (!(ChanStatus & STATMODE)) {
 			ChanStatus |= STATMODE;
 			sEnRxStatusMode(cp);
 		}
 	}
-/*
-	if we previously entered status mode then read down the
-	FIFO one word at a time, pulling apart the character and
-	the status. Update error counters depending on status.
-*/
+
+	/*
+	 * if we previously entered status mode then read down the FIFO one
+	 * word at a time, pulling apart the character and the status. Update
+	 * error counters depending on status.
+	 */
 	s = spltty();
-	if(ChanStatus & STATMODE) {
-		while(ToRecv) {
-			CharNStat = rp_readch2(cp,sGetTxRxDataIO(cp));
+	if (ChanStatus & STATMODE) {
+		while (ToRecv) {
+			CharNStat = rp_readch2(cp, sGetTxRxDataIO(cp));
 			ch = CharNStat & 0xff;
 
-			if((CharNStat & STMBREAK) || (CharNStat & STMFRAMEH))
+			if ((CharNStat & STMBREAK) || (CharNStat & STMFRAMEH))
 				ch |= TTY_FE;
 			else if (CharNStat & STMPARITYH)
 				ch |= TTY_PE;
@@ -625,33 +623,31 @@ printf("tty overrun\n");	//XXX: print correct message
 			(*linesw[tp->t_line].l_rint)(ch, tp);
 			ToRecv--;
 		}
-/*
-	After emtying FIFO in status mode, turn off status mode
-*/
 
-		if(sGetRxCnt(cp) == 0) {
+		/* After emtying FIFO in status mode, turn off status mode */
+		if (sGetRxCnt(cp) == 0)
 			sDisRxStatusMode(cp);
-		}
 	} else {
 		ToRecv = sGetRxCnt(cp);
 		while (ToRecv) {
-			ch = rp_readch1(cp,sGetTxRxDataIO(cp));
+			ch = rp_readch1(cp, sGetTxRxDataIO(cp));
 			(*linesw[tp->t_line].l_rint)(ch & 0xff, tp);
 			ToRecv--;
 		}
 	}
-        //XXX: do we need this?! -> ttydisc_rint_done(tp);
-        splx(s);
+	//XXX: do we need this?! -> ttydisc_rint_done(tp);
+	splx(s);
 }
 
 static void
 rp_handle_port(struct rp_port *rp)
 {
 	struct rp_chan	*cp;
-	struct	tty	*tp;
-	unsigned	int	IntMask, ChanStatus;
+	struct tty	*tp;
+	unsigned int	 IntMask;
+	unsigned int	 ChanStatus;
 
-	if(!rp)
+	if (rp == NULL)
 		return;
 
 	cp = &rp->rp_channel;
@@ -659,18 +655,18 @@ rp_handle_port(struct rp_port *rp)
 	IntMask = sGetChanIntID(cp);
 	IntMask = IntMask & rp->rp_intmask;
 	ChanStatus = sGetChanStatus(cp);
-	if(IntMask & RXF_TRIG)
+	if (IntMask & RXF_TRIG)
 		rp_do_receive(rp, tp, cp, ChanStatus);
-	if(IntMask & DELTA_CD) {
-		if(ChanStatus & CD_ACT) {
+
+	if (IntMask & DELTA_CD) {
+		if (ChanStatus & CD_ACT)
 			(void)(*linesw[tp->t_line].l_modem)(tp, 1);
-		} else {
+		else
 			(void)(*linesw[tp->t_line].l_modem)(tp, 0);
-		}
 	}
 /*	oldcts = rp->rp_cts;
 	rp->rp_cts = ((ChanStatus & CTS_ACT) != 0);
-	if(oldcts != rp->rp_cts) {
+	if (oldcts != rp->rp_cts) {
 		printf("CTS change (now %s)... on port %d\n", rp->rp_cts ? "on" : "off", rp->rp_port);
 	}
 */
@@ -679,28 +675,25 @@ rp_handle_port(struct rp_port *rp)
 void
 rp_do_poll(void *arg)
 {
-	struct rp_softc *sc;
-	struct rp_port	*rp;
-	struct tty	*tp;
-	int	count;
-	unsigned char	CtlMask, AiopMask;
+	struct rp_port	*rp = arg;
+	struct rp_softc	*sc = rp->rp_ctlp;
+	struct tty	*tp = rp->rp_tty;
+	int		 count;
+	unsigned char	 CtlMask;
+	unsigned char	 AiopMask;
 
-	rp = arg;
-	tp = rp->rp_tty;
 //	tty_lock_assert(tp, MA_OWNED);	//XXX: do we need this?
-	sc = rp->rp_ctlp;
 	CtlMask = sc->ctlmask(sc);
 	if (CtlMask & (1 << rp->rp_aiop)) {
 		AiopMask = sGetAiopIntStatus(sc, rp->rp_aiop);
-		if (AiopMask & (1 << rp->rp_chan)) {
+		if (AiopMask & (1 << rp->rp_chan))
 			rp_handle_port(rp);
-		}
 	}
 
 	count = sGetTxCnt(&rp->rp_channel);
-	if (count >= 0  && (count <= rp->rp_restart)) {
+	if (count >= 0 && count <= rp->rp_restart)
 		rpstart(tp);
-	}
+
 	timeout_add(&rp->rp_timer, POLL_INTERVAL);
 }
 
@@ -717,7 +710,6 @@ static struct ttydevsw rp_tty_class = {
 };
 */
 
-
 void
 rpfree(void *softc)
 {
@@ -730,22 +722,21 @@ rpfree(void *softc)
 int
 rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 {
-	int	unit;
-	int	num_chan;
-	int	aiop, chan, port;
-	int	ChanStatus;
-	int	retval;
-	struct	rp_port *rp;
-	struct tty *tp;
+	struct rp_port	*rp;
+	struct tty	*tp;
+	int		 unit;
+	int		 num_chan;
+	int		 aiop, chan, port;
+	int		 ChanStatus;
+	int		 retval;
 
 	unit = sc->sc_dev.dv_unit;
 
-	printf("RocketPort%d (Version %s) %d ports.\n", unit,
-		RocketPortVersion, num_ports);
+	printf(" rp%d (Version %s) %d ports\n", unit, RP_Version, num_ports);
 
 	sc->num_ports = num_ports;
-	sc->rp = rp = (struct rp_port *)
-		malloc(sizeof(struct rp_port) * num_ports, M_DEVBUF, M_NOWAIT | M_ZERO);
+	sc->rp = rp = mallocarray(num_ports, sizeof(*rp), M_DEVBUF, M_NOWAIT|M_ZERO);
+
 	if (rp == NULL) {
 		//XXX: improve message
 		printf("rp_attachcommon: Could not malloc rp_ports structures.\n");
@@ -754,9 +745,9 @@ rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 	}
 
 	port = 0;
-	for(aiop=0; aiop < num_aiops; aiop++) {
+	for (aiop=0; aiop < num_aiops; aiop++) {
 		num_chan = sGetAiopNumChan(sc, aiop);
-		for(chan=0; chan < num_chan; chan++, port++, rp++) {
+		for (chan = 0; chan < num_chan; chan++, port++, rp++) {
 			rp->rp_tty = tp = ttymalloc(0);
 			tp->t_oproc = rpstart;
 			tp->t_param = rpparam;
@@ -773,10 +764,10 @@ rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 #ifdef notdef
 			ChanStatus = sGetChanStatus(&rp->rp_channel);
 #endif /* notdef */
-			if(sInitChan(sc, &rp->rp_channel, aiop, chan) == 0) {
+			if (sInitChan(sc, &rp->rp_channel, aiop, chan) == 0) {
 				//XXX: fix this message
 				printf("RocketPort sInitChan(%d, %d, %d) failed.\n",
-					      unit, aiop, chan);
+				    unit, aiop, chan);
 				retval = ENXIO;
 				goto nogo;
 			}
@@ -792,26 +783,25 @@ rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 
 nogo:
 	rp_releaseresource(sc);
-
 	return (retval);
 }
 
 void
 rp_releaseresource(struct rp_softc *sc)
 {
-	struct	rp_port *rp;
-	int i;
-
 	if (sc->rp != NULL) {
+		int i;
+
 		for (i = 0; i < sc->num_ports; i++) {
-			rp = sc->rp + i;
+			struct rp_port *rp = sc->rp + i;
+
 			atomic_add_int(&sc->free, 1);
 //XXX: do we need this:	s = spltty();	//tty_lock(rp->rp_tty);
 //			tty_rel_gone(rp->rp_tty);
 			ttyfree(rp->rp_tty);
 		}
-                free(sc->rp, M_DEVBUF, sizeof(struct rp_port) * sc->num_ports);
-                sc->rp = NULL;
+		free(sc->rp, M_DEVBUF, sizeof(*sc->rp) * sc->num_ports);
+		sc->rp = NULL;
 	}
 
 //XXX: do we need this:
@@ -827,17 +817,15 @@ rp_releaseresource(struct rp_softc *sc)
 int
 rpopen(dev_t dev, int flag, int mode, struct proc *p)
 {
-	struct	rp_softc *sc;
-	struct	rp_port *rp;
-	int	flags;
-	unsigned int	IntMask, ChanStatus;
-	int card = RP_CARD(dev);
-	int port = RP_PORT(dev);
+	struct rp_softc	*sc;
+	struct rp_port	*rp;
+	unsigned int	 IntMask, ChanStatus;
+	int		 card = RP_CARD(dev);
+	int		 port = RP_PORT(dev);
+	int		 flags = 0;
 
-	if (card >= rp_cd.cd_ndevs ||
-	    (sc = rp_cd.cd_devs[card]) == NULL) {
+	if (card >= rp_cd.cd_ndevs || (sc = rp_cd.cd_devs[card]) == NULL)
 		return (ENXIO);
-	}
 
 #ifdef RP_DEBUG
 	printf("%s open port %d flag 0x%x mode 0x%x\n", sc->dev.dv_xname,
@@ -846,39 +834,34 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 
 	rp = &sc->rp[port];
 
-	flags = 0;
 	flags |= SET_RTS;
 	flags |= SET_DTR;
 	rp->rp_channel.TxControl[3] =
-		((rp->rp_channel.TxControl[3]
-		& ~(SET_RTS | SET_DTR)) | flags);
-	rp_writech4(&rp->rp_channel,_INDX_ADDR,
-		lemtoh32(rp->rp_channel.TxControl));
+	    ((rp->rp_channel.TxControl[3] & ~(SET_RTS | SET_DTR)) | flags);
+	rp_writech4(&rp->rp_channel,_INDX_ADDR, lemtoh32(rp->rp_channel.TxControl));
 	sSetRxTrigger(&rp->rp_channel, TRIG_1);
 	sDisRxStatusMode(&rp->rp_channel);
 	sFlushRxFIFO(&rp->rp_channel);
 	sFlushTxFIFO(&rp->rp_channel);
 
 	sEnInterrupts(&rp->rp_channel,
-		(TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
+	    (TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
 	sSetRxTrigger(&rp->rp_channel, TRIG_1);
 
 	sDisRxStatusMode(&rp->rp_channel);
 	sClrTxXOFF(&rp->rp_channel);
 
-/*	sDisRTSFlowCtl(&rp->rp_channel);
-	sDisCTSFlowCtl(&rp->rp_channel);
-*/
-	sDisTxSoftFlowCtl(&rp->rp_channel);
+//	sDisRTSFlowCtl(&rp->rp_channel);
+//	sDisCTSFlowCtl(&rp->rp_channel);
 
+	sDisTxSoftFlowCtl(&rp->rp_channel);
 	sStartRxProcessor(&rp->rp_channel);
 
 	sEnRxFIFO(&rp->rp_channel);
 	sEnTransmit(&rp->rp_channel);
 
-/*	sSetDTR(&rp->rp_channel);
-	sSetRTS(&rp->rp_channel);
-*/
+//	sSetDTR(&rp->rp_channel);
+//	sSetRTS(&rp->rp_channel);
 
 	IntMask = sGetChanIntID(&rp->rp_channel);
 	IntMask = IntMask & rp->rp_intmask;
@@ -889,17 +872,17 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	timeout_add(&rp->rp_timer, POLL_INTERVAL);
 
 //XXX:	device_busy(rp->rp_ctlp->dev);
-	return(0);
+	return (0);
 }
 
 int
 rpclose(dev_t dev, int flag, int mode, struct proc *p)
 {
-	int card = RP_CARD(dev);
-	int port = RP_PORT(dev);
-	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
-	struct tty *tp = rp->rp_tty;
+	int		 card = RP_CARD(dev);
+	int		 port = RP_PORT(dev);
+	struct rp_softc	*sc = rp_cd.cd_devs[card];
+	struct rp_port	*rp = &sc->rp[port];
+	struct tty	*tp = rp->rp_tty;
 
 	timeout_del(&rp->rp_timer);
 	rphardclose(tp, rp);
@@ -927,12 +910,12 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 	sClrTxXOFF(cp);
 
 #ifdef DJA
-	if(tp->t_cflag&HUPCL || !(tp->t_state&TS_ISOPEN) || !tp->t_actout) {
+	if (tp->t_cflag&HUPCL || !(tp->t_state & TS_ISOPEN) || !tp->t_actout)
 		sClrDTR(cp);
-	}
-	if(ISCALLOUT(tp->t_dev)) {
+
+	if (ISCALLOUT(tp->t_dev))
 		sClrDTR(cp);
-	}
+
 	tp->t_actout = false;
 	wakeup(&tp->t_actout);
 	wakeup(TSA_CARR_ON(tp));
@@ -942,11 +925,11 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 int
 rpread(dev_t dev, struct uio *uio, int flag)
 {
-	int card = RP_CARD(dev);
-	int port = RP_PORT(dev);
-	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
-	struct tty *tp = rp->rp_tty;
+	int		 card = RP_CARD(dev);
+	int		 port = RP_PORT(dev);
+	struct rp_softc	*sc = rp_cd.cd_devs[card];
+	struct rp_port	*rp = &sc->rp[port];
+	struct tty	*tp = rp->rp_tty;
 
 #ifdef RP_DEBUG
 	printf("%s read port %d uio %p flag 0x%x\n", sc->dev.dv_xname,
@@ -966,7 +949,7 @@ rpwrite(dev_t dev, struct uio *uio, int flag)
 	struct tty *tp = rp->rp_tty;
 
 #ifdef RP_DEBUG
-	printf("%s write port %d uio %p flag 0x%x\n", sc->dev.dv_xname,
+	printf("%s write port %d uio %p flag 0x%x\n", sc->sc_dev.dv_xname,
 	    port, uio, flag);
 #endif
 
@@ -1010,38 +993,27 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 
 	switch (cmd) {
 	case TIOCSBRK:
-		sSendBreak(&rp->rp_channel);
 		return (0);
 	case TIOCCBRK:
-		sClrBreak(&rp->rp_channel);
 		return (0);
 	case TIOCSDTR:	/* DIR on */
 // TIOCM_DTR, DMBIS
-		printf("%s: TIOCSDTR\n", __func__);
 		return ENOTTY;
 	case TIOCCDTR:	/* DIR off */
-		printf("%s: TIOCCDTR\n", __func__);
 		return ENOTTY;
 	case TIOCMSET:	/* set new modem control line values */
-		printf("%s: TIOCMSET\n", __func__);
 		return ENOTTY;
 	case TIOCMBIS:	/* turn modem control bits on */
-		printf("%s: TIOCMBIS\n", __func__);
 		return ENOTTY;
 	case TIOCMBIC:	/* turn modem control bits off */
-		printf("%s: TIOCMBIC\n", __func__);
 		return ENOTTY;
 	case TIOCMGET:	/* get modem control/status line state */
-		printf("%s: TIOCMGET\n", __func__);
 		return ENOTTY;
 	case TIOCGFLAGS:/* set flags */
-		printf("%s: TIOCGFLAGS\n", __func__);
 		return ENOTTY;
 	case TIOCSFLAGS:/* get flags */
-		printf("%s: TIOCSFLAGS\n", __func__);
 		return ENOTTY;
 	default:
-printf("%s:%d cmd %lu\n", __func__, __LINE__, cmd);
 		return ENOTTY;
 	}
 }
@@ -1050,7 +1022,7 @@ int
 rpmodem(struct tty *tp, int sigon, int sigoff)
 {
 	struct rp_port	*rp;
-	int i, j, k;
+	int		 i, j, k;
 
 	rp = tty_softc(tp);
 	if (sigon != 0 || sigoff != 0) {
@@ -1087,20 +1059,18 @@ rpmodem(struct tty *tp, int sigon, int sigoff)
 }
 #endif
 
-static struct
-{
+static struct {
 	int baud;
 	int conversion;
 } baud_table[] = {
-	{B0,	0},		{B50,	RP_BRD50},	{B75,    RP_BRD75},
-	{B110,	RP_BRD110}, 	{B134,	RP_BRD134}, 	{B150,   RP_BRD150},
-	{B200,	RP_BRD200}, 	{B300,	RP_BRD300}, 	{B600,   RP_BRD600},
-	{B1200,	RP_BRD1200},	{B1800,	RP_BRD1800},	{B2400,  RP_BRD2400},
-	{B4800,	RP_BRD4800},	{B9600,	RP_BRD9600},	{B19200, RP_BRD19200},
-	{B38400, RP_BRD38400},	{B7200,	RP_BRD7200},	{B14400, RP_BRD14400},
-				{B57600, RP_BRD57600},	{B76800, RP_BRD76800},
-	{B115200, RP_BRD115200},{B230400, RP_BRD230400},
-	{-1,	-1}
+	{B0,      0},		{B50,    RP_BRD50},	{B75,     RP_BRD75},
+	{B110,    RP_BRD110}, 	{B134,   RP_BRD134}, 	{B150,    RP_BRD150},
+	{B200,	  RP_BRD200}, 	{B300,   RP_BRD300}, 	{B600,    RP_BRD600},
+	{B1200,	  RP_BRD1200},	{B1800,  RP_BRD1800},	{B2400,   RP_BRD2400},
+	{B4800,   RP_BRD4800},	{B9600,  RP_BRD9600},	{B19200,  RP_BRD19200},
+	{B38400,  RP_BRD38400},	{B7200,  RP_BRD7200},	{B14400,  RP_BRD14400},
+	{B57600,  RP_BRD57600},	{B76800, RP_BRD76800},	{B115200, RP_BRD115200},
+	{B230400, RP_BRD230400}, {-1, -1}
 };
 
 static int
@@ -1108,10 +1078,9 @@ rp_convert_baud(int baud)
 {
 	int i;
 
-	for (i = 0; baud_table[i].baud >= 0; i++) {
+	for (i = 0; baud_table[i].baud >= 0; i++)
 		if (baud_table[i].baud == baud)
 			break;
-	}
 
 	return baud_table[i].conversion;
 }
@@ -1119,11 +1088,12 @@ rp_convert_baud(int baud)
 int
 rpstop(struct tty *tp, int flag)
 {
-	int card = RP_CARD(tp->t_dev);
-	int port = RP_PORT(tp->t_dev);
+	int		 card = RP_CARD(tp->t_dev);
+	int		 port = RP_PORT(tp->t_dev);
 	struct rp_softc *sc = rp_cd.cd_devs[card];
 	//struct rp_port *rp = &sc->rp[port];
 
+	/* XXX: not implemented yet */
 	printf("%s port %d stop tty %p flag 0x%x NOT IMPLEMENTED!!!\n",
 	    sc->sc_dev.dv_xname, port, tp, flag);
 
@@ -1133,39 +1103,32 @@ rpstop(struct tty *tp, int flag)
 int
 rpparam(struct tty *tp, struct termios *t)
 {
-	int card = RP_CARD(tp->t_dev);
-	int port = RP_PORT(tp->t_dev);
-	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
+	int		 card = RP_CARD(tp->t_dev);
+	int		 port = RP_PORT(tp->t_dev);
+	struct rp_softc	*sc = rp_cd.cd_devs[card];
+	struct rp_port	*rp = &sc->rp[port];
+	struct rp_chan	*cp = &rp->rp_channel;
+	int		 cflag = t->c_cflag;
+	int		 iflag = t->c_iflag;
+//	int		 oflag = t->c_oflag;
+//	int		 lflag = t->c_lflag;
+	int		 ospeed;
 
-	struct rp_chan	*cp;
-	int	cflag, iflag, oflag, lflag;
-	int	ospeed;
 #ifdef RPCLOCAL
-	int	devshift;
-#endif
-
-	cp = &rp->rp_channel;
-
-	cflag = t->c_cflag;
-#ifdef RPCLOCAL
+	int devshift;
 	devshift = umynor / 32;
 	devshift = 1 << devshift;
-	if ( devshift & RPCLOCAL ) {
+	if (devshift & RPCLOCAL)
 		cflag |= CLOCAL;
-	}
 #endif
-	iflag = t->c_iflag;
-	oflag = t->c_oflag;
-	lflag = t->c_lflag;
 
 	ospeed = rp_convert_baud(t->c_ispeed);
-	if(ospeed < 0 || t->c_ispeed != t->c_ospeed)
-		return(EINVAL);
+	if (ospeed < 0 || t->c_ispeed != t->c_ospeed)
+		return (EINVAL);
 
-	if(t->c_ospeed == 0) {
+	if (t->c_ospeed == 0) {
 		sClrDTR(cp);
-		return(0);
+		return (0);
 	}
 	rp->rp_fifo_lw = ((t->c_ospeed*2) / 1000) +1;
 
@@ -1174,24 +1137,23 @@ rpparam(struct tty *tp, struct termios *t)
 	sSetRTS(cp);
 	sSetBaud(cp, ospeed);
 
-	if(cflag & CSTOPB) {
+	if (cflag & CSTOPB)
 		sSetStop2(cp);
-	} else {
+	else
 		sSetStop1(cp);
-	}
 
-	if(cflag & PARENB) {
+	if (cflag & PARENB) {
 		sEnParity(cp);
-		if(cflag & PARODD) {
+
+		if (cflag & PARODD)
 			sSetOddParity(cp);
-		} else {
+		else
 			sSetEvenParity(cp);
-		}
-	}
-	else {
+	} else {
 		sDisParity(cp);
 	}
-	if((cflag & CSIZE) == CS8) {
+
+	if ((cflag & CSIZE) == CS8) {
 		sSetData8(cp);
 		rp->rp_imask = 0xFF;
 	} else {
@@ -1199,71 +1161,62 @@ rpparam(struct tty *tp, struct termios *t)
 		rp->rp_imask = 0x7F;
 	}
 
-	if(iflag & ISTRIP) {
+	if (iflag & ISTRIP)
 		rp->rp_imask &= 0x7F;
-	}
 
-	if(cflag & CLOCAL) {
+	if (cflag & CLOCAL)
 		rp->rp_intmask &= ~DELTA_CD;
-	} else {
+	else
 		rp->rp_intmask |= DELTA_CD;
-	}
 
 	/* Put flow control stuff here */
 
-	if(cflag & CCTS_OFLOW) {
+	if (cflag & CCTS_OFLOW)
 		sEnCTSFlowCtl(cp);
-	} else {
+	else
 		sDisCTSFlowCtl(cp);
-	}
 
-	if(cflag & CRTS_IFLOW) {
+	if (cflag & CRTS_IFLOW)
 		rp->rp_rts_iflow = 1;
-	} else {
+	else
 		rp->rp_rts_iflow = 0;
-	}
 
-	if(cflag & CRTS_IFLOW) {
+	if (cflag & CRTS_IFLOW)
 		sEnRTSFlowCtl(cp);
-	} else {
+	else
 		sDisRTSFlowCtl(cp);
-	}
 
-	return(0);
+	return (0);
 }
 
 void
 rpstart(struct tty *tp)
 {
-	int card = RP_CARD(tp->t_dev);
-	int port = RP_PORT(tp->t_dev);
-	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
-	struct rp_chan	*cp;
-	char	flags;
-	int	xmit_fifo_room;
-	int	i, count, wcount;
+	int		 card = RP_CARD(tp->t_dev);
+	int		 port = RP_PORT(tp->t_dev);
+	struct rp_softc	*sc = rp_cd.cd_devs[card];
+	struct rp_port	*rp = &sc->rp[port];
+	struct rp_chan	*cp = &rp->rp_channel;
+//	char		 flags = rp->rp_channel.TxControl[3];
+	int		 xmit_fifo_room;
+	int		 i, count, wcount;
 
 #ifdef RP_DEBUG
 //	printf("%s port %d start, tty %p\n", sc->dev.dv_xname, port, tp);
 #endif
 
-	cp = &rp->rp_channel;
-	flags = rp->rp_channel.TxControl[3];
-
-	if(rp->rp_xmit_stopped) {
+	if (rp->rp_xmit_stopped) {
 		sEnTransmit(cp);
 		rp->rp_xmit_stopped = 0;
 	}
 
 	xmit_fifo_room = TXFIFO_SIZE - sGetTxCnt(cp);
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
-	if(xmit_fifo_room > 0) {
-		for( i = 0, wcount = count >> 1; wcount > 0; i += 2, wcount-- ) {
+	if (xmit_fifo_room > 0) {
+		for (i = 0, wcount = count >> 1; wcount > 0; i += 2, wcount--)
 			rp_writech2(cp, sGetTxRxDataIO(cp), lemtoh16(&rp->TxBuf[i]));
-		}
-		if ( count & 1 ) {
+
+		if (count & 1)
 			rp_writech1(cp, sGetTxRxDataIO(cp), rp->TxBuf[(count-1)]);
-		}
 	}
 }

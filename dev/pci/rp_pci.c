@@ -62,10 +62,10 @@ int rp_pci_match(struct device *, void *, void *);
 void rp_pci_attach(struct device *, struct device *, void *);
 
 struct rp_pci_softc {
-	struct rp_softc		sc_rp;		/* real softc */
+	struct rp_softc		sc_rp;	/* real softc */
 
-	bus_space_tag_t		sc_iot;		/* PLX i/o tag */
-	bus_space_handle_t	sc_ioh;		/* PLX i/o handle */
+	bus_space_tag_t		sc_iot;	/* PLX i/o tag */
+	bus_space_handle_t	sc_ioh;	/* PLX i/o handle */
 };
 
 const struct cfattach rp_pci_ca = {
@@ -202,12 +202,11 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 		return;
 	}
 
-	num_aiops = sPCIInitController(sc,
-				       RP_MAX_AIOPS_PER_BOARD, 0,
-				       FREQ_DIS, 0, PCI_PRODUCT(pa->pa_id));
+	num_aiops = sPCIInitController(sc, RP_MAX_AIOPS_PER_BOARD, 0, FREQ_DIS,
+	    0, PCI_PRODUCT(pa->pa_id));
 
 	num_ports = 0;
-	for(aiop=0; aiop < num_aiops; aiop++) {
+	for (aiop = 0; aiop < num_aiops; aiop++) {
 		sResetAiopByNum(sc, aiop);
 		num_ports += sGetAiopNumChan(sc, aiop);
 	}
@@ -228,7 +227,7 @@ static int
 sPCIInitController(struct rp_softc *CtlP, int AiopNum, int IRQNum,
     uint8_t Frequency, int PeriodicOnly, int VendorDevice)
 {
-	int		i;
+	int i;
 
 	CtlP->CtlID = CTLID_0001;	/* controller release 1 */
 
@@ -236,48 +235,45 @@ sPCIInitController(struct rp_softc *CtlP, int AiopNum, int IRQNum,
 
 	/* Init AIOPs */
 	CtlP->NumAiop = 0;
-	for(i=0; i < AiopNum; i++)
-	{
+	for (i = 0; i < AiopNum; i++) {
 		/*device_printf(CtlP->dev, "aiop %d.\n", i);*/
 		CtlP->AiopID[i] = sReadAiopID(CtlP, i);	/* read AIOP ID */
 		/*device_printf(CtlP->dev, "ID = %d.\n", CtlP->AiopID[i]);*/
-		if(CtlP->AiopID[i] == AIOPID_NULL)	/* if AIOP does not exist */
-		{
+		if (CtlP->AiopID[i] == AIOPID_NULL)	/* if AIOP does not exist */
 			break;				/* done looking for AIOPs */
-		}
 
-		switch( VendorDevice ) {
+		switch (VendorDevice) {
 		case RP_DEVICE_ID_4Q:
 		case RP_DEVICE_ID_4J:
 		case RP_DEVICE_ID_4M:
-      			CtlP->AiopNumChan[i] = 4;
+			CtlP->AiopNumChan[i] = 4;
 			break;
 		case RP_DEVICE_ID_6M:
-      			CtlP->AiopNumChan[i] = 6;
+			CtlP->AiopNumChan[i] = 6;
 			break;
 		case RP_DEVICE_ID_8O:
 		case RP_DEVICE_ID_8J:
 		case RP_DEVICE_ID_8I:
 		case RP_DEVICE_ID_16I:
 		case RP_DEVICE_ID_32I:
-      			CtlP->AiopNumChan[i] = 8;
+			CtlP->AiopNumChan[i] = 8;
 			break;
 		default:
-      			CtlP->AiopNumChan[i] = sReadAiopNumChan(CtlP, i);
+			CtlP->AiopNumChan[i] = sReadAiopNumChan(CtlP, i);
 			break;
 		}
-		/*device_printf(CtlP->dev, "%d channels.\n", CtlP->AiopNumChan[i]);*/
-		rp_writeaiop2(CtlP, i, _INDX_ADDR,_CLK_PRE);	/* clock prescaler */
-		/*device_printf(CtlP->dev, "configuring clock prescaler.\n");*/
-		rp_writeaiop1(CtlP, i, _INDX_DATA,CLOCK_PRESC);
-		/*device_printf(CtlP->dev, "configured clock prescaler.\n");*/
-		CtlP->NumAiop++;				/* bump count of AIOPs */
+//XXX: DEBUG	/*device_printf(CtlP->dev, "%d channels.\n", CtlP->AiopNumChan[i]);*/
+		rp_writeaiop2(CtlP, i, _INDX_ADDR, _CLK_PRE);	/* clock prescaler */
+//XXX: DEBUG	/*device_printf(CtlP->dev, "configuring clock prescaler.\n");*/
+		rp_writeaiop1(CtlP, i, _INDX_DATA, CLOCK_PRESC);
+//XXX: DEBUG	/*device_printf(CtlP->dev, "configured clock prescaler.\n");*/
+		CtlP->NumAiop++;	/* bump count of AIOPs */
 	}
 
-	if(CtlP->NumAiop == 0)
-		return(-1);
+	if (CtlP->NumAiop == 0)
+		return (-1);
 	else
-		return(CtlP->NumAiop);
+		return (CtlP->NumAiop);
 }
 
 /*
@@ -299,7 +295,7 @@ static int
 rp_pci_aiop2off(int aiop, int offset)
 {
 	/* Each AIOP reserves 0x40 bytes. */
-	return aiop * 0x40 + offset;
+	return (aiop * 0x40 + offset);
 }
 
 /* Read the int status for a PCI controller. */

@@ -39,26 +39,41 @@
  */
 
 #define rp_readio(size, sc, rid, offset) \
-	(bus_space_read_##size((sc)->sc_iot, (sc)->sc_ioh, offset))
+	(bus_space_read_##size((sc)->sc_iot, (sc)->sc_ioh, (offset)))
 #define rp_readmultiio(size, sc, rid, offset, addr, count) \
-	(bus_space_read_multi_##size((sc)->sc_iot, (sc)->sc_ioh, offset, addr, count))
+	(bus_space_read_multi_##size((sc)->sc_iot, (sc)->sc_ioh, (offset), (addr), (count)))
 #define rp_writeio(size, sc, rid, offset, data) \
-	(bus_space_write_##size((sc)->sc_iot, (sc)->sc_ioh, offset, data))
+	(bus_space_write_##size((sc)->sc_iot, (sc)->sc_ioh, (offset), (data)))
 #define rp_writemultiio(size, sc, rid, offset, addr, count) \
-	(bus_space_write_multi_##size((sc)->sc_iot, (sc)->sc_ioh, offset, addr, count))
+	(bus_space_write_multi_##size((sc)->sc_iot, (sc)->sc_ioh, (offset), (addr), (count)))
 
-#define rp_readio1(ctlp, rid, offset)				rp_readio(1, ctlp, rid, offset)
-#define rp_readio2(ctlp, rid, offset)				rp_readio(2, ctlp, rid, offset)
-#define rp_readio4(ctlp, rid, offset)				rp_readio(4, ctlp, rid, offset)
-#define rp_writeio1(ctlp, rid, offset, data)			rp_writeio(1, ctlp, rid, offset, data)
-#define rp_writeio2(ctlp, rid, offset, data)			rp_writeio(2, ctlp, rid, offset, data)
-#define rp_writeio4(ctlp, rid, offset, data)			rp_writeio(4, ctlp, rid, offset, data)
-#define rp_readmultiio1(ctlp, rid, offset, addr, count)		rp_readmultiio(1, ctlp, rid, offset, addr, count) 
-#define rp_readmultiio2(ctlp, rid, offset, addr, count)		rp_readmultiio(2, ctlp, rid, offset, addr, count) 
-#define rp_readmultiio4(ctlp, rid, offset, addr, count)		rp_readmultiio(4, ctlp, rid, offset, addr, count) 
-#define rp_writemultiio1(ctlp, rid, offset, addr, count)	rp_writemultiio(1, ctlp, rid, offset, addr, count) 
-#define rp_writemultiio2(ctlp, rid, offset, addr, count)	rp_writemultiio(2, ctlp, rid, offset, addr, count) 
-#define rp_writemultiio4(ctlp, rid, offset, addr, count)	rp_writemultiio(4, ctlp, rid, offset, addr, count) 
+#define rp_readio1(ctlp, rid, offset) \
+	rp_readio(1, (ctlp), (rid), (offset))
+#define rp_readio2(ctlp, rid, offset) \
+	rp_readio(2, (ctlp), (rid), (offset))
+#define rp_readio4(ctlp, rid, offset) \
+	rp_readio(4, (ctlp), (rid), (offset))
+
+#define rp_writeio1(ctlp, rid, offset, data) \
+	rp_writeio(1, (ctlp), (rid), (offset), (data))
+#define rp_writeio2(ctlp, rid, offset, data) \
+	rp_writeio(2, (ctlp), (rid), (offset), (data))
+#define rp_writeio4(ctlp, rid, offset, data) \
+	rp_writeio(4, (ctlp), (rid), (offset), (data))
+
+#define rp_readmultiio1(ctlp, rid, offset, addr, count) \
+	rp_readmultiio(1, (ctlp), (rid), (offset), (addr), (count))
+#define rp_readmultiio2(ctlp, rid, offset, addr, count) \
+	rp_readmultiio(2, (ctlp), (rid), (offset), (addr), (count))
+#define rp_readmultiio4(ctlp, rid, offset, addr, count) \
+	rp_readmultiio(4, (ctlp), (rid), (offset), (addr), (count))
+
+#define rp_writemultiio1(ctlp, rid, offset, addr, count) \
+	rp_writemultiio(1, (ctlp), (rid), (offset), (addr), (count))
+#define rp_writemultiio2(ctlp, rid, offset, addr, count) \
+	rp_writemultiio(2, ctlp, rid, offset, addr, count) 
+#define rp_writemultiio4(ctlp, rid, offset, addr, count) \
+	rp_writemultiio(4, ctlp, rid, offset, addr, count) 
 
 #define rp_readaiop1(ctlp, aiop, offset) \
 	(rp_readio1((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset)))
@@ -356,7 +371,7 @@ struct rp_softc {
 	int		AiopID[RP_AIOP_CTL_SIZE];
 	int		AiopNumChan[RP_AIOP_CTL_SIZE];
 
-        struct mutex	hwmtx;     /* Spinlock protecting hardware. */
+        struct mutex	hwmtx;	/* Spinlock protecting hardware. */
 	int		hwmtx_init;
 	int		free;
 	int		num_ports;
@@ -417,11 +432,10 @@ Purpose:  Stop sending a transmit BREAK signal
 Call:	  sClrBreak(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sClrBreak(ChP) \
-{ \
-   (ChP)->TxControl[3] &= ~SETBREAK; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sClrBreak(ChP) do {					\
+	(ChP)->TxControl[3] &= ~SETBREAK;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sClrDTR
@@ -429,11 +443,10 @@ Purpose:  Clr the DTR output
 Call:	  sClrDTR(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sClrDTR(ChP) \
-{ \
-   (ChP)->TxControl[3] &= ~SET_DTR; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sClrDTR(ChP) do {					\
+	(ChP)->TxControl[3] &= ~SET_DTR;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sClrRTS
@@ -441,11 +454,10 @@ Purpose:  Clr the RTS output
 Call:	  sClrRTS(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sClrRTS(ChP) \
-{ \
-   (ChP)->TxControl[3] &= ~SET_RTS; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sClrRTS(ChP) do {					\
+	(ChP)->TxControl[3] &= ~SET_RTS;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sClrTxXOFF
@@ -453,11 +465,10 @@ Purpose:  Clear any existing transmit software flow control off condition
 Call:	  sClrTxXOFF(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sClrTxXOFF(ChP) \
-{ \
-   rp_writech1(ChP,_CMD_REG,TXOVERIDE | (uint8_t)(ChP)->ChanNum); \
-   rp_writech1(ChP,_CMD_REG,(uint8_t)(ChP)->ChanNum); \
-}
+#define sClrTxXOFF(ChP) do {						\
+	rp_writech1(ChP,_CMD_REG,TXOVERIDE | (uint8_t)(ChP)->ChanNum);	\
+	rp_writech1(ChP,_CMD_REG,(uint8_t)(ChP)->ChanNum);		\
+} while (0)
 
 /***************************************************************************
 Function: sDisCTSFlowCtl
@@ -465,11 +476,10 @@ Purpose:  Disable output flow control using CTS
 Call:	  sDisCTSFlowCtl(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sDisCTSFlowCtl(ChP) \
-{ \
-   (ChP)->TxControl[2] &= ~CTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sDisCTSFlowCtl(ChP) do {				\
+	(ChP)->TxControl[2] &= ~CTSFC_EN;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: DisParity
@@ -479,11 +489,10 @@ Call:	  sDisParity(ChP)
 Comments: Function sSetParity() can be used in place of functions sEnParity(),
 	  sDisParity(), sSetOddParity(), and sSetEvenParity().
 */
-#define sDisParity(ChP) \
-{ \
-   (ChP)->TxControl[2] &= ~PARITY_EN; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sDisParity(ChP) do {					\
+	(ChP)->TxControl[2] &= ~PARITY_EN;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sDisRxFIFO
@@ -491,11 +500,10 @@ Purpose:  Disable Rx FIFO
 Call:	  sDisRxFIFO(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sDisRxFIFO(ChP) \
-{ \
-   (ChP)->R[0x32] = 0x0a; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30)); \
-}
+#define sDisRxFIFO(ChP) do {					\
+	(ChP)->R[0x32] = 0x0a;					\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30));	\
+} while (0)
 
 /***************************************************************************
 Function: sDisRxStatusMode
@@ -506,7 +514,7 @@ Comments: This takes the channel out of the receive status mode.  All
 	  subsequent reads of receive data using sReadRxWord() will return
 	  two data bytes.
 */
-#define sDisRxStatusMode(ChP) rp_writech2(ChP,CHNOFF_CHANSTAT(ChP),0)
+#define sDisRxStatusMode(ChP) rp_writech2((ChP), CHNOFF_CHANSTAT(ChP), 0)
 
 /***************************************************************************
 Function: sDisTransmit
@@ -518,11 +526,10 @@ Call:	  sDisTransmit(ChP)
 	  between the time sDisTransmit() is called and the transmit buffer
 	  and transmit shift register going completely empty.
 */
-#define sDisTransmit(ChP) \
-{ \
-   (ChP)->TxControl[3] &= ~TX_ENABLE; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sDisTransmit(ChP) do {					\
+	(ChP)->TxControl[3] &= ~TX_ENABLE;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sDisTxSoftFlowCtl
@@ -530,11 +537,10 @@ Purpose:  Disable Tx Software Flow Control
 Call:	  sDisTxSoftFlowCtl(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sDisTxSoftFlowCtl(ChP) \
-{ \
-   (ChP)->R[0x06] = 0x8a; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x04)); \
-}
+#define sDisTxSoftFlowCtl(ChP) do {				\
+	(ChP)->R[0x06] = 0x8a;					\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x04));	\
+} while (0)
 
 /***************************************************************************
 Function: sEnCTSFlowCtl
@@ -542,11 +548,10 @@ Purpose:  Enable output flow control using CTS
 Call:	  sEnCTSFlowCtl(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sEnCTSFlowCtl(ChP) \
-{ \
-   (ChP)->TxControl[2] |= CTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sEnCTSFlowCtl(ChP) do {					\
+	(ChP)->TxControl[2] |= CTSFC_EN;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: EnParity
@@ -559,34 +564,31 @@ Comments: Function sSetParity() can be used in place of functions sEnParity(),
 Warnings: Before enabling parity odd or even parity should be chosen using
 	  functions sSetOddParity() or sSetEvenParity().
 */
-#define sEnParity(ChP) \
-{ \
-   (ChP)->TxControl[2] |= PARITY_EN; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sEnParity(ChP) do {					\
+	(ChP)->TxControl[2] |= PARITY_EN;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sEnRTSFlowCtl
 Return: void
 */
-#define sEnRTSFlowCtl(ChP) \
-{ \
-	(ChP)->TxControl[2] &= ~RTSTOG_EN; \
-	(ChP)->TxControl[3] &= ~SET_RTS; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-	(ChP)->RxControl[2] |= RTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
-}
+#define sEnRTSFlowCtl(ChP) do {					\
+	(ChP)->TxControl[2] &= ~RTSTOG_EN;			\
+	(ChP)->TxControl[3] &= ~SET_RTS;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+	(ChP)->RxControl[2] |= RTSFC_EN;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sDisRTSFlowCtl
 Return: void
 */
-#define sDisRTSFlowCtl(ChP) \
-{ \
-	(ChP)->RxControl[2] &= ~RTSFC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
-}
+#define sDisRTSFlowCtl(ChP) do {				\
+	(ChP)->RxControl[2] &= ~RTSFC_EN;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sEnRxFIFO
@@ -594,11 +596,10 @@ Purpose:  Enable Rx FIFO
 Call:	  sEnRxFIFO(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sEnRxFIFO(ChP) \
-{ \
-   (ChP)->R[0x32] = 0x08; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30)); \
-}
+#define sEnRxFIFO(ChP) do {					\
+	(ChP)->R[0x32] = 0x08;					\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30));	\
+} while (0)
 
 /***************************************************************************
 Function: sEnRxProcessor
@@ -615,11 +616,10 @@ Warnings: This function must be called after valid microcode has been
 	  downloaded to the AIOP, and it must not be called before the
 	  microcode has been downloaded.
 */
-#define sEnRxProcessor(ChP) \
-{ \
-   (ChP)->RxControl[2] |= RXPROC_EN; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
-}
+#define sEnRxProcessor(ChP) do {				\
+	(ChP)->RxControl[2] |= RXPROC_EN;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sEnRxStatusMode
@@ -631,7 +631,7 @@ Comments: This places the channel in the receive status mode.  All subsequent
 	  in the low word and a status byte in the high word.
 
 */
-#define sEnRxStatusMode(ChP) rp_writech2(ChP,CHNOFF_CHANSTAT(ChP),STATMODE)
+#define sEnRxStatusMode(ChP) rp_writech2(ChP, CHNOFF_CHANSTAT(ChP), STATMODE)
 
 /***************************************************************************
 Function: sEnTransmit
@@ -639,11 +639,10 @@ Purpose:  Enable transmit
 Call:	  sEnTransmit(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sEnTransmit(ChP) \
-{ \
-   (ChP)->TxControl[3] |= TX_ENABLE; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sEnTransmit(ChP) do {					\
+	(ChP)->TxControl[3] |= TX_ENABLE;			\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sGetAiopIntStatus
@@ -655,7 +654,8 @@ Return:   uint8_t: The AIOP interrupt status.  Bits 0 through 7
 			 represent channels 0 through 7 respectively.  If a
 			 bit is set that channel is interrupting.
 */
-#define sGetAiopIntStatus(CtlP,AIOPNUM) rp_readaiop1(CtlP,AIOPNUM,_INT_CHAN)
+#define sGetAiopIntStatus(CtlP, AIOPNUM) \
+	rp_readaiop1((CtlP), (AIOPNUM), _INT_CHAN)
 
 /***************************************************************************
 Function: sGetAiopNumChan
@@ -665,7 +665,7 @@ Call:	  sGetAiopNumChan(CtlP,AiopNum)
 	  int AiopNum; AIOP number
 Return:   int: The number of channels supported by the AIOP
 */
-#define sGetAiopNumChan(CtlP,AIOPNUM) CtlP->AiopNumChan[AIOPNUM]
+#define sGetAiopNumChan(CtlP,AIOPNUM) (CtlP)->AiopNumChan[AIOPNUM]
 
 /***************************************************************************
 Function: sGetChanIntID
@@ -681,7 +681,8 @@ Return:   uint8_t: The channel interrupt ID.  Can be any
 		DELTA_CTS:    CTS change interrupt
 		DELTA_DSR:    DSR change interrupt
 */
-#define sGetChanIntID(ChP) (rp_readch1(ChP,(ChP)->ChanNum+_INT_ID0) & (RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR))
+#define sGetChanIntID(ChP) \
+	(rp_readch1(ChP, (ChP)->ChanNum+_INT_ID0) & (RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR))
 
 /***************************************************************************
 Function: sGetChanNum
@@ -719,7 +720,7 @@ Return:   uint16_t: The channel status.  Can be any combination of
 Warnings: This function will clear the high byte flags in the Channel
 	  Status Register.
 */
-#define sGetChanStatus(ChP) rp_readch2(ChP,CHNOFF_CHANSTAT(ChP))
+#define sGetChanStatus(ChP) rp_readch2((ChP), CHNOFF_CHANSTAT(ChP))
 
 /***************************************************************************
 Function: sGetChanStatusLo
@@ -735,7 +736,7 @@ Return:   uint8_t: The channel status low byte.	Can be any combination
 		TXSHRMT:      Tx shift register is empty
 		RDA:	      Rx data available
 */
-#define sGetChanStatusLo(ChP) rp_readch1(ChP,CHNOFF_CHANSTAT(ChP))
+#define sGetChanStatusLo(ChP) rp_readch1((ChP), CHNOFF_CHANSTAT(ChP))
 
 /***************************************************************************
 Function: sGetRxCnt
@@ -746,7 +747,7 @@ Return:   int: The number of data bytes in the Rx FIFO.
 Comments: Byte read of count register is required to obtain Rx count.
 
 */
-#define sGetRxCnt(ChP) rp_readch2(ChP,CHNOFF_TXRXCOUNT(ChP))
+#define sGetRxCnt(ChP) rp_readch2((ChP), CHNOFF_TXRXCOUNT(ChP))
 
 /***************************************************************************
 Function: sGetTxCnt
@@ -757,7 +758,7 @@ Return:   uint8_t: The number of data bytes in the Tx FIFO.
 Comments: Byte read of count register is required to obtain Tx count.
 
 */
-#define sGetTxCnt(ChP) rp_readch1(ChP,CHNOFF_TXRXCOUNT(ChP))
+#define sGetTxCnt(ChP) rp_readch1((ChP), CHNOFF_TXRXCOUNT(ChP))
 
 /*****************************************************************************
 Function: sGetTxRxDataIO
@@ -777,13 +778,12 @@ Comments: This function must be called once for every channel structure
 	  that exists before any other SSCI calls can be made.
 
 */
-#define sInitChanDefaults(ChP) \
-{ \
-   (ChP)->CtlP = NULLCTLPTR; \
-   (ChP)->AiopNum = NULLAIOP; \
-   (ChP)->ChanID = AIOPID_NULL; \
-   (ChP)->ChanNum = NULLCHAN; \
-}
+#define sInitChanDefaults(ChP) do {	\
+	(ChP)->CtlP = NULLCTLPTR;	\
+	(ChP)->AiopNum = NULLAIOP;	\
+	(ChP)->ChanID = AIOPID_NULL;	\
+	(ChP)->ChanNum = NULLCHAN;	\
+} while (0)
 
 /***************************************************************************
 Function: sResetAiopByNum
@@ -792,11 +792,10 @@ Call:	  sResetAiopByNum(CTLP,AIOPNUM)
 	CONTROLLER_T CTLP; Ptr to controller structure
 	AIOPNUM; AIOP index
 */
-#define sResetAiopByNum(CTLP,AIOPNUM) \
-{ \
-   rp_writeaiop1(CTLP,AIOPNUM,_CMD_REG,RESET_ALL); \
-   rp_writeaiop1(CTLP,AIOPNUM,_CMD_REG,0x0); \
-}
+#define sResetAiopByNum(CTLP, AIOPNUM) do {			\
+	rp_writeaiop1(CTLP, AIOPNUM, _CMD_REG, RESET_ALL);	\
+	rp_writeaiop1(CTLP, AIOPNUM, _CMD_REG, 0x0);		\
+} while (0)
 
 /***************************************************************************
 Function: sSendBreak
@@ -804,11 +803,10 @@ Purpose:  Send a transmit BREAK signal
 Call:	  sSendBreak(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sSendBreak(ChP) \
-{ \
-   (ChP)->TxControl[3] |= SETBREAK; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSendBreak(ChP) do {					\
+	(ChP)->TxControl[3] |= SETBREAK;			\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetBaud
@@ -817,12 +815,11 @@ Call:	  sSetBaud(ChP,Divisor)
 	  struct rp_chan *ChP; Ptr to channel structure
 	  uint16_t Divisor; 16 bit baud rate divisor for channel
 */
-#define sSetBaud(ChP,DIVISOR) \
-{ \
-   (ChP)->BaudDiv[2] = (uint8_t)(DIVISOR); \
-   (ChP)->BaudDiv[3] = (uint8_t)((DIVISOR) >> 8); \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->BaudDiv)); \
-}
+#define sSetBaud(ChP, DIVISOR) do {				\
+	(ChP)->BaudDiv[2] = (uint8_t)(DIVISOR);			\
+	(ChP)->BaudDiv[3] = (uint8_t)((DIVISOR) >> 8);		\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->BaudDiv));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetData7
@@ -830,11 +827,10 @@ Purpose:  Set data bits to 7
 Call:	  sSetData7(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sSetData7(ChP) \
-{ \
-   (ChP)->TxControl[2] &= ~DATA8BIT; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetData7(ChP) do {						\
+	(ChP)->TxControl[2] &= ~DATA8BIT;				\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetData8
@@ -842,11 +838,10 @@ Purpose:  Set data bits to 8
 Call:	  sSetData8(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sSetData8(ChP) \
-{ \
-   (ChP)->TxControl[2] |= DATA8BIT; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetData8(ChP) do {						\
+	(ChP)->TxControl[2] |= DATA8BIT;				\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetDTR
@@ -854,11 +849,10 @@ Purpose:  Set the DTR output
 Call:	  sSetDTR(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sSetDTR(ChP) \
-{ \
-   (ChP)->TxControl[3] |= SET_DTR; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetDTR(ChP) do {					\
+	(ChP)->TxControl[3] |= SET_DTR;				\
+	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetEvenParity
@@ -871,11 +865,10 @@ Comments: Function sSetParity() can be used in place of functions sEnParity(),
 Warnings: This function has no effect unless parity is enabled with function
 	  sEnParity().
 */
-#define sSetEvenParity(ChP) \
-{ \
-   (ChP)->TxControl[2] |= EVEN_PAR; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetEvenParity(ChP) do {					\
+	(ChP)->TxControl[2] |= EVEN_PAR;				\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetOddParity
@@ -888,11 +881,10 @@ Comments: Function sSetParity() can be used in place of functions sEnParity(),
 Warnings: This function has no effect unless parity is enabled with function
 	  sEnParity().
 */
-#define sSetOddParity(ChP) \
-{ \
-   (ChP)->TxControl[2] &= ~EVEN_PAR; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetOddParity(ChP) do {						\
+	(ChP)->TxControl[2] &= ~EVEN_PAR;				\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetRTS
@@ -900,11 +892,10 @@ Purpose:  Set the RTS output
 Call:	  sSetRTS(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sSetRTS(ChP) \
-{ \
-   (ChP)->TxControl[3] |= SET_RTS; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetRTS(ChP) do {						\
+	(ChP)->TxControl[3] |= SET_RTS;					\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetRxTrigger
@@ -925,12 +916,11 @@ Comments: An interrupt will be generated when the trigger level is reached
 	  regardless of the setting of RXINT_EN.
 
 */
-#define sSetRxTrigger(ChP,LEVEL) \
-{ \
-   (ChP)->RxControl[2] &= ~TRIG_MASK; \
-   (ChP)->RxControl[2] |= LEVEL; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl)); \
-}
+#define sSetRxTrigger(ChP,LEVEL) do {					\
+	(ChP)->RxControl[2] &= ~TRIG_MASK;				\
+	(ChP)->RxControl[2] |= LEVEL;					\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->RxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetStop1
@@ -938,11 +928,10 @@ Purpose:  Set stop bits to 1
 Call:	  sSetStop1(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sSetStop1(ChP) \
-{ \
-   (ChP)->TxControl[2] &= ~STOP2; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetStop1(ChP) do {						\
+	(ChP)->TxControl[2] &= ~STOP2;					\
+	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sSetStop2
@@ -950,11 +939,10 @@ Purpose:  Set stop bits to 2
 Call:	  sSetStop2(ChP)
 	  struct rp_chan *ChP; Ptr to channel structure
 */
-#define sSetStop2(ChP) \
-{ \
-   (ChP)->TxControl[2] |= STOP2; \
-   rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl)); \
-}
+#define sSetStop2(ChP) do {						\
+	(ChP)->TxControl[2] |= STOP2;					\
+	rp_writech4((ChP), _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+} while (0)
 
 /***************************************************************************
 Function: sStartRxProcessor
@@ -964,9 +952,8 @@ Call:	  sStartRxProcessor(ChP)
 Comments: This function is used to start a Rx processor after it was
 	  stopped with sStopRxProcessor() or sStopSWInFlowCtl().  It
 	  will restart both the Rx processor and software input flow control.
-
 */
-#define sStartRxProcessor(ChP) rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R))
+#define sStartRxProcessor(ChP) rp_writech4((ChP), _INDX_ADDR, lemtoh32((ChP)->R))
 
 /***************************************************************************
 Function: sWriteTxByte
@@ -978,7 +965,7 @@ Purpose:  Write a transmit data byte to a channel.
 Warnings: This function writes the data byte without checking to see if
 	  sMaxTxSize is exceeded in the Tx FIFO.
 */
-#define sWriteTxByte(ChP,IO,DATA) rp_writech1(ChP,IO,DATA)
+#define sWriteTxByte(ChP,IO,DATA) rp_writech1((ChP), IO, DATA)
 
 int sReadAiopID(struct rp_softc *, int);
 int sReadAiopNumChan(struct rp_softc *sc, int);

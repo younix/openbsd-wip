@@ -50,28 +50,28 @@
 #define RP_CARD(x) ((minor(x) >> 5) & 3)
 
 struct rp_port {
-	struct tty *		rp_tty; /* cross reference */
-	struct timeout		rp_timer;
+	struct tty	*rp_tty;	/* cross reference */
+	struct timeout	 rp_timer;
 
-	unsigned char		state;	/* state of dtr */
+	unsigned char	 state;		/* state of dtr */
 
-	int			rp_port;
-	int			rp_flags;
-	int			rp_unit:2;
-	int			rp_aiop:2;
-	int			rp_chan:3;
-	int			rp_intmask;
-	int			rp_imask; /* Input mask */
-	int			rp_fifo_lw;
-	int			rp_restart;
-	int			rp_overflows;
-	int			rp_rts_iflow:1;
-	int			rp_disable_writes:1;
-	int			rp_cts:1;
-	int			rp_waiting:1;
-	int			rp_xmit_stopped:1;
-	struct rp_softc		*rp_ctlp;
-	struct rp_chan		rp_channel;
-	unsigned char		TxBuf[TXFIFO_SIZE];
-	unsigned char		RxBuf[RXFIFO_SIZE];
+	int		 rp_port;
+	int		 rp_flags;
+	int		 rp_unit:2;
+	int		 rp_aiop:2;
+	int		 rp_chan:3;
+	int		 rp_intmask;
+	int		 rp_imask;	/* input mask */
+	int		 rp_fifo_lw;
+	int		 rp_restart;
+	int		 rp_overflows;
+	int		 rp_rts_iflow:1;
+	int		 rp_disable_writes:1;
+	int		 rp_cts:1;
+	int		 rp_waiting:1;
+	int		 rp_xmit_stopped:1;
+	struct rp_softc	*rp_ctlp;
+	struct rp_chan	 rp_channel;
+	unsigned char	 TxBuf[TXFIFO_SIZE];
+	unsigned char	 RxBuf[RXFIFO_SIZE];
 };
