@@ -91,9 +91,9 @@ const struct pci_matchid rp_pci_devices[] = {
 #define RP_DEVICE_ID_UPCI_16	0x0803
 #define RP_DEVICE_ID_UPCI_8O	0x0805
 
-/**************************************************************************
-  MUDBAC remapped for PCI
-**************************************************************************/
+/*
+ * MUDBAC remapped for PCI
+ */
 
 #define _CFG_INT_PCI	0x40
 #define _PCI_INT_FUNC	0x3A
@@ -101,33 +101,21 @@ const struct pci_matchid rp_pci_devices[] = {
 #define PCI_STROB	0x2000
 #define INTR_EN_PCI	0x0010
 
-/***************************************************************************
-Function: sPCIControllerEOI
-Purpose:  Strobe the MUDBAC's End Of Interrupt bit.
-Call:	  sPCIControllerEOI(CtlP)
-	  CONTROLLER_T *CtlP; Ptr to controller structure
-*/
-#define sPCIControllerEOI(CtlP) rp_writeio2(CtlP, 0, _PCI_INT_FUNC, PCI_STROB)
+/* Strobe the MUDBAC's End Of Interrupt bit */
+#define sPCIControllerEOI(CtlP) rp_writeio2((CtlP), 0, _PCI_INT_FUNC, PCI_STROB)
 
-/***************************************************************************
-Function: sPCIGetControllerIntStatus
-Purpose:  Get the controller interrupt status
-Call:	  sPCIGetControllerIntStatus(CtlP)
-	  CONTROLLER_T *CtlP; Ptr to controller structure
-Return:   uint8_t: The controller interrupt status in the lower 4
-			 bits.	Bits 0 through 3 represent AIOP's 0
-			 through 3 respectively.  If a bit is set that
-			 AIOP is interrupting.	Bits 4 through 7 will
-			 always be cleared.
-*/
-#define sPCIGetControllerIntStatus(CTLP) ((rp_readio2(CTLP, 0, _PCI_INT_FUNC) >> 8) & 0x1f)
+/*
+ * Purpose:  Get the controller interrupt status
+ *
+ * Returns the controller interrupt status in the lower 4 bits.  Bits 0 through
+ * 3 represent AIOP's 0 through 3 respectively.  If a bit is set that AIOP is
+ * interrupting.  Bits 4 through 7 will always be cleared.
+ */
+#define sPCIGetControllerIntStatus(CTLP) \
+	((rp_readio2(CTLP, 0, _PCI_INT_FUNC) >> 8) & 0x1f)
 
 int rp_pci_match(struct device *, void *, void *);
 void rp_pci_attach(struct device *, struct device *, void *);
-#ifdef notdef
-static int rp_pcidetach(struct device);
-static int rp_pcishutdown(struct device);
-#endif /* notdef */
 static int sPCIInitController(struct rp_softc *, int, int, uint8_t, int, int);
 
 static int rp_pci_aiop2rid(int, int);			/* XXX */
@@ -135,8 +123,7 @@ static int rp_pci_aiop2off(int, int);			/* XXX */
 static unsigned char rp_pci_ctlmask(struct rp_softc *);	/* XXX */
 
 /*
- * The following functions are the pci-specific part
- * of rp driver.
+ * The following functions are the pci-specific part of rp driver.
  */
 
 int
