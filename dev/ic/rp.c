@@ -675,19 +675,6 @@ rp_do_poll(void *arg)
 	timeout_add(&rp->rp_timer, POLL_INTERVAL);
 }
 
-/*XXX: replaced by arch/amd64/conf.h
-static struct ttydevsw rp_tty_class = {
-	.tsw_flags	= TF_INITLOCK|TF_CALLOUT,
-	.tsw_open	= rpopen,
-	.tsw_close	= rpclose,
-	.tsw_outwakeup	= rpstart,
-	.tsw_ioctl	= rpioctl,
-	.tsw_param	= rpparam,
-	.tsw_modem	= rpmodem,
-	.tsw_free	= rpfree,
-};
-*/
-
 void
 rpfree(void *softc)
 {
