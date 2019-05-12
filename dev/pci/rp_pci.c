@@ -262,11 +262,19 @@ sPCIInitController(struct rp_softc *CtlP, int AiopNum, int IRQNum,
 			CtlP->AiopNumChan[i] = sReadAiopNumChan(CtlP, i);
 			break;
 		}
-//XXX: DEBUG	/*device_printf(CtlP->dev, "%d channels.\n", CtlP->AiopNumChan[i]);*/
+#ifdef RP_DEBUG
+		printf("%s %d channels\n", CtlP->sc_dev.dv_xname,
+		    CtlP->AiopNumChan[i]);
+#endif
 		rp_writeaiop2(CtlP, i, _INDX_ADDR, _CLK_PRE);	/* clock prescaler */
-//XXX: DEBUG	/*device_printf(CtlP->dev, "configuring clock prescaler.\n");*/
+#ifdef RP_DEBUG
+		printf("%s configuring clock prescaler\n", CtlP->sc_dev.dv_xname,
+		    CtlP->AiopNumChan[i]);
+#endif
 		rp_writeaiop1(CtlP, i, _INDX_DATA, CLOCK_PRESC);
-//XXX: DEBUG	/*device_printf(CtlP->dev, "configured clock prescaler.\n");*/
+#ifdef RP_DEBUG
+		printf("%s configured clock prescaler\n", CtlP->sc_dev.dv_xname);
+#endif
 		CtlP->NumAiop++;	/* bump count of AIOPs */
 	}
 
