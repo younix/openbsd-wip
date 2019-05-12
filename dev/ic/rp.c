@@ -681,7 +681,7 @@ rpfree(void *softc)
 	struct rp_port *rp = softc;
 	struct rp_softc *sc = rp->rp_ctlp;
 
-	atomic_sub_int(&sc->free, 1);
+	atomic_dec_int(&sc->free);
 }
 
 int
@@ -760,7 +760,7 @@ rp_releaseresource(struct rp_softc *sc)
 		for (i = 0; i < sc->num_ports; i++) {
 			struct rp_port *rp = sc->rp + i;
 
-			atomic_add_int(&sc->free, 1);
+			atomic_inc_int(&sc->free);
 //XXX: do we need this:	s = spltty();	//tty_lock(rp->rp_tty);
 //			tty_rel_gone(rp->rp_tty);
 			ttyfree(rp->rp_tty);
