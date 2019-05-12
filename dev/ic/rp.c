@@ -113,18 +113,15 @@ struct cfdriver rp_cd = {
 	NULL, "rp", DV_TTY
 };
 
-/***************************************************************************
-Function: sReadAiopID
-Purpose:  Read the AIOP idenfication number directly from an AIOP.
-Call:	  sReadAiopID(CtlP, aiop)
-	  CONTROLLER_T *CtlP; Ptr to controller structure
-	  int aiop: AIOP index
-Return:   int: Flag AIOPID_XXXX if a valid AIOP is found, where X
-		 is replace by an identifying number.
-	  Flag AIOPID_NULL if no valid AIOP is found
-Warnings: No context switches are allowed while executing this function.
-
-*/
+/*
+ * Purpose:  Read the AIOP idenfication number directly from an AIOP.
+ *
+ * Return:
+ * Flag AIOPID_XXXX if a valid AIOP is found, where X is replace by an
+ * identifying number.  Flag AIOPID_NULL if no valid AIOP is found.
+ *
+ * Warnings: No context switches are allowed while executing this function.
+ */
 int
 sReadAiopID(struct rp_softc *sc, int aiop)
 {
@@ -140,20 +137,20 @@ sReadAiopID(struct rp_softc *sc, int aiop)
 		return (-1);
 }
 
-/***************************************************************************
-Function: sReadAiopNumChan
-Purpose:  Read the number of channels available in an AIOP directly from
-	  an AIOP.
-Call:	  sReadAiopNumChan(CtlP, aiop)
-	  CONTROLLER_T *CtlP; Ptr to controller structure
-	  int aiop: AIOP index
-Return:   int: The number of channels available
-Comments: The number of channels is determined by write/reads from identical
-	  offsets within the SRAM address spaces for channels 0 and 4.
-	  If the channel 4 space is mirrored to channel 0 it is a 4 channel
-	  AIOP, otherwise it is an 8 channel.
-Warnings: No context switches are allowed while executing this function.
-*/
+/*
+ * Purpose:
+ * Read the number of channels available in an AIOP directly from an AIOP.
+ *
+ * Return: The number of channels available
+ *
+ * Comments:
+ * The number of channels is determined by write/reads from identical offsets
+ * within the SRAM address spaces for channels 0 and 4.  If the channel 4 space
+ * is mirrored to channel 0 it is a 4 channel AIOP, otherwise it is an 8
+ * channel.
+ *
+ * Warnings: No context switches are allowed while executing this function.
+ */
 int
 sReadAiopNumChan(struct rp_softc *sc, int aiop)
 {
@@ -172,21 +169,19 @@ sReadAiopNumChan(struct rp_softc *sc, int aiop)
 	return (4);
 }
 
-/***************************************************************************
-Function: sInitChan
-Purpose:  Initialization of a channel and channel structure
-Call:	  sInitChan(CtlP,ChP,AiopNum,ChanNum)
-	  CONTROLLER_T *CtlP; Ptr to controller structure
-	  struct rp_chan *ChP; Ptr to channel structure
-	  int AiopNum; AIOP number within controller
-	  int ChanNum; Channel number within AIOP
-Return:   int: true if initialization succeeded, false if it fails because channel
-	       number exceeds number of channels available in AIOP.
-Comments: This function must be called before a channel can be used.
-Warnings: No range checking on any of the parameters is done.
-
-	  No context switches are allowed while executing this function.
-*/
+/*
+ * Purpose: Initialization of a channel and channel structure
+ *
+ * Return:
+ * True if initialization succeeded, false if it fails because channel number
+ * exceeds number of channels available in AIOP.
+ *
+ * Comments: This function must be called before a channel can be used.
+ *
+ * Warnings:
+ * No range checking on any of the parameters is done.
+ * No context switches are allowed while executing this function.
+ */
 int
 sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
 {
@@ -297,24 +292,20 @@ sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
 	return (true);
 }
 
-/***************************************************************************
-Function: sStopRxProcessor
-Purpose:  Stop the receive processor from processing a channel.
-Call:	  sStopRxProcessor(ChP)
-	  struct rp_chan *ChP; Ptr to channel structure
-
-Comments: The receive processor can be started again with sStartRxProcessor().
-	  This function causes the receive processor to skip over the
-	  stopped channel.  It does not stop it from processing other channels.
-
-Warnings: No context switches are allowed while executing this function.
-
-	  Do not leave the receive processor stopped for more than one
-	  character time.
-
-	  After calling this function a delay of 4 uS is required to ensure
-	  that the receive processor is no longer processing this channel.
-*/
+/*
+ * Purpose:  Stop the receive processor from processing a channel.
+ *
+ * Comments:
+ * The receive processor can be started again with sStartRxProcessor().  This
+ * function causes the receive processor to skip over the stopped channel.  It
+ * does not stop it from processing other channels.
+ *
+ * Warnings:
+ * No context switches are allowed while executing this function.
+ * Do not leave the receive processor stopped for more than one character time.
+ * After calling this function a delay of 4 uS is required to ensure that the
+ * receive processor is no longer processing this channel.
+ */
 void
 sStopRxProcessor(struct rp_chan *ChP)
 {
@@ -328,20 +319,18 @@ sStopRxProcessor(struct rp_chan *ChP)
 	rp_writech4(ChP, _INDX_ADDR, lemtoh32(R));
 }
 
-/***************************************************************************
-Function: sFlushRxFIFO
-Purpose:  Flush the Rx FIFO
-Call:	  sFlushRxFIFO(ChP)
-	  struct rp_chan *ChP; Ptr to channel structure
-Return:   void
-Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
-	  while it is being flushed the receive processor is stopped
-	  and the transmitter is disabled.  After these operations a
-	  4 uS delay is done before clearing the pointers to allow
-	  the receive processor to stop.  These items are handled inside
-	  this function.
-Warnings: No context switches are allowed while executing this function.
-*/
+/*
+ * Purpose:  Flush the Rx FIFO
+ *
+ * Comments:
+ * To prevent data from being enqueued or dequeued in the Tx FIFO while it is
+ * being flushed the receive processor is stopped and the transmitter is
+ * disabled.  After these operations a 4 uS delay is done before clearing the
+ * pointers to allow the receive processor to stop.  These items are handled
+ * inside this function.
+ *
+ * Warnings: No context switches are allowed while executing this function.
+ */
 void
 sFlushRxFIFO(struct rp_chan *ChP)
 {
@@ -373,20 +362,18 @@ sFlushRxFIFO(struct rp_chan *ChP)
 		sEnRxFIFO(ChP);	/* enable Rx FIFO */
 }
 
-/***************************************************************************
-Function: sFlushTxFIFO
-Purpose:  Flush the Tx FIFO
-Call:	  sFlushTxFIFO(ChP)
-	  struct rp_chan *ChP; Ptr to channel structure
-Return:   void
-Comments: To prevent data from being enqueued or dequeued in the Tx FIFO
-	  while it is being flushed the receive processor is stopped
-	  and the transmitter is disabled.  After these operations a
-	  4 uS delay is done before clearing the pointers to allow
-	  the receive processor to stop.  These items are handled inside
-	  this function.
-Warnings: No context switches are allowed while executing this function.
-*/
+/*
+ * Purpose: Flush the Tx FIFO
+ *
+ * Comments:
+ * To prevent data from being enqueued or dequeued in the Tx FIFO while it is
+ * being flushed the receive processor is stopped and the transmitter is
+ * disabled.  After these operations a 4 uS delay is done before clearing the
+ * pointers to allow the receive processor to stop.  These items are handled
+ * inside this function.
+ *
+ * Warnings: No context switches are allowed while executing this function.
+ */
 void
 sFlushTxFIFO(struct rp_chan *ChP)
 {
@@ -418,19 +405,12 @@ sFlushTxFIFO(struct rp_chan *ChP)
 	sStartRxProcessor(ChP);		/* restart Rx processor */
 }
 
-/***************************************************************************
-Function: sWriteTxPrioByte
-Purpose:  Write a byte of priority transmit data to a channel
-Call:	  sWriteTxPrioByte(ChP,Data)
-	  struct rp_chan *ChP; Ptr to channel structure
-	  uint8_t Data; The transmit data byte
-
-Return:   int: 1 if the bytes is successfully written, otherwise 0.
-
-Comments: The priority byte is transmitted before any data in the Tx FIFO.
-
-Warnings: No context switches are allowed while executing this function.
-*/
+/*
+ * Purpose : Write a byte of priority transmit data to a channel.
+ * Return  : 1 if the bytes is successfully written, otherwise 0.
+ * Comments: The priority byte is transmitted before any data in the Tx FIFO.
+ * Warnings: No context switches are allowed while executing this function.
+ */
 int
 sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
 {
@@ -462,38 +442,37 @@ sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
 	return (1);	/* 1 byte sent */
 }
 
-/***************************************************************************
-Function: sEnInterrupts
-Purpose:  Enable one or more interrupts for a channel
-Call:	  sEnInterrupts(ChP,Flags)
-	  struct rp_chan *ChP; Ptr to channel structure
-	  uint16_t Flags: Interrupt enable flags, can be any combination
-	     of the following flags:
-		TXINT_EN:   Interrupt on Tx FIFO empty
-		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
-			    sSetRxTrigger())
-		SRCINT_EN:  Interrupt on SRC (Special Rx Condition)
-		MCINT_EN:   Interrupt on modem input change
-		CHANINT_EN: Allow channel interrupt signal to the AIOP's
-			    Interrupt Channel Register.
-Return:   void
-Comments: If an interrupt enable flag is set in Flags, that interrupt will be
-	  enabled.  If an interrupt enable flag is not set in Flags, that
-	  interrupt will not be changed.  Interrupts can be disabled with
-	  function sDisInterrupts().
-
-	  This function sets the appropriate bit for the channel in the AIOP's
-	  Interrupt Mask Register if the CHANINT_EN flag is set.  This allows
-	  this channel's bit to be set in the AIOP's Interrupt Channel Register.
-
-	  Interrupts must also be globally enabled before channel interrupts
-	  will be passed on to the host.  This is done with function
-	  sEnGlobalInt().
-
-	  In some cases it may be desirable to disable interrupts globally but
-	  enable channel interrupts.  This would allow the global interrupt
-	  status register to be used to determine which AIOPs need service.
-*/
+/*
+ * Purpose: Enable one or more interrupts for a channel
+ *
+ * Call:	  sEnInterrupts(ChP,Flags)
+ * 	  struct rp_chan *ChP; Ptr to channel structure
+ * 	  uint16_t Flags: Interrupt enable flags, can be any combination
+ * 	     of the following flags:
+ * 		TXINT_EN:   Interrupt on Tx FIFO empty
+ * 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
+ * 			    sSetRxTrigger())
+ * 		SRCINT_EN:  Interrupt on SRC (Special Rx Condition)
+ * 		MCINT_EN:   Interrupt on modem input change
+ * 		CHANINT_EN: Allow channel interrupt signal to the AIOP's
+ * 			    Interrupt Channel Register.
+ *
+ * Comments:
+ * If an interrupt enable flag is set in Flags, that interrupt will be enabled.
+ * If an interrupt enable flag is not set in Flags, that interrupt will not be
+ * changed.  Interrupts can be disabled with function sDisInterrupts().
+ *
+ * This function sets the appropriate bit for the channel in the AIOP's
+ * Interrupt Mask Register if the CHANINT_EN flag is set.  This allows this
+ * channel's bit to be set in the AIOP's Interrupt Channel Register.
+ *
+ * Interrupts must also be globally enabled before channel interrupts will be
+ * passed on to the host.  This is done with function sEnGlobalInt().
+ *
+ * In some cases it may be desirable to disable interrupts globally but enable
+ * channel interrupts.  This would allow the global interrupt status register
+ * to be used to determine which AIOPs need service.
+ */
 void
 sEnInterrupts(struct rp_chan *ChP, uint16_t Flags)
 {
@@ -511,31 +490,30 @@ sEnInterrupts(struct rp_chan *ChP, uint16_t Flags)
 	}
 }
 
-/***************************************************************************
-Function: sDisInterrupts
-Purpose:  Disable one or more interrupts for a channel
-Call:	  sDisInterrupts(ChP,Flags)
-	  struct rp_chan *ChP; Ptr to channel structure
-	  uint16_t Flags: Interrupt flags, can be any combination
-	     of the following flags:
-		TXINT_EN:   Interrupt on Tx FIFO empty
-		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
-			    sSetRxTrigger())
-		SRCINT_EN:  Interrupt on SRC (Special Rx Condition)
-		MCINT_EN:   Interrupt on modem input change
-		CHANINT_EN: Disable channel interrupt signal to the
-			    AIOP's Interrupt Channel Register.
-Return:   void
-Comments: If an interrupt flag is set in Flags, that interrupt will be
-	  disabled.  If an interrupt flag is not set in Flags, that
-	  interrupt will not be changed.  Interrupts can be enabled with
-	  function sEnInterrupts().
-
-	  This function clears the appropriate bit for the channel in the AIOP's
-	  Interrupt Mask Register if the CHANINT_EN flag is set.  This blocks
-	  this channel's bit from being set in the AIOP's Interrupt Channel
-	  Register.
-*/
+/*
+ * Purpose: Disable one or more interrupts for a channel
+ *
+ * Call:	  sDisInterrupts(ChP,Flags)
+ * 	  struct rp_chan *ChP; Ptr to channel structure
+ * 	  uint16_t Flags: Interrupt flags, can be any combination
+ * 	     of the following flags:
+ * 		TXINT_EN:   Interrupt on Tx FIFO empty
+ * 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
+ * 			    sSetRxTrigger())
+ * 		SRCINT_EN:  Interrupt on SRC (Special Rx Condition)
+ * 		MCINT_EN:   Interrupt on modem input change
+ * 		CHANINT_EN: Disable channel interrupt signal to the
+ * 			    AIOP's Interrupt Channel Register.
+ *
+ * Comments:
+ * If an interrupt flag is set in Flags, that interrupt will be disabled.  If
+ * an interrupt flag is not set in Flags, that interrupt will not be changed.
+ * Interrupts can be enabled with function sEnInterrupts().
+ *
+ * This function clears the appropriate bit for the channel in the AIOP's
+ * Interrupt Mask Register if the CHANINT_EN flag is set.  This blocks this
+ * channel's bit from being set in the AIOP's Interrupt Channel Register.
+ */
 void
 sDisInterrupts(struct rp_chan *ChP,uint16_t Flags)
 {
@@ -1202,7 +1180,7 @@ rpstart(struct tty *tp)
 	int		 i, count, wcount;
 
 #ifdef RP_DEBUG
-//	printf("%s port %d start, tty %p\n", sc->dev.dv_xname, port, tp);
+//	printf("%s port %d start, tty %p\n", sc->sc_dev.dv_xname, port, tp);
 #endif
 
 	if (rp->rp_xmit_stopped) {
