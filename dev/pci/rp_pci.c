@@ -1,3 +1,5 @@
+/* $OpenBSD$ */
+/* $FreeBSD$ XXX */
 /*-
  * SPDX-License-Identifier: BSD-4-Clause
  *
@@ -36,7 +38,6 @@
  */
 
 #include <sys/cdefs.h>
-//XXX: __FBSDID("$FreeBSD$");
 
 #include <sys/param.h>
 #include <sys/systm.h>

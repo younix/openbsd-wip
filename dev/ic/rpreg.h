@@ -1,3 +1,5 @@
+/* $OpenBSD$ */
+/* $FreeBSD$ */
 /*-
  * SPDX-License-Identifier: BSD-4-Clause
  *
@@ -31,7 +33,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $FreeBSD$
  */
 
 /*
