@@ -748,8 +748,7 @@ rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 	mtx_init(&sc->hwmtx, IPL_TTY);
 	sc->hwmtx_init = 1;
 	return (0);
-
-nogo:
+ nogo:
 	rp_releaseresource(sc);
 	return (retval);
 }

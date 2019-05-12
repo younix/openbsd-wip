@@ -153,7 +153,6 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 	struct pci_attach_args *pa = aux;
 	int num_ports, num_aiops;
 	int aiop;
-	int retval;
 	pcireg_t maptype;
 
 	sc->aiop2rid = rp_pci_aiop2rid;
@@ -211,13 +210,11 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 		num_ports += sGetAiopNumChan(sc, aiop);
 	}
 
-	retval = rp_attachcommon(sc, num_aiops, num_ports);
-	if (retval != 0)
+	if (rp_attachcommon(sc, num_aiops, num_ports) != 0)
 		goto nogo;
 
 	return;
-
-nogo:
+ nogo:
 //XXX:	rp_pcireleaseresource(sc);
 
 	return;
