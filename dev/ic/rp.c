@@ -594,7 +594,10 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 				ch |= TTY_PE;
 			else if (CharNStat & STMRCVROVRH) {
 				rp->rp_overflows++;
-printf("tty overrun\n");	//XXX: print correct message
+
+				printf("%s port %d tty overrun\n",
+				    rp->rp_ctlp->sc_dev.dv_xname,
+				    RP_PORT(tp->t_dev));
 			}
 
 			//ttydisc_rint(tp, ch, err);
@@ -731,7 +734,7 @@ rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
 #endif /* notdef */
 			if (sInitChan(sc, &rp->rp_channel, aiop, chan) == 0) {
 				//XXX: fix this message
-				printf("RocketPort sInitChan(%d, %d, %d) failed.\n",
+				printf(" init channel (%d, %d, %d) failed.\n",
 				    unit, aiop, chan);
 				retval = ENXIO;
 				goto nogo;
@@ -1167,7 +1170,7 @@ rpstart(struct tty *tp)
 	int		 i, count, wcount;
 
 #ifdef RP_DEBUG
-//	printf("%s port %d start, tty %p\n", sc->sc_dev.dv_xname, port, tp);
+	printf("%s port %d start, tty %p\n", sc->sc_dev.dv_xname, port, tp);
 #endif
 
 	if (rp->rp_xmit_stopped) {
