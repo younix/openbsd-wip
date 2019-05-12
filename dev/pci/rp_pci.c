@@ -106,7 +106,7 @@ const struct pci_matchid rp_pci_devices[] = {
 #define sPCIControllerEOI(CtlP) rp_writeio2((CtlP), 0, _PCI_INT_FUNC, PCI_STROB)
 
 /*
- * Purpose:  Get the controller interrupt status
+ * Purpose: Get the controller interrupt status
  *
  * Returns the controller interrupt status in the lower 4 bits.  Bits 0 through
  * 3 represent AIOP's 0 through 3 respectively.  If a bit is set that AIOP is
