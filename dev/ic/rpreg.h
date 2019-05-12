@@ -146,18 +146,18 @@
 #define RP_MAX_PORTS_PER_BOARD	32
 
 /* Controller ID numbers */
-#define CTLID_NULL	-1	/* no controller exists */
-#define CTLID_0001	0x0001	/* controller release 1 */
+#define RP_CTLID_NULL	-1	/* no controller exists */
+#define RP_CTLID_0001	0x0001	/* controller release 1 */
 
 /* AIOP ID numbers, identifies AIOP type implementing channel */
-#define AIOPID_NULL -1		    /* no AIOP or channel exists */
-#define AIOPID_0001 0x0001	    /* AIOP release 1 */
+#define RP_AIOPID_NULL -1	/* no AIOP or channel exists */
+#define RP_AIOPID_0001 0x0001	/* AIOP release 1 */
 
-#define NULLDEV -1		    /* identifies non-existant device */
-#define NULLCTL -1		    /* identifies non-existant controller */
-#define NULLCTLPTR (CONTROLLER_T *)0 /* identifies non-existant controller */
-#define NULLAIOP -1		    /* identifies non-existant AIOP */
-#define NULLCHAN -1		    /* identifies non-existant channel */
+#define NULLDEV -1		/* identifies non-existant device */
+#define NULLCTL -1		/* identifies non-existant controller */
+#define NULLCTLPTR (CONTROLLER_T *)0	/* identifies non-existant controller */
+#define NULLAIOP -1		/* identifies non-existant AIOP */
+#define NULLCHAN -1		/* identifies non-existant channel */
 
 /*
  * Global Register Offsets - Direct Access - Fixed values

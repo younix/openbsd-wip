@@ -103,7 +103,7 @@ const struct pci_matchid rp_pci_devices[] = {
 #define INTR_EN_PCI	0x0010
 
 /* Strobe the MUDBAC's End Of Interrupt bit */
-#define sPCIControllerEOI(CtlP) rp_writeio2((CtlP), 0, _PCI_INT_FUNC, PCI_STROB)
+#define sPCIControllerEOI(sc) rp_writeio2((sc), 0, _PCI_INT_FUNC, PCI_STROB)
 
 /*
  * Purpose: Get the controller interrupt status
@@ -209,64 +209,64 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 }
 
 static int
-sPCIInitController(struct rp_softc *CtlP, int AiopNum, int IRQNum,
+sPCIInitController(struct rp_softc *sc, int AiopNum, int IRQNum,
     uint8_t Frequency, int PeriodicOnly, int VendorDevice)
 {
 	int i;
 
-	CtlP->CtlID = CTLID_0001;	/* controller release 1 */
+	sc->CtlID = RP_CTLID_0001;	/* controller release 1 */
 
-	sPCIControllerEOI(CtlP);
+	sPCIControllerEOI(sc);
 
 	/* Init AIOPs */
-	CtlP->NumAiop = 0;
+	sc->NumAiop = 0;
 	for (i = 0; i < AiopNum; i++) {
-		/*device_printf(CtlP->dev, "aiop %d.\n", i);*/
-		CtlP->AiopID[i] = sReadAiopID(CtlP, i);	/* read AIOP ID */
-		/*device_printf(CtlP->dev, "ID = %d.\n", CtlP->AiopID[i]);*/
-		if (CtlP->AiopID[i] == AIOPID_NULL)	/* if AIOP does not exist */
+		/*device_printf(sc->dev, "aiop %d.\n", i);*/
+		sc->AiopID[i] = sReadAiopID(sc, i);	/* read AIOP ID */
+		/*device_printf(sc->dev, "ID = %d.\n", sc->AiopID[i]);*/
+		if (sc->AiopID[i] == RP_AIOPID_NULL)	/* if AIOP does not exist */
 			break;				/* done looking for AIOPs */
 
 		switch (VendorDevice) {
 		case RP_DEVICE_ID_4Q:
 		case RP_DEVICE_ID_4J:
 		case RP_DEVICE_ID_4M:
-			CtlP->AiopNumChan[i] = 4;
+			sc->AiopNumChan[i] = 4;
 			break;
 		case RP_DEVICE_ID_6M:
-			CtlP->AiopNumChan[i] = 6;
+			sc->AiopNumChan[i] = 6;
 			break;
 		case RP_DEVICE_ID_8O:
 		case RP_DEVICE_ID_8J:
 		case RP_DEVICE_ID_8I:
 		case RP_DEVICE_ID_16I:
 		case RP_DEVICE_ID_32I:
-			CtlP->AiopNumChan[i] = 8;
+			sc->AiopNumChan[i] = 8;
 			break;
 		default:
-			CtlP->AiopNumChan[i] = sReadAiopNumChan(CtlP, i);
+			sc->AiopNumChan[i] = sReadAiopNumChan(sc, i);
 			break;
 		}
 #ifdef RP_DEBUG
-		printf("%s %d channels\n", CtlP->sc_dev.dv_xname,
-		    CtlP->AiopNumChan[i]);
+		printf("%s %d channels\n", sc->sc_dev.dv_xname,
+		    sc->AiopNumChan[i]);
 #endif
-		rp_writeaiop2(CtlP, i, _INDX_ADDR, _CLK_PRE);	/* clock prescaler */
+		rp_writeaiop2(sc, i, _INDX_ADDR, _CLK_PRE);	/* clock prescaler */
 #ifdef RP_DEBUG
-		printf("%s configuring clock prescaler\n", CtlP->sc_dev.dv_xname,
-		    CtlP->AiopNumChan[i]);
+		printf("%s configuring clock prescaler\n", sc->sc_dev.dv_xname,
+		    sc->AiopNumChan[i]);
 #endif
-		rp_writeaiop1(CtlP, i, _INDX_DATA, CLOCK_PRESC);
+		rp_writeaiop1(sc, i, _INDX_DATA, CLOCK_PRESC);
 #ifdef RP_DEBUG
-		printf("%s configured clock prescaler\n", CtlP->sc_dev.dv_xname);
+		printf("%s configured clock prescaler\n", sc->sc_dev.dv_xname);
 #endif
-		CtlP->NumAiop++;	/* bump count of AIOPs */
+		sc->NumAiop++;	/* bump count of AIOPs */
 	}
 
-	if (CtlP->NumAiop == 0)
+	if (sc->NumAiop == 0)
 		return (-1);
 	else
-		return (CtlP->NumAiop);
+		return (sc->NumAiop);
 }
 
 /*

@@ -183,7 +183,7 @@ sReadAiopNumChan(struct rp_softc *sc, int aiop)
  * No context switches are allowed while executing this function.
  */
 int
-sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
+sInitChan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 {
 	int i, ChOff;
 	uint8_t *ChR;
@@ -193,10 +193,10 @@ sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
 		return (false);	/* exceeds num chans in AIOP */
 
 	/* Channel, AIOP, and controller identifiers */
-	ChP->CtlP = sc;
-	ChP->ChanID = sc->AiopID[AiopNum];
-	ChP->AiopNum = AiopNum;
-	ChP->ChanNum = ChanNum;
+	ch->CtlP = sc;
+	ch->ChanID = sc->AiopID[AiopNum];
+	ch->AiopNum = AiopNum;
+	ch->ChanNum = ChanNum;
 
 	/* Initialize the channel from the RData array */
 	for (i=0; i < RDATASIZE; i+=4) {
@@ -204,10 +204,10 @@ sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
 		R[1] = RData[i+1] + 0x10 * ChanNum;
 		R[2] = RData[i+2];
 		R[3] = RData[i+3];
-		rp_writech4(ChP, _INDX_ADDR, lemtoh32(R));
+		rp_writech4(ch, _INDX_ADDR, lemtoh32(R));
 	}
 
-	ChR = ChP->R;
+	ChR = ch->R;
 	for (i = 0; i < RREGDATASIZE; i += 4) {
 		ChR[i] = RRegData[i];
 		ChR[i+1] = RRegData[i+1] + 0x10 * ChanNum;
@@ -218,76 +218,76 @@ sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
 	/* Indexed registers */
 	ChOff = (uint16_t)ChanNum * 0x1000;
 
-	ChP->BaudDiv[0] = (uint8_t)(ChOff + _BAUD);
-	ChP->BaudDiv[1] = (uint8_t)((ChOff + _BAUD) >> 8);
-	ChP->BaudDiv[2] = (uint8_t)RP_BRD9600;
-	ChP->BaudDiv[3] = (uint8_t)(RP_BRD9600 >> 8);
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->BaudDiv));
+	ch->BaudDiv[0] = (uint8_t)(ChOff + _BAUD);
+	ch->BaudDiv[1] = (uint8_t)((ChOff + _BAUD) >> 8);
+	ch->BaudDiv[2] = (uint8_t)RP_BRD9600;
+	ch->BaudDiv[3] = (uint8_t)(RP_BRD9600 >> 8);
+	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->BaudDiv));
 
-	ChP->TxControl[0] = (uint8_t)(ChOff + _TX_CTRL);
-	ChP->TxControl[1] = (uint8_t)((ChOff + _TX_CTRL) >> 8);
-	ChP->TxControl[2] = 0;
-	ChP->TxControl[3] = 0;
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxControl));
+	ch->TxControl[0] = (uint8_t)(ChOff + _TX_CTRL);
+	ch->TxControl[1] = (uint8_t)((ChOff + _TX_CTRL) >> 8);
+	ch->TxControl[2] = 0;
+	ch->TxControl[3] = 0;
+	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->TxControl));
 
-	ChP->RxControl[0] = (uint8_t)(ChOff + _RX_CTRL);
-	ChP->RxControl[1] = (uint8_t)((ChOff + _RX_CTRL) >> 8);
-	ChP->RxControl[2] = 0;
-	ChP->RxControl[3] = 0;
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->RxControl));
+	ch->RxControl[0] = (uint8_t)(ChOff + _RX_CTRL);
+	ch->RxControl[1] = (uint8_t)((ChOff + _RX_CTRL) >> 8);
+	ch->RxControl[2] = 0;
+	ch->RxControl[3] = 0;
+	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->RxControl));
 
-	ChP->TxEnables[0] = (uint8_t)(ChOff + _TX_ENBLS);
-	ChP->TxEnables[1] = (uint8_t)((ChOff + _TX_ENBLS) >> 8);
-	ChP->TxEnables[2] = 0;
-	ChP->TxEnables[3] = 0;
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxEnables));
+	ch->TxEnables[0] = (uint8_t)(ChOff + _TX_ENBLS);
+	ch->TxEnables[1] = (uint8_t)((ChOff + _TX_ENBLS) >> 8);
+	ch->TxEnables[2] = 0;
+	ch->TxEnables[3] = 0;
+	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->TxEnables));
 
-	ChP->TxCompare[0] = (uint8_t)(ChOff + _TXCMP1);
-	ChP->TxCompare[1] = (uint8_t)((ChOff + _TXCMP1) >> 8);
-	ChP->TxCompare[2] = 0;
-	ChP->TxCompare[3] = 0;
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32(ChP->TxCompare));
+	ch->TxCompare[0] = (uint8_t)(ChOff + _TXCMP1);
+	ch->TxCompare[1] = (uint8_t)((ChOff + _TXCMP1) >> 8);
+	ch->TxCompare[2] = 0;
+	ch->TxCompare[3] = 0;
+	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->TxCompare));
 
-	ChP->TxReplace1[0] = (uint8_t)(ChOff + _TXREP1B1);
-	ChP->TxReplace1[1] = (uint8_t)((ChOff + _TXREP1B1) >> 8);
-	ChP->TxReplace1[2] = 0;
-	ChP->TxReplace1[3] = 0;
-	rp_writech4(ChP, _INDX_ADDR,lemtoh32(ChP->TxReplace1));
+	ch->TxReplace1[0] = (uint8_t)(ChOff + _TXREP1B1);
+	ch->TxReplace1[1] = (uint8_t)((ChOff + _TXREP1B1) >> 8);
+	ch->TxReplace1[2] = 0;
+	ch->TxReplace1[3] = 0;
+	rp_writech4(ch, _INDX_ADDR,lemtoh32(ch->TxReplace1));
 
-	ChP->TxReplace2[0] = (uint8_t)(ChOff + _TXREP2);
-	ChP->TxReplace2[1] = (uint8_t)((ChOff + _TXREP2) >> 8);
-	ChP->TxReplace2[2] = 0;
-	ChP->TxReplace2[3] = 0;
-	rp_writech4(ChP, _INDX_ADDR,lemtoh32(ChP->TxReplace2));
+	ch->TxReplace2[0] = (uint8_t)(ChOff + _TXREP2);
+	ch->TxReplace2[1] = (uint8_t)((ChOff + _TXREP2) >> 8);
+	ch->TxReplace2[2] = 0;
+	ch->TxReplace2[3] = 0;
+	rp_writech4(ch, _INDX_ADDR,lemtoh32(ch->TxReplace2));
 
-	ChP->TxFIFOPtrs = ChOff + _TXF_OUTP;
-	ChP->TxFIFO = ChOff + _TX_FIFO;
+	ch->TxFIFOPtrs = ChOff + _TXF_OUTP;
+	ch->TxFIFO = ChOff + _TX_FIFO;
 
 	/* apply reset Tx FIFO count */
-	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum | RESTXFCNT);
+	rp_writech1(ch, _CMD_REG, (uint8_t)ChanNum | RESTXFCNT);
 
-	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum);	/* remove reset Tx FIFO count */
-	rp_writech2(ChP, _INDX_ADDR, ChP->TxFIFOPtrs);	/* clear Tx in/out ptrs */
-	rp_writech2(ChP, _INDX_DATA, 0);
-	ChP->RxFIFOPtrs = ChOff + _RXF_OUTP;
-	ChP->RxFIFO = ChOff + _RX_FIFO;
+	rp_writech1(ch, _CMD_REG, (uint8_t)ChanNum);	/* remove reset Tx FIFO count */
+	rp_writech2(ch, _INDX_ADDR, ch->TxFIFOPtrs);	/* clear Tx in/out ptrs */
+	rp_writech2(ch, _INDX_DATA, 0);
+	ch->RxFIFOPtrs = ChOff + _RXF_OUTP;
+	ch->RxFIFO = ChOff + _RX_FIFO;
 
 	/* apply reset Rx FIFO count */
-	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum | RESRXFCNT);
+	rp_writech1(ch, _CMD_REG, (uint8_t)ChanNum | RESRXFCNT);
 
-	rp_writech1(ChP, _CMD_REG, (uint8_t)ChanNum);	/* remove reset Rx FIFO count */
-	rp_writech2(ChP, _INDX_ADDR, ChP->RxFIFOPtrs);	/* clear Rx out ptr */
-	rp_writech2(ChP, _INDX_DATA, 0);
-	rp_writech2(ChP, _INDX_ADDR, ChP->RxFIFOPtrs + 2);	/* clear Rx in ptr */
-	rp_writech2(ChP, _INDX_DATA, 0);
-	ChP->TxPrioCnt = ChOff + _TXP_CNT;
-	rp_writech2(ChP, _INDX_ADDR, ChP->TxPrioCnt);
-	rp_writech1(ChP, _INDX_DATA, 0);
-	ChP->TxPrioPtr = ChOff + _TXP_PNTR;
-	rp_writech2(ChP, _INDX_ADDR, ChP->TxPrioPtr);
-	rp_writech1(ChP, _INDX_DATA, 0);
-	ChP->TxPrioBuf = ChOff + _TXP_BUF;
-	sEnRxProcessor(ChP);	/* start the Rx processor */
+	rp_writech1(ch, _CMD_REG, (uint8_t)ChanNum);	/* remove reset Rx FIFO count */
+	rp_writech2(ch, _INDX_ADDR, ch->RxFIFOPtrs);	/* clear Rx out ptr */
+	rp_writech2(ch, _INDX_DATA, 0);
+	rp_writech2(ch, _INDX_ADDR, ch->RxFIFOPtrs + 2);	/* clear Rx in ptr */
+	rp_writech2(ch, _INDX_DATA, 0);
+	ch->TxPrioCnt = ChOff + _TXP_CNT;
+	rp_writech2(ch, _INDX_ADDR, ch->TxPrioCnt);
+	rp_writech1(ch, _INDX_DATA, 0);
+	ch->TxPrioPtr = ChOff + _TXP_PNTR;
+	rp_writech2(ch, _INDX_ADDR, ch->TxPrioPtr);
+	rp_writech1(ch, _INDX_DATA, 0);
+	ch->TxPrioBuf = ChOff + _TXP_BUF;
+	sEnRxProcessor(ch);	/* start the Rx processor */
 
 	return (true);
 }
@@ -307,16 +307,16 @@ sInitChan(struct rp_softc *sc, struct rp_chan *ChP, int AiopNum, int ChanNum)
  * receive processor is no longer processing this channel.
  */
 void
-sStopRxProcessor(struct rp_chan *ChP)
+sStopRxProcessor(struct rp_chan *ch)
 {
 	uint8_t R[4];
 
-	R[0] = ChP->R[0];
-	R[1] = ChP->R[1];
+	R[0] = ch->R[0];
+	R[1] = ch->R[1];
 	R[2] = 0x0a;
-	R[3] = ChP->R[3];
+	R[3] = ch->R[3];
 
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32(R));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(R));
 }
 
 /*
@@ -332,34 +332,34 @@ sStopRxProcessor(struct rp_chan *ChP)
  * Warnings: No context switches are allowed while executing this function.
  */
 void
-sFlushRxFIFO(struct rp_chan *ChP)
+sFlushRxFIFO(struct rp_chan *ch)
 {
 	int	RxFIFOEnabled = false;	/* true if Rx FIFO enabled */
 	int	i;
 	uint8_t	Ch;			/* channel number within AIOP */
 
-	if (sGetRxCnt(ChP) == 0)	/* Rx FIFO empty */
+	if (sGetRxCnt(ch) == 0)	/* Rx FIFO empty */
 		return;			/* don't need to flush */
 
-	if (ChP->R[0x32] == 0x08) {	/* Rx FIFO is enabled */
+	if (ch->R[0x32] == 0x08) {	/* Rx FIFO is enabled */
 		RxFIFOEnabled = true;
-		sDisRxFIFO(ChP);	/* disable it */
+		sDisRxFIFO(ch);	/* disable it */
 
 		/* delay 2 uS to allow proc to disable FIFO*/
 		for (i = 0; i < 2000/200; i++)
-			rp_readch1(ChP,_INT_CHAN);	/* depends on bus i/o timing */
+			rp_readch1(ch,_INT_CHAN);	/* depends on bus i/o timing */
 	}
-	sGetChanStatus(ChP);	/* clear any pending Rx errors in chan stat */
-	Ch = (uint8_t)sGetChanNum(ChP);
-	rp_writech1(ChP,_CMD_REG,Ch | RESRXFCNT);	/* apply reset Rx FIFO count */
-	rp_writech1(ChP,_CMD_REG,Ch);			/* remove reset Rx FIFO count */
-	rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs);	/* clear Rx out ptr */
-	rp_writech2(ChP,_INDX_DATA,0);
-	rp_writech2(ChP,_INDX_ADDR,ChP->RxFIFOPtrs + 2);/* clear Rx in ptr */
-	rp_writech2(ChP,_INDX_DATA,0);
+	sGetChanStatus(ch);	/* clear any pending Rx errors in chan stat */
+	Ch = (uint8_t)sGetChanNum(ch);
+	rp_writech1(ch,_CMD_REG,Ch | RESRXFCNT);	/* apply reset Rx FIFO count */
+	rp_writech1(ch,_CMD_REG,Ch);			/* remove reset Rx FIFO count */
+	rp_writech2(ch,_INDX_ADDR,ch->RxFIFOPtrs);	/* clear Rx out ptr */
+	rp_writech2(ch,_INDX_DATA,0);
+	rp_writech2(ch,_INDX_ADDR,ch->RxFIFOPtrs + 2);/* clear Rx in ptr */
+	rp_writech2(ch,_INDX_DATA,0);
 
 	if (RxFIFOEnabled)
-		sEnRxFIFO(ChP);	/* enable Rx FIFO */
+		sEnRxFIFO(ch);	/* enable Rx FIFO */
 }
 
 /*
@@ -375,34 +375,34 @@ sFlushRxFIFO(struct rp_chan *ChP)
  * Warnings: No context switches are allowed while executing this function.
  */
 void
-sFlushTxFIFO(struct rp_chan *ChP)
+sFlushTxFIFO(struct rp_chan *ch)
 {
 	int i;
 	uint8_t Ch;		/* channel number within AIOP */
 	int TxEnabled;		/* true if transmitter enabled */
 
-	if (sGetTxCnt(ChP) == 0)	/* Tx FIFO empty */
+	if (sGetTxCnt(ch) == 0)	/* Tx FIFO empty */
 		return;		/* don't need to flush */
 
 	TxEnabled = false;
-	if (ChP->TxControl[3] & TX_ENABLE) {
+	if (ch->TxControl[3] & TX_ENABLE) {
 		TxEnabled = true;
-		sDisTransmit(ChP);	       /* disable transmitter */
+		sDisTransmit(ch);	       /* disable transmitter */
 	}
 
-	sStopRxProcessor(ChP);		/* stop Rx processor */
+	sStopRxProcessor(ch);		/* stop Rx processor */
 	for (i = 0; i < 4000/200; i++)	/* delay 4 uS to allow proc to stop */
-		rp_readch1(ChP,_INT_CHAN);		/* depends on bus i/o timing */
-	Ch = (uint8_t)sGetChanNum(ChP);
-	rp_writech1(ChP, _CMD_REG, Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
-	rp_writech1(ChP, _CMD_REG, Ch);			/* remove reset Tx FIFO count */
-	rp_writech2(ChP, _INDX_ADDR, ChP->TxFIFOPtrs);	/* clear Tx in/out ptrs */
-	rp_writech2(ChP, _INDX_DATA, 0);
+		rp_readch1(ch,_INT_CHAN);		/* depends on bus i/o timing */
+	Ch = (uint8_t)sGetChanNum(ch);
+	rp_writech1(ch, _CMD_REG, Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
+	rp_writech1(ch, _CMD_REG, Ch);			/* remove reset Tx FIFO count */
+	rp_writech2(ch, _INDX_ADDR, ch->TxFIFOPtrs);	/* clear Tx in/out ptrs */
+	rp_writech2(ch, _INDX_DATA, 0);
 
 	if (TxEnabled)
-		sEnTransmit(ChP);	/* enable transmitter */
+		sEnTransmit(ch);	/* enable transmitter */
 
-	sStartRxProcessor(ChP);		/* restart Rx processor */
+	sStartRxProcessor(ch);		/* restart Rx processor */
 }
 
 /*
@@ -412,31 +412,31 @@ sFlushTxFIFO(struct rp_chan *ChP)
  * Warnings: No context switches are allowed while executing this function.
  */
 int
-sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
+sWriteTxPrioByte(struct rp_chan *ch, uint8_t Data)
 {
 	uint8_t DWBuf[4];		/* buffer for double word writes */
 
-	if (sGetTxCnt(ChP) > 1) {	/* write it to Tx priority buffer */
+	if (sGetTxCnt(ch) > 1) {	/* write it to Tx priority buffer */
 		/* get priority buffer status */
-		rp_writech2(ChP, _INDX_ADDR, ChP->TxPrioCnt);
+		rp_writech2(ch, _INDX_ADDR, ch->TxPrioCnt);
 
-		if (rp_readch1(ChP, _INDX_DATA) & PRI_PEND)	/* priority buffer busy */
+		if (rp_readch1(ch, _INDX_DATA) & PRI_PEND)	/* priority buffer busy */
 			return (0);		/* nothing sent */
 
-		htolem16(DWBuf, ChP->TxPrioBuf);/* data byte address */
+		htolem16(DWBuf, ch->TxPrioBuf);/* data byte address */
 
 		DWBuf[2] = Data;		/* data byte value */
 		DWBuf[3] = 0;			/* priority buffer pointer */
-		rp_writech4(ChP,_INDX_ADDR,lemtoh32(DWBuf)); /* write it out */
+		rp_writech4(ch,_INDX_ADDR,lemtoh32(DWBuf)); /* write it out */
 
-		htolem16(DWBuf,ChP->TxPrioCnt);	/* Tx priority count address */
+		htolem16(DWBuf,ch->TxPrioCnt);	/* Tx priority count address */
 
 		DWBuf[2] = PRI_PEND + 1;	/* indicate 1 byte pending */
 		DWBuf[3] = 0;			/* priority buffer pointer */
-		rp_writech4(ChP, _INDX_ADDR, lemtoh32(DWBuf));	/* write it out */
+		rp_writech4(ch, _INDX_ADDR, lemtoh32(DWBuf));	/* write it out */
 	} else {
 		/* write it to Tx FIFO */
-		sWriteTxByte(ChP, sGetTxRxDataIO(ChP), Data);
+		sWriteTxByte(ch, sGetTxRxDataIO(ch), Data);
 	}
 
 	return (1);	/* 1 byte sent */
@@ -445,8 +445,8 @@ sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
 /*
  * Purpose: Enable one or more interrupts for a channel
  *
- * Call:	  sEnInterrupts(ChP,Flags)
- * 	  struct rp_chan *ChP; Ptr to channel structure
+ * Call:	  sEnInterrupts(ch,Flags)
+ * 	  struct rp_chan *ch; Ptr to channel structure
  * 	  uint16_t Flags: Interrupt enable flags, can be any combination
  * 	     of the following flags:
  * 		TXINT_EN:   Interrupt on Tx FIFO empty
@@ -474,27 +474,27 @@ sWriteTxPrioByte(struct rp_chan *ChP, uint8_t Data)
  * to be used to determine which AIOPs need service.
  */
 void
-sEnInterrupts(struct rp_chan *ChP, uint16_t Flags)
+sEnInterrupts(struct rp_chan *ch, uint16_t Flags)
 {
 	uint8_t Mask;	/* Interrupt Mask Register */
 
-	ChP->RxControl[2] |= ((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->RxControl));
+	ch->RxControl[2] |= ((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->RxControl));
 
-	ChP->TxControl[2] |= ((uint8_t)Flags & TXINT_EN);
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->TxControl));
+	ch->TxControl[2] |= ((uint8_t)Flags & TXINT_EN);
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxControl));
 
 	if (Flags & CHANINT_EN) {
-		Mask = rp_readch1(ChP,_INT_MASK) | rp_sBitMapSetTbl[ChP->ChanNum];
-		rp_writech1(ChP, _INT_MASK, Mask);
+		Mask = rp_readch1(ch,_INT_MASK) | rp_sBitMapSetTbl[ch->ChanNum];
+		rp_writech1(ch, _INT_MASK, Mask);
 	}
 }
 
 /*
  * Purpose: Disable one or more interrupts for a channel
  *
- * Call:	  sDisInterrupts(ChP,Flags)
- * 	  struct rp_chan *ChP; Ptr to channel structure
+ * Call:	  sDisInterrupts(ch,Flags)
+ * 	  struct rp_chan *ch; Ptr to channel structure
  * 	  uint16_t Flags: Interrupt flags, can be any combination
  * 	     of the following flags:
  * 		TXINT_EN:   Interrupt on Tx FIFO empty
@@ -515,20 +515,20 @@ sEnInterrupts(struct rp_chan *ChP, uint16_t Flags)
  * channel's bit from being set in the AIOP's Interrupt Channel Register.
  */
 void
-sDisInterrupts(struct rp_chan *ChP,uint16_t Flags)
+sDisInterrupts(struct rp_chan *ch,uint16_t Flags)
 {
 	uint8_t Mask;	/* Interrupt Mask Register */
 
-	ChP->RxControl[2] &=
+	ch->RxControl[2] &=
 	    ~((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->RxControl));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->RxControl));
 
-	ChP->TxControl[2] &= ~((uint8_t)Flags & TXINT_EN);
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32(ChP->TxControl));
+	ch->TxControl[2] &= ~((uint8_t)Flags & TXINT_EN);
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxControl));
 
 	if (Flags & CHANINT_EN) {
-		Mask = rp_readch1(ChP,_INT_MASK) & rp_sBitMapClrTbl[ChP->ChanNum];
-		rp_writech1(ChP,_INT_MASK,Mask);
+		Mask = rp_readch1(ch,_INT_MASK) & rp_sBitMapClrTbl[ch->ChanNum];
+		rp_writech1(ch,_INT_MASK,Mask);
 	}
 }
 
@@ -536,7 +536,7 @@ sDisInterrupts(struct rp_chan *ChP,uint16_t Flags)
  * Begin FreeBsd-specific driver code
  */
 
-#define POLL_INTERVAL		(hz / 100)
+#define RP_POLL_INTERVAL	(hz / 100)
 
 #define RP_ISMULTIPORT(dev)	((dev)->id_flags & 0x1)
 #define RP_MPMASTER(dev)	(((dev)->id_flags >> 8) & 0xff)
@@ -675,7 +675,7 @@ rp_do_poll(void *arg)
 	if (count >= 0 && count <= rp->rp_restart)
 		rpstart(tp);
 
-	timeout_add(&rp->rp_timer, POLL_INTERVAL);
+	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 }
 
 void
@@ -836,7 +836,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 
 //XXX:	callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_do_poll, rp);
 	timeout_set(&rp->rp_timer, rp_do_poll, rp);
-	timeout_add(&rp->rp_timer, POLL_INTERVAL);
+	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 
 //XXX:	device_busy(rp->rp_ctlp->dev);
 	return (0);
