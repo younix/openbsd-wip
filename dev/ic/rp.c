@@ -394,10 +394,10 @@ sFlushTxFIFO(struct rp_chan *ChP)
 	for (i = 0; i < 4000/200; i++)	/* delay 4 uS to allow proc to stop */
 		rp_readch1(ChP,_INT_CHAN);		/* depends on bus i/o timing */
 	Ch = (uint8_t)sGetChanNum(ChP);
-	rp_writech1(ChP,_CMD_REG,Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
-	rp_writech1(ChP,_CMD_REG,Ch);			/* remove reset Tx FIFO count */
-	rp_writech2(ChP,_INDX_ADDR,ChP->TxFIFOPtrs);	/* clear Tx in/out ptrs */
-	rp_writech2(ChP,_INDX_DATA,0);
+	rp_writech1(ChP, _CMD_REG, Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
+	rp_writech1(ChP, _CMD_REG, Ch);			/* remove reset Tx FIFO count */
+	rp_writech2(ChP, _INDX_ADDR, ChP->TxFIFOPtrs);	/* clear Tx in/out ptrs */
+	rp_writech2(ChP, _INDX_DATA, 0);
 
 	if (TxEnabled)
 		sEnTransmit(ChP);	/* enable transmitter */
