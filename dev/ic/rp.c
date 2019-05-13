@@ -132,8 +132,8 @@ sReadAiopID(struct rp_softc *sc, int aiop)
 
 	if (AiopID == 0x06)
 		return (1);
-	else 			/* AIOP does not exist */
-		return (-1);
+
+	return (-1); /* AIOP does not exist */
 }
 
 /*
@@ -155,11 +155,15 @@ sReadAiopNumChan(struct rp_softc *sc, int aiop)
 {
 	uint16_t x, y;
 
-	rp_writeaiop4(sc, aiop, _INDX_ADDR, 0x12340000L);	/* write to chan 0 SRAM */
-	rp_writeaiop2(sc, aiop, _INDX_ADDR, 0);		/* read from SRAM, chan 0 */
+	/* write to chan 0 SRAM */
+	rp_writeaiop4(sc, aiop, _INDX_ADDR, 0x12340000L);
+
+	/* read from SRAM, chan 0 */
+	rp_writeaiop2(sc, aiop, _INDX_ADDR, 0);
 	x = rp_readaiop2(sc, aiop, _INDX_DATA);
 
-	rp_writeaiop2(sc, aiop, _INDX_ADDR, 0x4000);	/* read from SRAM, chan 4 */
+	/* read from SRAM, chan 4 */
+	rp_writeaiop2(sc, aiop, _INDX_ADDR, 0x4000);
 	y = rp_readaiop2(sc, aiop, _INDX_DATA);
 
 	if (x != y)	/* if different must be 8 chan */
@@ -964,21 +968,13 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 		return (0);
 	case TIOCSDTR:	/* DIR on */
 // TIOCM_DTR, DMBIS
-		return ENOTTY;
 	case TIOCCDTR:	/* DIR off */
-		return ENOTTY;
 	case TIOCMSET:	/* set new modem control line values */
-		return ENOTTY;
 	case TIOCMBIS:	/* turn modem control bits on */
-		return ENOTTY;
 	case TIOCMBIC:	/* turn modem control bits off */
-		return ENOTTY;
 	case TIOCMGET:	/* get modem control/status line state */
-		return ENOTTY;
 	case TIOCGFLAGS:/* set flags */
-		return ENOTTY;
 	case TIOCSFLAGS:/* get flags */
-		return ENOTTY;
 	default:
 		return ENOTTY;
 	}
@@ -1078,7 +1074,7 @@ rpparam(struct tty *tp, struct termios *t)
 	int		 iflag = t->c_iflag;
 //	int		 oflag = t->c_oflag;
 //	int		 lflag = t->c_lflag;
-	int		 ospeed;
+	int		 ospeed = rp_convert_baud(t->c_ispeed);
 
 #ifdef RPCLOCAL
 	int devshift;
@@ -1088,7 +1084,6 @@ rpparam(struct tty *tp, struct termios *t)
 		cflag |= CLOCAL;
 #endif
 
-	ospeed = rp_convert_baud(t->c_ispeed);
 	if (ospeed < 0 || t->c_ispeed != t->c_ospeed)
 		return (EINVAL);
 
