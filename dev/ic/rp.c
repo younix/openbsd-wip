@@ -1,5 +1,4 @@
 /* $OpenBSD$ */
-/* $FreeBSD$ XXX */
 /*-
  * SPDX-License-Identifier: BSD-4-Clause
  *
