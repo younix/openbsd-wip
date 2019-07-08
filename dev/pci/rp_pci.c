@@ -252,8 +252,7 @@ sPCIInitController(struct rp_softc *sc, int AiopNum, int IRQNum,
 #endif
 		rp_writeaiop2(sc, i, _INDX_ADDR, _CLK_PRE);	/* clock prescaler */
 #ifdef RP_DEBUG
-		printf("%s configuring clock prescaler\n", sc->sc_dev.dv_xname,
-		    sc->AiopNumChan[i]);
+		printf("%s configuring clock prescaler\n", sc->sc_dev.dv_xname);
 #endif
 		rp_writeaiop1(sc, i, _INDX_DATA, CLOCK_PRESC);
 #ifdef RP_DEBUG

@@ -551,7 +551,7 @@ sDisInterrupts(struct rp_chan *ch,uint16_t Flags)
 
 int	rpclose(dev_t dev, int, int, struct proc *);
 void	rphardclose(struct tty *, struct rp_port *);
-int	rpmodem(struct tty *, int, int);
+//int	rpmodem(struct tty *, int, int);
 int	rpparam(struct tty *, struct termios *);
 void	rpstart(struct tty *);
 struct tty *rptty(dev_t);
@@ -770,7 +770,9 @@ rp_releaseresource(struct rp_softc *sc)
 //			tty_rel_gone(rp->rp_tty);
 			ttyfree(rp->rp_tty);
 		}
-		free(sc->rp, M_DEVBUF, sizeof(*sc->rp) * sc->num_ports);
+printf("free(%p, %d, %zu * %d);\n",
+    sc->rp, M_DEVBUF, sizeof(*(sc->rp)), sc->num_ports);
+		free(sc->rp, M_DEVBUF, sizeof(*(sc->rp)) * sc->num_ports);
 		sc->rp = NULL;
 	}
 
@@ -798,7 +800,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		return (ENXIO);
 
 #ifdef RP_DEBUG
-	printf("%s open port %d flag 0x%x mode 0x%x\n", sc->dev.dv_xname,
+	printf("%s open port %d flag 0x%x mode 0x%x\n", sc->sc_dev.dv_xname,
 	    port, flag, mode);
 #endif
 
@@ -902,7 +904,7 @@ rpread(dev_t dev, struct uio *uio, int flag)
 	struct tty	*tp = rp->rp_tty;
 
 #ifdef RP_DEBUG
-	printf("%s read port %d uio %p flag 0x%x\n", sc->dev.dv_xname,
+	printf("%s read port %d uio %p flag 0x%x\n", sc->sc_dev.dv_xname,
 	    port, uio, flag);
 #endif
 
@@ -950,7 +952,7 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 
 #ifdef RP_DEBUG
 	printf("%s port %d ioctl cmd 0x%lx data %p flag 0x%x\n",
-	    sc->dev.dv_xname, port, cmd, data, flag);
+	    sc->sc_dev.dv_xname, port, cmd, data, flag);
 #endif
 
 	error = (*linesw[tp->t_line].l_ioctl)(tp, cmd, data, flag, p);
