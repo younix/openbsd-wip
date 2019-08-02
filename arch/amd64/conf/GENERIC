@@ -393,6 +393,7 @@ com*	at puc?
 # options CY_HW_RTS
 cy*	at pci?				# PCI cyclom serial card
 #cz*	at pci?				# Cyclades-Z multi-port serial boards
+rp*	at pci?				# PCI RocketPort serial card
 
 lpt0	at isa? port 0x378 irq 7	# standard PC parallel ports
 #lpt1	at isa? port 0x278
