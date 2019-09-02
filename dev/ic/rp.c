@@ -448,7 +448,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 /*
  * Purpose: Enable one or more interrupts for a channel
  *
- * Call:	  sEnInterrupts(ch,Flags)
+ * Call:	rp_enable_interrupts(ch, Flags)
  * 	  struct rp_chan *ch; Ptr to channel structure
  * 	  uint16_t Flags: Interrupt enable flags, can be any combination
  * 	     of the following flags:
@@ -477,7 +477,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
  * to be used to determine which AIOPs need service.
  */
 void
-sEnInterrupts(struct rp_chan *ch, uint16_t Flags)
+rp_enable_interrupts(struct rp_chan *ch, uint16_t Flags)
 {
 	uint8_t Mask;	/* Interrupt Mask Register */
 
@@ -511,7 +511,7 @@ sEnInterrupts(struct rp_chan *ch, uint16_t Flags)
  * Comments:
  * If an interrupt flag is set in Flags, that interrupt will be disabled.  If
  * an interrupt flag is not set in Flags, that interrupt will not be changed.
- * Interrupts can be enabled with function sEnInterrupts().
+ * Interrupts can be enabled with function rp_enable_interrupts().
  *
  * This function clears the appropriate bit for the channel in the AIOP's
  * Interrupt Mask Register if the CHANINT_EN flag is set.  This blocks this
@@ -828,7 +828,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	rp_flush_rx_fifo(&rp->rp_channel);
 	rp_flush_tx_fifo(&rp->rp_channel);
 
-	sEnInterrupts(&rp->rp_channel,
+	rp_enable_interrupts(&rp->rp_channel,
 	    (TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
 	sSetRxTrigger(&rp->rp_channel, TRIG_1);
 
