@@ -378,7 +378,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
  * Warnings: No context switches are allowed while executing this function.
  */
 void
-sFlushTxFIFO(struct rp_chan *ch)
+rp_flush_tx_fifo(struct rp_chan *ch)
 {
 	int i;
 	uint8_t Ch;		/* channel number within AIOP */
@@ -826,7 +826,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	sSetRxTrigger(&rp->rp_channel, TRIG_1);
 	sDisRxStatusMode(&rp->rp_channel);
 	rp_flush_rx_fifo(&rp->rp_channel);
-	sFlushTxFIFO(&rp->rp_channel);
+	rp_flush_tx_fifo(&rp->rp_channel);
 
 	sEnInterrupts(&rp->rp_channel,
 	    (TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
@@ -885,7 +885,7 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 	cp = &rp->rp_channel;
 
 	rp_flush_rx_fifo(cp);
-	sFlushTxFIFO(cp);
+	rp_flush_tx_fifo(cp);
 	sDisTransmit(cp);
 	rp_disable_interrupts(cp, TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN);
 	sDisRTSFlowCtl(cp);
