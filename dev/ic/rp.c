@@ -463,7 +463,7 @@ sWriteTxPrioByte(struct rp_chan *ch, uint8_t Data)
  * Comments:
  * If an interrupt enable flag is set in Flags, that interrupt will be enabled.
  * If an interrupt enable flag is not set in Flags, that interrupt will not be
- * changed.  Interrupts can be disabled with function sDisInterrupts().
+ * changed.  Interrupts can be disabled with function rp_disable_interrupts().
  *
  * This function sets the appropriate bit for the channel in the AIOP's
  * Interrupt Mask Register if the CHANINT_EN flag is set.  This allows this
@@ -496,7 +496,7 @@ sEnInterrupts(struct rp_chan *ch, uint16_t Flags)
 /*
  * Purpose: Disable one or more interrupts for a channel
  *
- * Call:	  sDisInterrupts(ch,Flags)
+ * Call:	rp_disable_interrupts(ch, Flags)
  * 	  struct rp_chan *ch; Ptr to channel structure
  * 	  uint16_t Flags: Interrupt flags, can be any combination
  * 	     of the following flags:
@@ -518,7 +518,7 @@ sEnInterrupts(struct rp_chan *ch, uint16_t Flags)
  * channel's bit from being set in the AIOP's Interrupt Channel Register.
  */
 void
-sDisInterrupts(struct rp_chan *ch,uint16_t Flags)
+rp_disable_interrupts(struct rp_chan *ch, uint16_t Flags)
 {
 	uint8_t Mask;	/* Interrupt Mask Register */
 
@@ -887,7 +887,7 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 	sFlushRxFIFO(cp);
 	sFlushTxFIFO(cp);
 	sDisTransmit(cp);
-	sDisInterrupts(cp, TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN);
+	rp_disable_interrupts(cp, TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN);
 	sDisRTSFlowCtl(cp);
 	sDisCTSFlowCtl(cp);
 	sDisTxSoftFlowCtl(cp);
