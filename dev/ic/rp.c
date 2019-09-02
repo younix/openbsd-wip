@@ -710,7 +710,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 
 	if (rp == NULL) {
 		//XXX: improve message
-		printf("rp_attachcommon: Could not malloc rp_ports structures.\n");
+		printf("rp_attach: Could not malloc rp_ports structures.\n");
 		retval = ENOMEM;
 		goto nogo;
 	}
