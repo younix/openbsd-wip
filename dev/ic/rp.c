@@ -310,7 +310,7 @@ rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
  * receive processor is no longer processing this channel.
  */
 void
-sStopRxProcessor(struct rp_chan *ch)
+rp_stop_rx_processor(struct rp_chan *ch)
 {
 	uint8_t R[4];
 
@@ -393,7 +393,7 @@ sFlushTxFIFO(struct rp_chan *ch)
 		sDisTransmit(ch);	       /* disable transmitter */
 	}
 
-	sStopRxProcessor(ch);		/* stop Rx processor */
+	rp_stop_rx_processor(ch);	/* stop Rx processor */
 	for (i = 0; i < 4000/200; i++)	/* delay 4 uS to allow proc to stop */
 		rp_readch1(ch,_INT_CHAN);		/* depends on bus i/o timing */
 	Ch = (uint8_t)sGetChanNum(ch);

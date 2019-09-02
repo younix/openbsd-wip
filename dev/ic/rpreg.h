@@ -798,7 +798,7 @@ struct rp_chan
  *
  * Comments:
  * This function is used to start a Rx processor after it was stopped with
- * sStopRxProcessor() or sStopSWInFlowCtl().  It will restart both the Rx
+ * rp_stop_rx_processor() or sStopSWInFlowCtl().  It will restart both the Rx
  * processor and software input flow control.
  */
 #define sStartRxProcessor(ChP) rp_writech4((ChP), _INDX_ADDR, lemtoh32((ChP)->R))
@@ -816,7 +816,7 @@ int rp_read_aiopid(struct rp_softc *, int);
 int rp_read_aiop_numchan(struct rp_softc *sc, int);
 int rp_init_chan(struct rp_softc *, struct rp_chan *, int, int);
 uint8_t sGetRxErrStatus(struct rp_chan *);
-void sStopRxProcessor(struct rp_chan *);
+void rp_stop_rx_processor(struct rp_chan *);
 void sStopSWInFlowCtl(struct rp_chan *);
 void sFlushRxFIFO(struct rp_chan *);
 void sFlushTxFIFO(struct rp_chan *);
