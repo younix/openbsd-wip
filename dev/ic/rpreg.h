@@ -818,7 +818,7 @@ int rp_init_chan(struct rp_softc *, struct rp_chan *, int, int);
 uint8_t sGetRxErrStatus(struct rp_chan *);
 void rp_stop_rx_processor(struct rp_chan *);
 void sStopSWInFlowCtl(struct rp_chan *);
-void sFlushRxFIFO(struct rp_chan *);
+void rp_flush_rx_fifo(struct rp_chan *);
 void sFlushTxFIFO(struct rp_chan *);
 int sWriteTxPrioByte(struct rp_chan *, uint8_t);
 void sEnInterrupts(struct rp_chan *, uint16_t);

@@ -335,7 +335,7 @@ rp_stop_rx_processor(struct rp_chan *ch)
  * Warnings: No context switches are allowed while executing this function.
  */
 void
-sFlushRxFIFO(struct rp_chan *ch)
+rp_flush_rx_fifo(struct rp_chan *ch)
 {
 	int	RxFIFOEnabled = false;	/* true if Rx FIFO enabled */
 	int	i;
@@ -825,7 +825,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	rp_writech4(&rp->rp_channel,_INDX_ADDR, lemtoh32(rp->rp_channel.TxControl));
 	sSetRxTrigger(&rp->rp_channel, TRIG_1);
 	sDisRxStatusMode(&rp->rp_channel);
-	sFlushRxFIFO(&rp->rp_channel);
+	rp_flush_rx_fifo(&rp->rp_channel);
 	sFlushTxFIFO(&rp->rp_channel);
 
 	sEnInterrupts(&rp->rp_channel,
@@ -884,7 +884,7 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 //XXX:	rp = tty_softc(tp);
 	cp = &rp->rp_channel;
 
-	sFlushRxFIFO(cp);
+	rp_flush_rx_fifo(cp);
 	sFlushTxFIFO(cp);
 	sDisTransmit(cp);
 	rp_disable_interrupts(cp, TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN);
