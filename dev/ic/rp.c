@@ -122,7 +122,7 @@ struct cfdriver rp_cd = {
  * Warnings: No context switches are allowed while executing this function.
  */
 int
-sReadAiopID(struct rp_softc *sc, int aiop)
+rp_read_aiopid(struct rp_softc *sc, int aiop)
 {
 	uint8_t AiopID;		/* ID byte from AIOP */
 

@@ -221,7 +221,7 @@ sPCIInitController(struct rp_softc *sc, int AiopNum, int IRQNum,
 	sc->NumAiop = 0;
 	for (i = 0; i < AiopNum; i++) {
 		/*device_printf(sc->dev, "aiop %d.\n", i);*/
-		sc->AiopID[i] = sReadAiopID(sc, i);	/* read AIOP ID */
+		sc->AiopID[i] = rp_read_aiopid(sc, i);	/* read AIOP ID */
 		/*device_printf(sc->dev, "ID = %d.\n", sc->AiopID[i]);*/
 		if (sc->AiopID[i] == RP_AIOPID_NULL)	/* if AIOP does not exist */
 			break;				/* done looking for AIOPs */

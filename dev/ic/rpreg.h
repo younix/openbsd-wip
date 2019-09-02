@@ -812,7 +812,7 @@ struct rp_chan
  */
 #define sWriteTxByte(ChP,IO,DATA) rp_writech1((ChP), IO, DATA)
 
-int sReadAiopID(struct rp_softc *, int);
+int rp_read_aiopid(struct rp_softc *, int);
 int sReadAiopNumChan(struct rp_softc *sc, int);
 int sInitChan(struct rp_softc *, struct rp_chan *, int, int);
 uint8_t sGetRxErrStatus(struct rp_chan *);
