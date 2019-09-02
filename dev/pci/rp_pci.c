@@ -243,7 +243,7 @@ sPCIInitController(struct rp_softc *sc, int AiopNum, int IRQNum,
 			sc->AiopNumChan[i] = 8;
 			break;
 		default:
-			sc->AiopNumChan[i] = sReadAiopNumChan(sc, i);
+			sc->AiopNumChan[i] = rp_read_aiop_numchan(sc, i);
 			break;
 		}
 #ifdef RP_DEBUG

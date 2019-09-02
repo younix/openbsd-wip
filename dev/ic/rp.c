@@ -151,7 +151,7 @@ rp_read_aiopid(struct rp_softc *sc, int aiop)
  * Warnings: No context switches are allowed while executing this function.
  */
 int
-sReadAiopNumChan(struct rp_softc *sc, int aiop)
+rp_read_aiop_numchan(struct rp_softc *sc, int aiop)
 {
 	uint16_t x, y;
 
