@@ -814,7 +814,7 @@ struct rp_chan
 
 int rp_read_aiopid(struct rp_softc *, int);
 int rp_read_aiop_numchan(struct rp_softc *sc, int);
-int sInitChan(struct rp_softc *, struct rp_chan *, int, int);
+int rp_init_chan(struct rp_softc *, struct rp_chan *, int, int);
 uint8_t sGetRxErrStatus(struct rp_chan *);
 void sStopRxProcessor(struct rp_chan *);
 void sStopSWInFlowCtl(struct rp_chan *);

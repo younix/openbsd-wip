@@ -186,7 +186,7 @@ rp_read_aiop_numchan(struct rp_softc *sc, int aiop)
  * No context switches are allowed while executing this function.
  */
 int
-sInitChan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
+rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 {
 	int i, ChOff;
 	uint8_t *ChR;
@@ -735,7 +735,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 #ifdef notdef
 			ChanStatus = sGetChanStatus(&rp->rp_channel);
 #endif /* notdef */
-			if (sInitChan(sc, &rp->rp_channel, aiop, chan) == 0) {
+			if (rp_init_chan(sc, &rp->rp_channel, aiop, chan) == 0){
 				//XXX: fix this message
 				printf(" init channel (%d, %d, %d) failed.\n",
 				    unit, aiop, chan);
