@@ -415,7 +415,7 @@ rp_flush_tx_fifo(struct rp_chan *ch)
  * Warnings: No context switches are allowed while executing this function.
  */
 int
-sWriteTxPrioByte(struct rp_chan *ch, uint8_t Data)
+rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 {
 	uint8_t DWBuf[4];		/* buffer for double word writes */
 
