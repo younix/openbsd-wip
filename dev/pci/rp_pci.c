@@ -197,7 +197,7 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 		num_ports += sGetAiopNumChan(sc, aiop);
 	}
 
-	if (rp_attachcommon(sc, num_aiops, num_ports) != 0)
+	if (rp_attach(sc, num_aiops, num_ports) != 0)
 		goto nogo;
 
 	return;

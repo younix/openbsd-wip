@@ -823,7 +823,7 @@ void sFlushTxFIFO(struct rp_chan *);
 int sWriteTxPrioByte(struct rp_chan *, uint8_t);
 void sEnInterrupts(struct rp_chan *, uint16_t);
 void sDisInterrupts(struct rp_chan *, uint16_t);
-int rp_attachcommon(struct rp_softc* sc, int, int);
+int rp_attach(struct rp_softc* sc, int, int);
 void rp_releaseresource(struct rp_softc *sc);
 static __inline void
 rp_lock(struct rp_softc *sc)

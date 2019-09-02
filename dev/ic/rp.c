@@ -691,7 +691,7 @@ rpfree(void *softc)
 }
 
 int
-rp_attachcommon(struct rp_softc *sc, int num_aiops, int num_ports)
+rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 {
 	struct rp_port	*rp;
 	struct tty	*tp;
@@ -789,12 +789,13 @@ printf("free(%p, %d, %zu * %d);\n",
 int
 rpopen(dev_t dev, int flag, int mode, struct proc *p)
 {
+	int  card = RP_CARD(dev);
+	int  port = RP_PORT(dev);
 	struct rp_softc	*sc;
 	struct rp_port	*rp;
+	struct tty	*tp;
+	int		 s, flags = 0;
 	unsigned int	 IntMask, ChanStatus;
-	int		 card = RP_CARD(dev);
-	int		 port = RP_PORT(dev);
-	int		 flags = 0;
 
 	if (card >= rp_cd.cd_ndevs || (sc = rp_cd.cd_devs[card]) == NULL)
 		return (ENXIO);
@@ -805,6 +806,17 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 #endif
 
 	rp = &sc->rp[port];
+
+	s = spltty();
+	if (rp->rp_tty == NULL) {
+		rp->rp_tty = ttymalloc(0);
+	}
+	splx(s);
+
+	tp = rp->rp_tty;
+	tp->t_oproc = rpstart;
+	tp->t_param = rpparam;
+	tp->t_dev = dev;
 
 	flags |= SET_RTS;
 	flags |= SET_DTR;
@@ -844,7 +856,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 
 //XXX:	device_busy(rp->rp_ctlp->dev);
-	return (0);
+	return (*linesw[tp->t_line].l_open)(dev, tp, p);
 }
 
 int
