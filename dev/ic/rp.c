@@ -654,7 +654,7 @@ rp_handle_port(struct rp_port *rp)
 }
 
 void
-rp_do_poll(void *arg)
+rp_poll(void *arg)
 {
 	struct rp_port	*rp = arg;
 	struct rp_softc	*sc = rp->rp_ctlp;
@@ -848,8 +848,8 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	IntMask = IntMask & rp->rp_intmask;
 	ChanStatus = sGetChanStatus(&rp->rp_channel);
 
-//XXX:	callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_do_poll, rp);
-	timeout_set(&rp->rp_timer, rp_do_poll, rp);
+//XXX:	callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_poll, rp);
+	timeout_set(&rp->rp_timer, rp_poll, rp);
 	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 
 //XXX:	device_busy(rp->rp_ctlp->dev);
