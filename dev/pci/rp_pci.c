@@ -114,9 +114,9 @@ int rp_pci_match(struct device *, void *, void *);
 void rp_pci_attach(struct device *, struct device *, void *);
 int rp_pci_init_controller(struct rp_softc *, int, int, uint8_t, int, int);
 
-static int rp_pci_aiop2rid(int, int);			/* XXX */
-static int rp_pci_aiop2off(int, int);			/* XXX */
-static unsigned char rp_pci_ctlmask(struct rp_softc *);	/* XXX */
+int rp_pci_aiop2rid(int, int);				/* XXX */
+int rp_pci_aiop2off(int, int);				/* XXX */
+unsigned char rp_pci_ctlmask(struct rp_softc *);	/* XXX */
 
 /*
  * The following functions are the pci-specific part of rp driver.
@@ -268,7 +268,7 @@ rp_pci_init_controller(struct rp_softc *sc, int AiopNum, int IRQNum,
  * ARGSUSED
  * Maps (aiop, offset) to rid.
  */
-static int
+int
 rp_pci_aiop2rid(int aiop, int offset)
 {
 	/* Always return zero for a PCI controller. */
@@ -279,7 +279,7 @@ rp_pci_aiop2rid(int aiop, int offset)
  * ARGSUSED
  * Maps (aiop, offset) to the offset of resource.
  */
-static int
+int
 rp_pci_aiop2off(int aiop, int offset)
 {
 	/* Each AIOP reserves 0x40 bytes. */
@@ -287,7 +287,7 @@ rp_pci_aiop2off(int aiop, int offset)
 }
 
 /* Read the int status for a PCI controller. */
-static unsigned char
+unsigned char
 rp_pci_ctlmask(struct rp_softc *sc)
 {
 	return sPCIGetControllerIntStatus(sc);
