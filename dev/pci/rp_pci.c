@@ -53,7 +53,6 @@
 
 #define ROCKET_C
 #include <dev/ic/rpreg.h>
-#include <dev/ic/rpvar.h>
 
 #include <dev/pci/pcireg.h>
 #include <dev/pci/pcivar.h>

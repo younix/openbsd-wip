@@ -54,7 +54,6 @@
 
 #define ROCKET_C
 #include <dev/ic/rpreg.h>
-#include <dev/ic/rpvar.h>
 
 static const char RP_Version[] = "3.02";
 
