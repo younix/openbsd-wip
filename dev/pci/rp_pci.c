@@ -132,40 +132,7 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 	sc->aiop2off = rp_pci_aiop2off;
 	sc->ctlmask = rp_pci_ctlmask;
 
-#if 0
-	/* The IO ports of AIOPs for a PCI controller are continuous. */
-	sc->io_num = 1;
-	sc->io_rid = malloc(sizeof(*(sc->io_rid)) * sc->io_num, M_DEVBUF, M_NOWAIT | M_ZERO);
-	sc->io = malloc(sizeof(*(sc->io)) * sc->io_num, M_DEVBUF, M_NOWAIT | M_ZERO);
-	if (sc->io_rid == NULL || sc->io == NULL) {
-		device_printf(dev, "rp_pciattach: Out of memory.\n");
-		retval = ENOMEM;
-		goto nogo;
-	}
-#endif
-
 	sc->bus_ctlp = NULL;
-
-	switch (PCI_PRODUCT(pa->pa_id)) {
-	case RP_DEVICE_ID_UPCI_16:
-	case RP_DEVICE_ID_UPCI_32:
-	case RP_DEVICE_ID_UPCI_8O:
-//XXX:		sc->io_rid[0] = PCIR_BAR(2);
-		break;
-	default:
-//XXX:		sc->io_rid[0] = PCIR_BAR(0);
-		break;
-	}
-
-#if 0
-	sc->io[0] = bus_alloc_resource_any(dev, SYS_RES_IOPORT,
-		&sc->io_rid[0], RF_ACTIVE);
-	if(sc->io[0] == NULL) {
-		device_printf(dev, "ioaddr mapping failed for RocketPort(PCI).\n");
-		retval = ENXIO;
-		goto nogo;
-	}
-#endif
 
 	maptype = pci_mapreg_type(pa->pa_pc, pa->pa_tag, RP_PCI_BAR_1);
 	if (pci_mapreg_map(pa, RP_PCI_BAR_1, maptype, 0, &sc->sc_iot,
@@ -183,14 +150,7 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 		num_ports += sGetAiopNumChan(sc, aiop);
 	}
 
-	if (rp_attach(sc, num_aiops, num_ports) != 0)
-		goto nogo;
-
-	return;
- nogo:
-//XXX:	rp_pcireleaseresource(sc);
-
-	return;
+	rp_attach(sc, num_aiops, num_ports);
 }
 
 int
