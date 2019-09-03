@@ -189,7 +189,6 @@ int
 rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 {
 	int i, ChOff;
-	uint8_t *ChR;
 	static uint8_t R[4];
 
 	if (ChanNum >= sc->AiopNumChan[AiopNum])
@@ -210,12 +209,11 @@ rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 		rp_writech4(ch, _INDX_ADDR, lemtoh32(R));
 	}
 
-	ChR = ch->R;
 	for (i = 0; i < RREGDATASIZE; i += 4) {
-		ChR[i] = RRegData[i];
-		ChR[i+1] = RRegData[i+1] + 0x10 * ChanNum;
-		ChR[i+2] = RRegData[i+2];
-		ChR[i+3] = RRegData[i+3];
+		ch->R[i] = RRegData[i];
+		ch->R[i+1] = RRegData[i+1] + 0x10 * ChanNum;
+		ch->R[i+2] = RRegData[i+2];
+		ch->R[i+3] = RRegData[i+3];
 	}
 
 	/* Indexed registers */
