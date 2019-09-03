@@ -112,7 +112,7 @@ const struct pci_matchid rp_pci_devices[] = {
 
 int rp_pci_match(struct device *, void *, void *);
 void rp_pci_attach(struct device *, struct device *, void *);
-static int sPCIInitController(struct rp_softc *, int, int, uint8_t, int, int);
+int rp_pci_init_controller(struct rp_softc *, int, int, uint8_t, int, int);
 
 static int rp_pci_aiop2rid(int, int);			/* XXX */
 static int rp_pci_aiop2off(int, int);			/* XXX */
@@ -184,8 +184,8 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 		return;
 	}
 
-	num_aiops = sPCIInitController(sc, RP_MAX_AIOPS_PER_BOARD, 0, FREQ_DIS,
-	    0, PCI_PRODUCT(pa->pa_id));
+	num_aiops = rp_pci_init_controller(sc, RP_MAX_AIOPS_PER_BOARD, 0,
+	    FREQ_DIS, 0, PCI_PRODUCT(pa->pa_id));
 
 	num_ports = 0;
 	for (aiop = 0; aiop < num_aiops; aiop++) {
@@ -203,8 +203,8 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 	return;
 }
 
-static int
-sPCIInitController(struct rp_softc *sc, int AiopNum, int IRQNum,
+int
+rp_pci_init_controller(struct rp_softc *sc, int AiopNum, int IRQNum,
     uint8_t Frequency, int PeriodicOnly, int VendorDevice)
 {
 	int i;
