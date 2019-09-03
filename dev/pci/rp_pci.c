@@ -100,16 +100,6 @@ const struct pci_matchid rp_pci_devices[] = {
 #define PCI_STROB	0x2000
 #define INTR_EN_PCI	0x0010
 
-/*
- * Purpose: Get the controller interrupt status
- *
- * Returns the controller interrupt status in the lower 4 bits.  Bits 0 through
- * 3 represent AIOP's 0 through 3 respectively.  If a bit is set that AIOP is
- * interrupting.  Bits 4 through 7 will always be cleared.
- */
-#define sPCIGetControllerIntStatus(CTLP) \
-	((rp_readio2(CTLP, 0, _PCI_INT_FUNC) >> 8) & 0x1f)
-
 int rp_pci_match(struct device *, void *, void *);
 void rp_pci_attach(struct device *, struct device *, void *);
 int rp_pci_init_controller(struct rp_softc *, int, int, uint8_t, int, int);
@@ -290,5 +280,13 @@ rp_pci_aiop2off(int aiop, int offset)
 unsigned char
 rp_pci_ctlmask(struct rp_softc *sc)
 {
-	return sPCIGetControllerIntStatus(sc);
+	/*
+	 * Get the controller interrupt status
+	 *
+	 * Returns the controller interrupt status in the lower 4 bits.  Bits 0
+	 * through 3 represent AIOP's 0 through 3 respectively.  If a bit is
+	 * set that AIOP is interrupting.  Bits 4 through 7 will always be
+	 * cleared.
+	 */
+	return ((rp_readio2(sc, 0, _PCI_INT_FUNC) >> 8) & 0x1f);
 }
