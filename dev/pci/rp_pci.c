@@ -100,9 +100,6 @@ const struct pci_matchid rp_pci_devices[] = {
 #define PCI_STROB	0x2000
 #define INTR_EN_PCI	0x0010
 
-/* Strobe the MUDBAC's End Of Interrupt bit */
-#define sPCIControllerEOI(sc) rp_writeio2((sc), 0, _PCI_INT_FUNC, PCI_STROB)
-
 /*
  * Purpose: Get the controller interrupt status
  *
@@ -214,7 +211,8 @@ sPCIInitController(struct rp_softc *sc, int AiopNum, int IRQNum,
 
 	sc->CtlID = RP_CTLID_0001;	/* controller release 1 */
 
-	sPCIControllerEOI(sc);
+	/* Strobe the MUDBAC's End Of Interrupt bit */
+	rp_writeio2(sc, 0, _PCI_INT_FUNC, PCI_STROB);
 
 	/* Init AIOPs */
 	sc->NumAiop = 0;
