@@ -664,7 +664,7 @@ struct rp_chan
  * Returns the number of data bytes in the Tx FIFO.
  * Comments: Byte read of count register is required to obtain Tx count.
  */
-#define sGetTxCnt(ChP) rp_readch1((ChP), CHNOFF_TXRXCOUNT(ChP))
+#define rp_get_tx_cnt(ChP) rp_readch1((ChP), CHNOFF_TXRXCOUNT(ChP))
 
 /* Return the offset of a channel's TxRx Data register */
 #define sGetTxRxDataIO(ChP) CHNOFF_TXRXDATA(ChP)

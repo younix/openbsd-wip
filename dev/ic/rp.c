@@ -381,7 +381,7 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 	uint8_t Ch;		/* channel number within AIOP */
 	int TxEnabled;		/* true if transmitter enabled */
 
-	if (sGetTxCnt(ch) == 0)	/* Tx FIFO empty */
+	if (rp_get_tx_cnt(ch) == 0)	/* Tx FIFO empty */
 		return;		/* don't need to flush */
 
 	TxEnabled = false;
@@ -416,7 +416,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 {
 	uint8_t DWBuf[4];		/* buffer for double word writes */
 
-	if (sGetTxCnt(ch) > 1) {	/* write it to Tx priority buffer */
+	if (rp_get_tx_cnt(ch) > 1) {	/* write it to Tx priority buffer */
 		/* get priority buffer status */
 		rp_writech2(ch, _INDX_ADDR, ch->TxPrioCnt);
 
@@ -671,7 +671,7 @@ rp_poll(void *arg)
 			rp_handle_port(rp);
 	}
 
-	count = sGetTxCnt(&rp->rp_channel);
+	count = rp_get_tx_cnt(&rp->rp_channel);
 	if (count >= 0 && count <= rp->rp_restart)
 		rpstart(tp);
 
@@ -1182,7 +1182,7 @@ rpstart(struct tty *tp)
 		rp->rp_xmit_stopped = 0;
 	}
 
-	xmit_fifo_room = TXFIFO_SIZE - sGetTxCnt(cp);
+	xmit_fifo_room = TXFIFO_SIZE - rp_get_tx_cnt(cp);
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
 	if (xmit_fifo_room > 0) {
 		for (i = 0, wcount = count >> 1; wcount > 0; i += 2, wcount--)
