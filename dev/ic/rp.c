@@ -222,43 +222,43 @@ rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 	ch->BaudDiv[1] = (uint8_t)((ChOff + _BAUD) >> 8);
 	ch->BaudDiv[2] = (uint8_t)RP_BRD9600;
 	ch->BaudDiv[3] = (uint8_t)(RP_BRD9600 >> 8);
-	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->BaudDiv));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->BaudDiv));
 
 	ch->TxControl[0] = (uint8_t)(ChOff + _TX_CTRL);
 	ch->TxControl[1] = (uint8_t)((ChOff + _TX_CTRL) >> 8);
 	ch->TxControl[2] = 0;
 	ch->TxControl[3] = 0;
-	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->TxControl));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxControl));
 
 	ch->RxControl[0] = (uint8_t)(ChOff + _RX_CTRL);
 	ch->RxControl[1] = (uint8_t)((ChOff + _RX_CTRL) >> 8);
 	ch->RxControl[2] = 0;
 	ch->RxControl[3] = 0;
-	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->RxControl));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->RxControl));
 
 	ch->TxEnables[0] = (uint8_t)(ChOff + _TX_ENBLS);
 	ch->TxEnables[1] = (uint8_t)((ChOff + _TX_ENBLS) >> 8);
 	ch->TxEnables[2] = 0;
 	ch->TxEnables[3] = 0;
-	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->TxEnables));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxEnables));
 
 	ch->TxCompare[0] = (uint8_t)(ChOff + _TXCMP1);
 	ch->TxCompare[1] = (uint8_t)((ChOff + _TXCMP1) >> 8);
 	ch->TxCompare[2] = 0;
 	ch->TxCompare[3] = 0;
-	rp_writech4(ch,_INDX_ADDR,lemtoh32(ch->TxCompare));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxCompare));
 
 	ch->TxReplace1[0] = (uint8_t)(ChOff + _TXREP1B1);
 	ch->TxReplace1[1] = (uint8_t)((ChOff + _TXREP1B1) >> 8);
 	ch->TxReplace1[2] = 0;
 	ch->TxReplace1[3] = 0;
-	rp_writech4(ch, _INDX_ADDR,lemtoh32(ch->TxReplace1));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxReplace1));
 
 	ch->TxReplace2[0] = (uint8_t)(ChOff + _TXREP2);
 	ch->TxReplace2[1] = (uint8_t)((ChOff + _TXREP2) >> 8);
 	ch->TxReplace2[2] = 0;
 	ch->TxReplace2[3] = 0;
-	rp_writech4(ch, _INDX_ADDR,lemtoh32(ch->TxReplace2));
+	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxReplace2));
 
 	ch->TxFIFOPtrs = ChOff + _TXF_OUTP;
 	ch->TxFIFO = ChOff + _TX_FIFO;
@@ -338,7 +338,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 	int	i;
 	uint8_t	Ch;			/* channel number within AIOP */
 
-	if (sGetRxCnt(ch) == 0)	/* Rx FIFO empty */
+	if (sGetRxCnt(ch) == 0)		/* Rx FIFO empty */
 		return;			/* don't need to flush */
 
 	if (ch->R[0x32] == 0x08) {	/* Rx FIFO is enabled */
@@ -713,7 +713,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 	}
 
 	port = 0;
-	for (aiop=0; aiop < num_aiops; aiop++) {
+	for (aiop = 0; aiop < num_aiops; aiop++) {
 		num_chan = sGetAiopNumChan(sc, aiop);
 		for (chan = 0; chan < num_chan; chan++, port++, rp++) {
 			rp->rp_tty = tp = ttymalloc(0);
