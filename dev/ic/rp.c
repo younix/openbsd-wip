@@ -338,7 +338,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 	int	i;
 	uint8_t	Ch;			/* channel number within AIOP */
 
-	if (sGetRxCnt(ch) == 0)		/* Rx FIFO empty */
+	if (rp_get_rx_cnt(ch) == 0)	/* Rx FIFO empty */
 		return;			/* don't need to flush */
 
 	if (ch->R[0x32] == 0x08) {	/* Rx FIFO is enabled */
@@ -562,7 +562,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	unsigned int CharNStat;
 	int ToRecv, ch, s;
 
-	ToRecv = sGetRxCnt(cp);
+	ToRecv = rp_get_rx_cnt(cp);
 	if (ToRecv == 0)
 		return;
 
@@ -606,10 +606,10 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 		}
 
 		/* After emtying FIFO in status mode, turn off status mode */
-		if (sGetRxCnt(cp) == 0)
+		if (rp_get_rx_cnt(cp) == 0)
 			sDisRxStatusMode(cp);
 	} else {
-		ToRecv = sGetRxCnt(cp);
+		ToRecv = rp_get_rx_cnt(cp);
 		while (ToRecv) {
 			ch = rp_readch1(cp, sGetTxRxDataIO(cp));
 			(*linesw[tp->t_line].l_rint)(ch & 0xff, tp);
