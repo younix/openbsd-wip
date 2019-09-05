@@ -427,7 +427,7 @@ struct rp_chan
 #define CHNOFF_INTID(chp)	((chp)->ChanNum     + _INT_ID0)
 
 /* Purpose: Stop sending a transmit BREAK signal */
-#define sClrBreak(ChP) do {					\
+#define rp_clr_break(ChP) do {					\
 	(ChP)->TxControl[3] &= ~SETBREAK;			\
 	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
 } while (0)
