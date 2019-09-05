@@ -433,7 +433,7 @@ struct rp_chan
 } while (0)
 
 /* Purpose: Clr the DTR output */
-#define sClrDTR(ChP) do {					\
+#define rp_clr_DTR(ChP) do {					\
 	(ChP)->TxControl[3] &= ~SET_DTR;			\
 	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
 } while (0)

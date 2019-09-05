@@ -892,10 +892,10 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 
 #ifdef DJA
 	if (tp->t_cflag&HUPCL || !(tp->t_state & TS_ISOPEN) || !tp->t_actout)
-		sClrDTR(cp);
+		rp_clr_DTR(cp);
 
 	if (ISCALLOUT(tp->t_dev))
-		sClrDTR(cp);
+		rp_clr_DTR(cp);
 
 	tp->t_actout = false;
 	wakeup(&tp->t_actout);
@@ -1099,7 +1099,7 @@ rpparam(struct tty *tp, struct termios *t)
 		return (EINVAL);
 
 	if (t->c_ospeed == 0) {
-		sClrDTR(cp);
+		rp_clr_DTR(cp);
 		return (0);
 	}
 	rp->rp_fifo_lw = ((t->c_ospeed*2) / 1000) +1;
