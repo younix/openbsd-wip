@@ -14,6 +14,7 @@ include		"../../../conf/GENERIC"
 maxusers	80			# estimated number of users
 
 option		USER_PCICONF	# user-space PCI configuration
+option		RP_DEBUG
 
 #option		VM86		# Virtual 8086 emulation
 option		APERTURE	# in-kernel aperture driver for XFree86

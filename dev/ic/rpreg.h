@@ -426,12 +426,6 @@ struct rp_chan
 #define CHNOFF_TXRXCOUNT(chp)	((chp)->ChanNum * 2 + _FIFO_CNT0)
 #define CHNOFF_INTID(chp)	((chp)->ChanNum     + _INT_ID0)
 
-/* Purpose: Stop sending a transmit BREAK signal */
-#define rp_clr_break(ChP) do {					\
-	(ChP)->TxControl[3] &= ~SETBREAK;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
-} while (0)
-
 /* Purpose: Clr the DTR output */
 #define rp_clr_DTR(ChP) do {					\
 	(ChP)->TxControl[3] &= ~SET_DTR;			\
@@ -689,12 +683,6 @@ struct rp_chan
 	rp_writeaiop1(CTLP, AIOPNUM, _CMD_REG, 0x0);		\
 } while (0)
 
-/* Purpose Send a transmit BREAK signal */
-#define sSendBreak(ChP) do {					\
-	(ChP)->TxControl[3] |= SETBREAK;			\
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
-} while (0)
-
 /* Purpose: Set baud rate */
 #define sSetBaud(ChP, DIVISOR) do {				\
 	(ChP)->BaudDiv[2] = (uint8_t)(DIVISOR);			\
@@ -854,6 +842,8 @@ extern uint8_t rp_sBitMapSetTbl[8];
  */
 #define RP_PORT(x) (minor(x) & 0xf)
 #define RP_CARD(x) ((minor(x) >> 5) & 3)
+
+#define RPF_STOP 0x01
 
 struct rp_port {
 	struct tty	*rp_tty;	/* cross reference */

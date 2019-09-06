@@ -952,11 +952,12 @@ rptty(dev_t dev)
 int
 rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 {
-	int card = RP_CARD(dev);
-	int port = RP_PORT(dev);
-	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
-	struct tty *tp = rp->rp_tty;
+	int		 card = RP_CARD(dev);
+	int		 port = RP_PORT(dev);
+	struct rp_softc	*sc = rp_cd.cd_devs[card];
+	struct rp_port	*rp = &sc->rp[port];
+	struct rp_chan	*cp = &rp->rp_channel;
+	struct tty	*tp = rp->rp_tty;
 	int error;
 
 #ifdef RP_DEBUG
@@ -974,9 +975,13 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 
 	switch (cmd) {
 	case TIOCSBRK:
-		return (0);
+		rp->rp_channel.TxControl[3] |= ~SETBREAK;
+		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
+		break;
 	case TIOCCBRK:
-		return (0);
+		rp->rp_channel.TxControl[3] &= ~SETBREAK;
+		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
+		break;
 	case TIOCSDTR:	/* DIR on */
 // TIOCM_DTR, DMBIS
 	case TIOCCDTR:	/* DIR off */
@@ -987,8 +992,13 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 	case TIOCGFLAGS:/* set flags */
 	case TIOCSFLAGS:/* get flags */
 	default:
+
+printf(" ENOTTY\n");
+
 		return ENOTTY;
 	}
+
+	return (0);
 }
 #if 0
 int
@@ -1064,11 +1074,20 @@ rpstop(struct tty *tp, int flag)
 	int		 card = RP_CARD(tp->t_dev);
 	int		 port = RP_PORT(tp->t_dev);
 	struct rp_softc *sc = rp_cd.cd_devs[card];
-	//struct rp_port *rp = &sc->rp[port];
+	struct rp_port *rp = &sc->rp[port];
+	int s;
 
-	/* XXX: not implemented yet */
-	printf("%s port %d stop tty %p flag 0x%x NOT IMPLEMENTED!!!\n",
-	    sc->sc_dev.dv_xname, port, tp, flag);
+	printf("%s port %d stop tty %p flag 0x%x\n", sc->sc_dev.dv_xname,
+	    port, tp, flag);
+
+	s = spltty();
+	if (ISSET(tp->t_state, TS_BUSY)) {
+		if (!ISSET(tp->t_state, TS_TTSTOP))
+			SET(tp->t_state, TS_FLUSH);
+
+		SET(rp->rp_flags, RPF_STOP);
+	}
+	splx(s);
 
 	return (0);
 }
