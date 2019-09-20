@@ -983,8 +983,13 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
 		break;
 	case TIOCSDTR:	/* DIR on */
-// TIOCM_DTR, DMBIS
+		cp->TxControl[3] |= SET_DTR;
+		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
+		break;
 	case TIOCCDTR:	/* DIR off */
+		cp->TxControl[3] &= ~SET_DTR;
+		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
+		break;
 	case TIOCMSET:	/* set new modem control line values */
 	case TIOCMBIS:	/* turn modem control bits on */
 	case TIOCMBIC:	/* turn modem control bits off */
