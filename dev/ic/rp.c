@@ -975,11 +975,11 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 
 	switch (cmd) {
 	case TIOCSBRK:
-		rp->rp_channel.TxControl[3] |= ~SETBREAK;
+		cp->TxControl[3] |= ~SETBREAK;
 		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
 		break;
 	case TIOCCBRK:
-		rp->rp_channel.TxControl[3] &= ~SETBREAK;
+		cp->TxControl[3] &= ~SETBREAK;
 		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
 		break;
 	case TIOCSDTR:	/* DIR on */
