@@ -991,8 +991,24 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
 		break;
 	case TIOCMSET:	/* set new modem control line values */
+		cp->TxControl[3] &= ~SET_DTR;
+		cp->TxControl[3] &= ~SET_RTS;
 	case TIOCMBIS:	/* turn modem control bits on */
+		if (*(int*)data & TIOCM_DTR)
+			cp->TxControl[3] |= SET_DTR;
+		if (*(int*)data & TIOCM_RTS)
+			cp->TxControl[3] |= SET_RTS;
+
+		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
+		break;
 	case TIOCMBIC:	/* turn modem control bits off */
+		if (*(int*)data & TIOCM_DTR)
+			cp->TxControl[3] &= ~SET_DTR;
+		if (*(int*)data & TIOCM_RTS)
+			cp->TxControl[3] &= ~SET_RTS;
+
+		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
+		break;
 	case TIOCMGET:	/* get modem control/status line state */
 	case TIOCGFLAGS:/* set flags */
 	case TIOCSFLAGS:/* get flags */
