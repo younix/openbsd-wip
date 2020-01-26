@@ -851,6 +851,7 @@ struct rp_port {
 
 	unsigned char	 state;		/* state of dtr */
 
+	int		 rp_cua;
 	int		 rp_port;
 	int		 rp_flags;
 	int		 rp_unit:2;

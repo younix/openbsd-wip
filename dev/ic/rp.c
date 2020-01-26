@@ -55,6 +55,8 @@
 #define ROCKET_C
 #include <dev/ic/rpreg.h>
 
+#define	DEVCUA(x)	(minor(x) & 0x80)
+
 static const char RP_Version[] = "3.02";
 
 static uint8_t RData[RDATASIZE] = {
@@ -391,6 +393,7 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 	}
 
 	rp_stop_rx_processor(ch);	/* stop Rx processor */
+	/* XXX: use better sleep */
 	for (i = 0; i < 4000/200; i++)	/* delay 4 uS to allow proc to stop */
 		rp_readch1(ch,_INT_CHAN);		/* depends on bus i/o timing */
 	Ch = (uint8_t)sGetChanNum(ch);
@@ -560,9 +563,12 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
     unsigned int ChanStatus)
 {
 	unsigned int CharNStat;
-	int ToRecv, ch, s;
+	int ToRecv, ch;
 
 	ToRecv = rp_get_rx_cnt(cp);
+#ifdef RP_DEBUG
+	printf("%s:%d ToRecv: %d\n", __func__, __LINE__, ToRecv);
+#endif
 	if (ToRecv == 0)
 		return;
 
@@ -582,9 +588,11 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	 * word at a time, pulling apart the character and the status. Update
 	 * error counters depending on status.
 	 */
-	s = spltty();
+//	s = spltty();
+//printf("%s:%d spltty()\n", __func__, __LINE__);
 	if (ChanStatus & STATMODE) {
 		while (ToRecv) {
+printf("%s:%d while\n", __func__, __LINE__);
 			CharNStat = rp_readch2(cp, sGetTxRxDataIO(cp));
 			ch = CharNStat & 0xff;
 
@@ -611,13 +619,14 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	} else {
 		ToRecv = rp_get_rx_cnt(cp);
 		while (ToRecv) {
+printf("%s:%d while\n", __func__, __LINE__);
 			ch = rp_readch1(cp, sGetTxRxDataIO(cp));
 			(*linesw[tp->t_line].l_rint)(ch & 0xff, tp);
 			ToRecv--;
 		}
 	}
 	//XXX: do we need this?! -> ttydisc_rint_done(tp);
-	splx(s);
+//	splx(s);
 }
 
 static void
@@ -627,6 +636,7 @@ rp_handle_port(struct rp_port *rp)
 	struct tty	*tp;
 	unsigned int	 IntMask;
 	unsigned int	 ChanStatus;
+	unsigned int	 oldcts;
 
 	if (rp == NULL)
 		return;
@@ -651,6 +661,14 @@ rp_handle_port(struct rp_port *rp)
 		printf("CTS change (now %s)... on port %d\n", rp->rp_cts ? "on" : "off", rp->rp_port);
 	}
 */
+
+	oldcts = rp->rp_cts;
+	rp->rp_cts = ((ChanStatus & CTS_ACT) != 0);
+	//if (oldcts != rp->rp_cts && ISSET(tp->t_cflag, CRTSCTS)) {
+	if (oldcts != rp->rp_cts) {
+		printf("CTS change (now %s)... on port %d\n", rp->rp_cts ? "on" : "off", rp->rp_port);
+		(*linesw[tp->t_line].l_start)(tp);
+	}
 }
 
 void
@@ -667,13 +685,21 @@ rp_poll(void *arg)
 	CtlMask = sc->ctlmask(sc);
 	if (CtlMask & (1 << rp->rp_aiop)) {
 		AiopMask = sGetAiopIntStatus(sc, rp->rp_aiop);
-		if (AiopMask & (1 << rp->rp_chan))
+		if (AiopMask & (1 << rp->rp_chan)) {
+printf("handle port: %d\n", rp->rp_chan);
 			rp_handle_port(rp);
+		}
 	}
 
+/* XXX: thats maybe useless?!
 	count = rp_get_tx_cnt(&rp->rp_channel);
-	if (count >= 0 && count <= rp->rp_restart)
+	if (count >= 0 && count <= rp->rp_restart) { */
+	count = rp_get_tx_cnt(&rp->rp_channel);
+	if (count > 0) {
+		printf("call start from poll count: %d\n", count);
 		rpstart(tp);
+	}
+//*/
 
 	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 }
@@ -791,8 +817,10 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	struct rp_softc	*sc;
 	struct rp_port	*rp;
 	struct tty	*tp;
-	int		 s, flags = 0;
+	int		 flags = 0;
+	int		 error = 0;
 	unsigned int	 IntMask, ChanStatus;
+	int		 s;
 
 	if (card >= rp_cd.cd_ndevs || (sc = rp_cd.cd_devs[card]) == NULL)
 		return (ENXIO);
@@ -814,6 +842,27 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	tp->t_oproc = rpstart;
 	tp->t_param = rpparam;
 	tp->t_dev = dev;
+	if (!ISSET(tp->t_state, TS_ISOPEN)) {
+		SET(tp->t_state, TS_WOPEN);
+		ttychars(tp);
+		tp->t_iflag = TTYDEF_IFLAG;
+		tp->t_oflag = TTYDEF_OFLAG;
+		tp->t_cflag = TTYDEF_CFLAG;
+		tp->t_lflag = TTYDEF_LFLAG;
+		tp->t_ispeed = tp->t_ospeed = TTYDEF_SPEED;
+
+		s = spltty();
+
+		rpparam(tp, &tp->t_termios);
+		ttsetwater(tp);
+
+		/* No carrier detect support. */
+		SET(tp->t_state, TS_CARR_ON);
+	} else if (ISSET(tp->t_state, TS_XCLUDE) && suser(p) != 0) {
+		return EBUSY;
+	} else {
+		s = spltty();
+	}
 
 	flags |= SET_RTS;
 	flags |= SET_DTR;
@@ -853,6 +902,42 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 
 //XXX:	device_busy(rp->rp_ctlp->dev);
+	if (DEVCUA(dev)) {
+		if (ISSET(tp->t_state, TS_ISOPEN)) {
+			/* Ah, but someone already is dialed in... */
+			splx(s);
+			return EBUSY;
+		}
+		rp->rp_cua = 1;
+	} else {
+		/* tty (not cua) device; wait for carrier if necessary. */
+		if (ISSET(flag, O_NONBLOCK)) {
+			if (rp->rp_cua) {
+				/* Opening TTY non-blocking... but the CUA is busy. */
+				splx(s);
+				return EBUSY;
+			}
+		} else {
+			while (rp->rp_cua) {
+				SET(tp->t_state, TS_WOPEN);
+				error = ttysleep(tp, &tp->t_rawq, TTIPRI | PCATCH, ttopen);
+
+				/*
+				 * If TS_WOPEN has been reset, that means the cua device
+				 * has been closed.  We don't want to fail in that case,
+				 * so just go around again.
+				 */
+				if (error && ISSET(tp->t_state, TS_WOPEN)) {
+					CLR(tp->t_state, TS_WOPEN);
+ 
+					splx(s);
+					return error;
+				}
+			}
+		}
+	}
+	splx(s);
+
 	return (*linesw[tp->t_line].l_open)(dev, tp, p);
 }
 
@@ -864,10 +949,30 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
 	struct rp_port	*rp = &sc->rp[port];
 	struct tty	*tp = rp->rp_tty;
+	int		 s;
+
+#ifdef RP_DEBUG
+	printf("%s:%d close\n", __func__, __LINE__);
+#endif
+
+	(*linesw[tp->t_line].l_close)(tp, flag, p);
 
 	timeout_del(&rp->rp_timer);
 	rphardclose(tp, rp);
 //XXX:	device_unbusy(rp->rp_ctlp->dev);
+
+	s = spltty();
+	if (ISSET(tp->t_state, TS_WOPEN)) {
+printf("%s:%d close: TS_WOPEN\n", __func__, __LINE__);
+		/* TODO: */
+	} else {
+printf("%s:%d close: NOT TS_WOPEN\n", __func__, __LINE__);
+		/* TODO: */
+	}
+	CLR(tp->t_state, TS_BUSY | TS_FLUSH);
+	rp->rp_cua = 0;
+	splx(s);
+	ttyclose(tp);
 
 	return (0);
 }
@@ -875,10 +980,8 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 void
 rphardclose(struct tty *tp, struct rp_port *rp)
 {
-//XXX:	struct	rp_port	*rp;
 	struct rp_chan	*cp;
 
-//XXX:	rp = tty_softc(tp);
 	cp = &rp->rp_channel;
 
 	rp_flush_rx_fifo(cp);
@@ -1009,13 +1112,10 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 
 		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
 		break;
-	case TIOCMGET:	/* get modem control/status line state */
-	case TIOCGFLAGS:/* set flags */
-	case TIOCSFLAGS:/* get flags */
+	case  TIOCMGET:	/* get modem control/status line state */
+	case  TIOCGFLAGS:/* set flags */
+	case  TIOCSFLAGS:/* get flags */
 	default:
-
-printf(" ENOTTY\n");
-
 		return ENOTTY;
 	}
 
@@ -1094,12 +1194,14 @@ rpstop(struct tty *tp, int flag)
 {
 	int		 card = RP_CARD(tp->t_dev);
 	int		 port = RP_PORT(tp->t_dev);
-	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
-	int s;
+	struct rp_softc	*sc = rp_cd.cd_devs[card];
+	struct rp_port	*rp = &sc->rp[port];
+	int		 s;
 
+#ifdef RP_DEBUG
 	printf("%s port %d stop tty %p flag 0x%x\n", sc->sc_dev.dv_xname,
 	    port, tp, flag);
+#endif
 
 	s = spltty();
 	if (ISSET(tp->t_state, TS_BUSY)) {
@@ -1127,6 +1229,11 @@ rpparam(struct tty *tp, struct termios *t)
 //	int		 lflag = t->c_lflag;
 	int		 ospeed = rp_convert_baud(t->c_ispeed);
 
+#ifdef RP_DEBUG
+	printf("%s port %d param tty %p\n", sc->sc_dev.dv_xname,
+	    port, tp);
+#endif
+
 #ifdef RPCLOCAL
 	int devshift;
 	devshift = umynor / 32;
@@ -1135,7 +1242,7 @@ rpparam(struct tty *tp, struct termios *t)
 		cflag |= CLOCAL;
 #endif
 
-	if (ospeed < 0 || t->c_ispeed != t->c_ospeed)
+	if (ospeed < 0 || (t->c_ispeed && t->c_ispeed != t->c_ospeed))
 		return (EINVAL);
 
 	if (t->c_ospeed == 0) {
@@ -1198,6 +1305,8 @@ rpparam(struct tty *tp, struct termios *t)
 	else
 		sDisRTSFlowCtl(cp);
 
+	/* just to be sure */
+	rpstart(tp);
 	return (0);
 }
 
@@ -1212,15 +1321,24 @@ rpstart(struct tty *tp)
 //	char		 flags = rp->rp_channel.TxControl[3];
 	int		 xmit_fifo_room;
 	int		 i, count, wcount;
+	int		 s;
 
 #ifdef RP_DEBUG
 	printf("%s port %d start, tty %p\n", sc->sc_dev.dv_xname, port, tp);
 #endif
 
-	if (rp->rp_xmit_stopped) {
-		sEnTransmit(cp);
-		rp->rp_xmit_stopped = 0;
-	}
+	s = spltty();
+
+	/* XXX: this block is kind of useless/dead?! */
+//	if (rp->rp_xmit_stopped) {
+//		sEnTransmit(cp);
+//		rp->rp_xmit_stopped = 0;
+//	}
+
+	if (ISSET(tp->t_state, TS_TTSTOP | TS_TIMEOUT | TS_BUSY))
+		goto out;
+
+	ttwakeupwr(tp);
 
 	xmit_fifo_room = TXFIFO_SIZE - rp_get_tx_cnt(cp);
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
@@ -1231,4 +1349,8 @@ rpstart(struct tty *tp)
 		if (count & 1)
 			rp_writech1(cp, sGetTxRxDataIO(cp), rp->TxBuf[(count-1)]);
 	}
+
+ out:
+	splx(s);
+	return;
 }
