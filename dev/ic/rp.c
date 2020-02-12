@@ -858,48 +858,49 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 
 		/* No carrier detect support. */
 		SET(tp->t_state, TS_CARR_ON);
+
+		/* XXX: this block may not be here?! */
+		flags |= SET_RTS;
+		flags |= SET_DTR;
+		rp->rp_channel.TxControl[3] =
+		    ((rp->rp_channel.TxControl[3] & ~(SET_RTS | SET_DTR)) | flags);
+		rp_writech4(&rp->rp_channel,_INDX_ADDR, lemtoh32(rp->rp_channel.TxControl));
+		sSetRxTrigger(&rp->rp_channel, TRIG_1);
+		sDisRxStatusMode(&rp->rp_channel);
+		rp_flush_rx_fifo(&rp->rp_channel);
+		rp_flush_tx_fifo(&rp->rp_channel);
+
+		rp_enable_interrupts(&rp->rp_channel,
+		    (TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
+		sSetRxTrigger(&rp->rp_channel, TRIG_1);
+
+		sDisRxStatusMode(&rp->rp_channel);
+		sClrTxXOFF(&rp->rp_channel);
+
+//		sDisRTSFlowCtl(&rp->rp_channel);
+//		sDisCTSFlowCtl(&rp->rp_channel);
+
+		sDisTxSoftFlowCtl(&rp->rp_channel);
+		sStartRxProcessor(&rp->rp_channel);
+
+		sEnRxFIFO(&rp->rp_channel);
+		sEnTransmit(&rp->rp_channel);
+
+//		sSetDTR(&rp->rp_channel);
+//		sSetRTS(&rp->rp_channel);
+
+		IntMask = sGetChanIntID(&rp->rp_channel);
+		IntMask = IntMask & rp->rp_intmask;
+		ChanStatus = sGetChanStatus(&rp->rp_channel);
+
+//XXX:		callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_poll, rp);
+		timeout_set(&rp->rp_timer, rp_poll, rp);
+		timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 	} else if (ISSET(tp->t_state, TS_XCLUDE) && suser(p) != 0) {
 		return EBUSY;
 	} else {
 		s = spltty();
 	}
-
-	flags |= SET_RTS;
-	flags |= SET_DTR;
-	rp->rp_channel.TxControl[3] =
-	    ((rp->rp_channel.TxControl[3] & ~(SET_RTS | SET_DTR)) | flags);
-	rp_writech4(&rp->rp_channel,_INDX_ADDR, lemtoh32(rp->rp_channel.TxControl));
-	sSetRxTrigger(&rp->rp_channel, TRIG_1);
-	sDisRxStatusMode(&rp->rp_channel);
-	rp_flush_rx_fifo(&rp->rp_channel);
-	rp_flush_tx_fifo(&rp->rp_channel);
-
-	rp_enable_interrupts(&rp->rp_channel,
-	    (TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
-	sSetRxTrigger(&rp->rp_channel, TRIG_1);
-
-	sDisRxStatusMode(&rp->rp_channel);
-	sClrTxXOFF(&rp->rp_channel);
-
-//	sDisRTSFlowCtl(&rp->rp_channel);
-//	sDisCTSFlowCtl(&rp->rp_channel);
-
-	sDisTxSoftFlowCtl(&rp->rp_channel);
-	sStartRxProcessor(&rp->rp_channel);
-
-	sEnRxFIFO(&rp->rp_channel);
-	sEnTransmit(&rp->rp_channel);
-
-//	sSetDTR(&rp->rp_channel);
-//	sSetRTS(&rp->rp_channel);
-
-	IntMask = sGetChanIntID(&rp->rp_channel);
-	IntMask = IntMask & rp->rp_intmask;
-	ChanStatus = sGetChanStatus(&rp->rp_channel);
-
-//XXX:	callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_poll, rp);
-	timeout_set(&rp->rp_timer, rp_poll, rp);
-	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 
 //XXX:	device_busy(rp->rp_ctlp->dev);
 	if (DEVCUA(dev)) {
