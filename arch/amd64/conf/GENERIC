@@ -15,6 +15,7 @@ maxusers	80			# estimated number of users
 
 option		USER_PCICONF	# user-space PCI configuration
 option		RP_DEBUG
+option		CY_DEBUG
 option		AAC_DEBUG
 option		IWM_DEBUG
 #makeoptions	PROF="-pg"
