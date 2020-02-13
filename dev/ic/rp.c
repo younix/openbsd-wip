@@ -953,7 +953,8 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	int		 s;
 
 #ifdef RP_DEBUG
-	printf("%s:%d close\n", __func__, __LINE__);
+	printf("%s close port %d flag 0x%x mode 0x%x\n", sc->sc_dev.dv_xname,
+	    port, flag, mode);
 #endif
 
 	(*linesw[tp->t_line].l_close)(tp, flag, p);
