@@ -732,8 +732,8 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 	sc->rp = rp = mallocarray(num_ports, sizeof(*rp), M_DEVBUF, M_NOWAIT|M_ZERO);
 
 	if (rp == NULL) {
-		//XXX: improve message
-		printf("rp_attach: Could not malloc rp_ports structures.\n");
+		printf("%s port %d rp_attach: could not malloc\n",
+		    sc->sc_dev.dv_xname, port);
 		retval = ENOMEM;
 		goto nogo;
 	}
