@@ -567,8 +567,9 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	int ToRecv, ch;
 
 	ToRecv = rp_get_rx_cnt(cp);
-#ifdef RP_DEBUG
-	printf("%s:%d ToRecv: %d\n", __func__, __LINE__, ToRecv);
+#ifdef RP_DEBUG2
+	printf("%s port %d receive: %d bytes\n", DEVNAME(rp->rp_ctlp),
+	    RP_PORT(tp->t_dev), ToRecv);
 #endif
 	if (ToRecv == 0)
 		return;
