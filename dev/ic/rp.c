@@ -1320,10 +1320,8 @@ rpstart(struct tty *tp)
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
 	struct rp_port	*rp = &sc->rp[port];
 	struct rp_chan	*cp = &rp->rp_channel;
-//	char		 flags = rp->rp_channel.TxControl[3];
 	int		 xmit_fifo_room;
-	int		 i, count, wcount;
-	int		 s;
+	int		 s, i, count, wcount;
 
 #ifdef RP_DEBUG1
 	printf("%s port %d start, tty %p\n", DEVNAME(sc), port, tp);
@@ -1331,16 +1329,13 @@ rpstart(struct tty *tp)
 
 	s = spltty();
 
-	/* XXX: this block is kind of useless/dead?! */
-//	if (rp->rp_xmit_stopped) {
-//		sEnTransmit(cp);
-//		rp->rp_xmit_stopped = 0;
-//	}
-
 	if (ISSET(tp->t_state, TS_TTSTOP | TS_TIMEOUT | TS_BUSY))
 		goto out;
 
 	ttwakeupwr(tp);
+
+	if (tp->t_outq.c_cc == 0)
+		goto out;
 
 	xmit_fifo_room = TXFIFO_SIZE - rp_get_tx_cnt(cp);
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
