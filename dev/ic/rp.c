@@ -591,10 +591,8 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	 * error counters depending on status.
 	 */
 //	s = spltty();
-//printf("%s:%d spltty()\n", __func__, __LINE__);
 	if (ChanStatus & STATMODE) {
 		while (ToRecv) {
-printf("%s:%d while\n", __func__, __LINE__);
 			CharNStat = rp_readch2(cp, sGetTxRxDataIO(cp));
 			ch = CharNStat & 0xff;
 
@@ -620,7 +618,6 @@ printf("%s:%d while\n", __func__, __LINE__);
 	} else {
 		ToRecv = rp_get_rx_cnt(cp);
 		while (ToRecv) {
-printf("%s:%d while\n", __func__, __LINE__);
 			ch = rp_readch1(cp, sGetTxRxDataIO(cp));
 			(*linesw[tp->t_line].l_rint)(ch & 0xff, tp);
 			ToRecv--;
@@ -687,7 +684,6 @@ rp_poll(void *arg)
 	if (CtlMask & (1 << rp->rp_aiop)) {
 		AiopMask = sGetAiopIntStatus(sc, rp->rp_aiop);
 		if (AiopMask & (1 << rp->rp_chan)) {
-printf("handle port: %d\n", rp->rp_chan);
 			rp_handle_port(rp);
 		}
 	}
@@ -696,11 +692,8 @@ printf("handle port: %d\n", rp->rp_chan);
 	count = rp_get_tx_cnt(&rp->rp_channel);
 	if (count >= 0 && count <= rp->rp_restart) { */
 	count = rp_get_tx_cnt(&rp->rp_channel);
-	if (count > 0) {
-		printf("call start from poll count: %d\n", count);
+	if (count > 0)
 		rpstart(tp);
-	}
-//*/
 
 	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 }
