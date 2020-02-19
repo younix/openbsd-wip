@@ -56,7 +56,7 @@
 #include <dev/ic/rpreg.h>
 
 #define DEVNAME(_s)	((_s)->sc_dev.dv_xname)
-#define	DEVCUA(x)	(minor(x) & 0x80)
+#define DEVCUA(x)	(minor(x) & 0x80)
 
 static const char RP_Version[] = "3.02";
 
