@@ -56,11 +56,6 @@ define	i2c_bitbang
 # 1-Wire bus bit-banging
 define	onewire_bitbang
 
-define	led {}
-device	led
-file	dev/ic/led.c		led needs-flag
-attach	led at led
-
 # net device attributes - we have generic code for ether(net)
 define	crypto
 define	ether

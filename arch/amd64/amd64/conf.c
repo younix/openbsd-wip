@@ -165,7 +165,6 @@ cdev_decl(nvram);
 cdev_decl(drm);
 #include "viocon.h"
 cdev_decl(viocon);
-#include "led.h"
 
 #include "wsdisplay.h"
 #include "wskbd.h"
@@ -251,7 +250,7 @@ struct cdevsw	cdevsw[] =
 	cdev_midi_init(NMIDI,midi),	/* 52: MIDI I/O */
 	cdev_notdef(),			/* 53 was: sequencer I/O */
 	cdev_notdef(),			/* 54 was: RAIDframe disk driver */
-	cdev_led_init(NLED,led),	/* 55: led(4) */
+	cdev_notdef(),			/* 55: */
 	/* The following slots are reserved for isdn4bsd. */
 	cdev_notdef(),			/* 56: i4b main device */
 	cdev_notdef(),			/* 57: i4b control device */
