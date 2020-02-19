@@ -55,8 +55,7 @@
 #define ROCKET_C
 #include <dev/ic/rpreg.h>
 
-#define DEVNAME(_s)	((_s)->sc_dev.dv_xname)
-#define DEVCUA(x)	(minor(x) & 0x80)
+#define	DEVCUA(x)	(minor(x) & 0x80)
 
 static const char RP_Version[] = "3.02";
 
@@ -567,9 +566,8 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	int ToRecv, ch;
 
 	ToRecv = rp_get_rx_cnt(cp);
-#ifdef RP_DEBUG2
-	printf("%s port %d receive: %d bytes\n", DEVNAME(rp->rp_ctlp),
-	    RP_PORT(tp->t_dev), ToRecv);
+#ifdef RP_DEBUG
+	printf("%s:%d ToRecv: %d\n", __func__, __LINE__, ToRecv);
 #endif
 	if (ToRecv == 0)
 		return;
@@ -591,8 +589,10 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	 * error counters depending on status.
 	 */
 //	s = spltty();
+//printf("%s:%d spltty()\n", __func__, __LINE__);
 	if (ChanStatus & STATMODE) {
 		while (ToRecv) {
+printf("%s:%d while\n", __func__, __LINE__);
 			CharNStat = rp_readch2(cp, sGetTxRxDataIO(cp));
 			ch = CharNStat & 0xff;
 
@@ -604,7 +604,8 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 				rp->rp_overflows++;
 
 				printf("%s port %d tty overrun\n",
-				    DEVNAME(rp->rp_ctlp), RP_PORT(tp->t_dev));
+				    rp->rp_ctlp->sc_dev.dv_xname,
+				    RP_PORT(tp->t_dev));
 			}
 
 			//ttydisc_rint(tp, ch, err);
@@ -618,6 +619,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	} else {
 		ToRecv = rp_get_rx_cnt(cp);
 		while (ToRecv) {
+printf("%s:%d while\n", __func__, __LINE__);
 			ch = rp_readch1(cp, sGetTxRxDataIO(cp));
 			(*linesw[tp->t_line].l_rint)(ch & 0xff, tp);
 			ToRecv--;
@@ -683,9 +685,8 @@ rp_poll(void *arg)
 	CtlMask = sc->ctlmask(sc);
 	if (CtlMask & (1 << rp->rp_aiop)) {
 		AiopMask = sGetAiopIntStatus(sc, rp->rp_aiop);
-		if (AiopMask & (1 << rp->rp_chan)) {
+		if (AiopMask & (1 << rp->rp_chan))
 			rp_handle_port(rp);
-		}
 	}
 
 /* XXX: thats maybe useless?!
@@ -726,8 +727,8 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 	sc->rp = rp = mallocarray(num_ports, sizeof(*rp), M_DEVBUF, M_NOWAIT|M_ZERO);
 
 	if (rp == NULL) {
-		printf("%s port %d rp_attach: could not malloc\n", DEVNAME(sc),
-		    port);
+		//XXX: improve message
+		printf("rp_attach: Could not malloc rp_ports structures.\n");
 		retval = ENOMEM;
 		goto nogo;
 	}
@@ -820,8 +821,8 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		return (ENXIO);
 
 #ifdef RP_DEBUG
-	printf("%s open port %d flag 0x%x mode 0x%x\n", DEVNAME(sc), port, flag,
-	    mode);
+	printf("%s open port %d flag 0x%x mode 0x%x\n", sc->sc_dev.dv_xname,
+	    port, flag, mode);
 #endif
 
 	rp = &sc->rp[port];
@@ -947,8 +948,7 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	int		 s;
 
 #ifdef RP_DEBUG
-	printf("%s close port %d flag 0x%x mode 0x%x\n", DEVNAME(sc), port,
-	    flag, mode);
+	printf("%s:%d close\n", __func__, __LINE__);
 #endif
 
 	(*linesw[tp->t_line].l_close)(tp, flag, p);
@@ -1011,9 +1011,9 @@ rpread(dev_t dev, struct uio *uio, int flag)
 	struct rp_port	*rp = &sc->rp[port];
 	struct tty	*tp = rp->rp_tty;
 
-#ifdef RP_DEBUG1
-	printf("%s read port %d uio %p flag 0x%x\n", DEVNAME(sc), port, uio,
-	    flag);
+#ifdef RP_DEBUG
+	printf("%s read port %d uio %p flag 0x%x\n", sc->sc_dev.dv_xname,
+	    port, uio, flag);
 #endif
 
 	return ((*linesw[tp->t_line].l_read)(tp, uio, flag));
@@ -1028,9 +1028,9 @@ rpwrite(dev_t dev, struct uio *uio, int flag)
 	struct rp_port *rp = &sc->rp[port];
 	struct tty *tp = rp->rp_tty;
 
-#ifdef RP_DEBUG1
-	printf("%s write port %d uio %p flag 0x%x\n", DEVNAME(sc), port, uio,
-	    flag);
+#ifdef RP_DEBUG
+	printf("%s write port %d uio %p flag 0x%x\n", sc->sc_dev.dv_xname,
+	    port, uio, flag);
 #endif
 
 	return ((*linesw[tp->t_line].l_write)(tp, uio, flag));
@@ -1059,9 +1059,9 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 	struct tty	*tp = rp->rp_tty;
 	int error;
 
-#ifdef RP_DEBUG1
-	printf("%s port %d ioctl cmd 0x%lx data %p flag 0x%x\n", DEVNAME(sc),
-	    port, cmd, data, flag);
+#ifdef RP_DEBUG
+	printf("%s port %d ioctl cmd 0x%lx data %p flag 0x%x\n",
+	    sc->sc_dev.dv_xname, port, cmd, data, flag);
 #endif
 
 	error = (*linesw[tp->t_line].l_ioctl)(tp, cmd, data, flag, p);
@@ -1195,8 +1195,8 @@ rpstop(struct tty *tp, int flag)
 	int		 s;
 
 #ifdef RP_DEBUG
-	printf("%s port %d stop tty %p flag 0x%x\n", DEVNAME(sc), port, tp,
-	    flag);
+	printf("%s port %d stop tty %p flag 0x%x\n", sc->sc_dev.dv_xname,
+	    port, tp, flag);
 #endif
 
 	s = spltty();
@@ -1225,8 +1225,9 @@ rpparam(struct tty *tp, struct termios *t)
 //	int		 lflag = t->c_lflag;
 	int		 ospeed = rp_convert_baud(t->c_ispeed);
 
-#ifdef RP_DEBUG1
-	printf("%s port %d param tty %p\n", DEVNAME(sc), port, tp);
+#ifdef RP_DEBUG
+	printf("%s port %d param tty %p\n", sc->sc_dev.dv_xname,
+	    port, tp);
 #endif
 
 #ifdef RPCLOCAL
@@ -1313,22 +1314,27 @@ rpstart(struct tty *tp)
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
 	struct rp_port	*rp = &sc->rp[port];
 	struct rp_chan	*cp = &rp->rp_channel;
+//	char		 flags = rp->rp_channel.TxControl[3];
 	int		 xmit_fifo_room;
-	int		 s, i, count, wcount;
+	int		 i, count, wcount;
+	int		 s;
 
-#ifdef RP_DEBUG1
-	printf("%s port %d start, tty %p\n", DEVNAME(sc), port, tp);
+#ifdef RP_DEBUG
+	printf("%s port %d start, tty %p\n", sc->sc_dev.dv_xname, port, tp);
 #endif
 
 	s = spltty();
+
+	/* XXX: this block is kind of useless/dead?! */
+//	if (rp->rp_xmit_stopped) {
+//		sEnTransmit(cp);
+//		rp->rp_xmit_stopped = 0;
+//	}
 
 	if (ISSET(tp->t_state, TS_TTSTOP | TS_TIMEOUT | TS_BUSY))
 		goto out;
 
 	ttwakeupwr(tp);
-
-	if (tp->t_outq.c_cc == 0)
-		goto out;
 
 	xmit_fifo_room = TXFIFO_SIZE - rp_get_tx_cnt(cp);
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
