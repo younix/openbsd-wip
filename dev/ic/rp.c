@@ -338,7 +338,7 @@ void
 rp_flush_rx_fifo(struct rp_chan *ch)
 {
 	int	RxFIFOEnabled = false;	/* true if Rx FIFO enabled */
-	int	i;
+	//int	i;
 	uint8_t	Ch;			/* channel number within AIOP */
 
 	if (rp_get_rx_cnt(ch) == 0)	/* Rx FIFO empty */
@@ -349,8 +349,9 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 		sDisRxFIFO(ch);	/* disable it */
 
 		/* delay 2 uS to allow proc to disable FIFO*/
-		for (i = 0; i < 2000/200; i++)
-			rp_readch1(ch,_INT_CHAN);	/* depends on bus i/o timing */
+//		for (i = 0; i < 2000/200; i++)
+//			rp_readch1(ch,_INT_CHAN);	/* depends on bus i/o timing */
+		delay(2);	/* delay 2 uS to allow proc to disable FIFO */
 	}
 	sGetChanStatus(ch);	/* clear any pending Rx errors in chan stat */
 	Ch = (uint8_t)sGetChanNum(ch);
@@ -380,7 +381,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 void
 rp_flush_tx_fifo(struct rp_chan *ch)
 {
-	int i;
+	//int i;
 	uint8_t Ch;		/* channel number within AIOP */
 	int TxEnabled;		/* true if transmitter enabled */
 
@@ -395,8 +396,9 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 
 	rp_stop_rx_processor(ch);	/* stop Rx processor */
 	/* XXX: use better sleep */
-	for (i = 0; i < 4000/200; i++)	/* delay 4 uS to allow proc to stop */
-		rp_readch1(ch,_INT_CHAN);		/* depends on bus i/o timing */
+//	for (i = 0; i < 4000/200; i++)	/* delay 4 uS to allow proc to stop */
+//		rp_readch1(ch,_INT_CHAN);		/* depends on bus i/o timing */
+	delay(4);	/* delay 4 uS to allow proc to stop */
 	Ch = (uint8_t)sGetChanNum(ch);
 	rp_writech1(ch, _CMD_REG, Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
 	rp_writech1(ch, _CMD_REG, Ch);			/* remove reset Tx FIFO count */
