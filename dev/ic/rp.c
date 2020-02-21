@@ -557,7 +557,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
     unsigned int ChanStatus)
 {
 	unsigned int CharNStat;
-	int ToRecv, ch;
+	int ToRecv, ch, s;
 
 	ToRecv = rp_get_rx_cnt(cp);
 #ifdef RP_DEBUG2
