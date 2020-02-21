@@ -583,7 +583,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	 * word at a time, pulling apart the character and the status. Update
 	 * error counters depending on status.
 	 */
-//	s = spltty();
+	s = spltty();
 	if (ChanStatus & STATMODE) {
 		while (ToRecv) {
 			CharNStat = rp_readch2(cp, sGetTxRxDataIO(cp));
@@ -617,7 +617,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 		}
 	}
 	//XXX: do we need this?! -> ttydisc_rint_done(tp);
-//	splx(s);
+	splx(s);
 }
 
 static void
