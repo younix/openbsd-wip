@@ -523,7 +523,7 @@ rp_disable_interrupts(struct rp_chan *ch, uint16_t Flags)
 
 	if (Flags & CHANINT_EN) {	/* Interrupt Mask Register */
 		uint8_t Mask = rp_readch1(ch,_INT_MASK) & rp_sBitMapClrTbl[ch->ChanNum];
-		rp_writech1(ch,_INT_MASK,Mask);
+		rp_writech1(ch, _INT_MASK, Mask);
 	}
 }
 
