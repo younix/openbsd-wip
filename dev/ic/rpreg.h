@@ -373,7 +373,7 @@ struct rp_softc {
 
         struct mutex	hwmtx;	/* Spinlock protecting hardware. */
 	int		hwmtx_init;
-	int		free;
+//	int		free;
 	int		num_ports;
 
 	bus_space_tag_t		sc_iot;

@@ -108,7 +108,7 @@ uint8_t sIRQMap[16] =
 uint8_t rp_sBitMapClrTbl[8] = {0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f};
 uint8_t rp_sBitMapSetTbl[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
 
-void rpfree(void *);
+//void rpfree(void *);
 
 struct cfdriver rp_cd = {
 	NULL, "rp", DV_TTY
@@ -686,6 +686,7 @@ rp_poll(void *arg)
 	timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 }
 
+#if 0
 void
 rpfree(void *softc)
 {
@@ -694,6 +695,7 @@ rpfree(void *softc)
 
 	atomic_dec_int(&sc->free);
 }
+#endif
 
 int
 rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
