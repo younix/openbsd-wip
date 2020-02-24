@@ -528,7 +528,7 @@ rp_disable_interrupts(struct rp_chan *ch, uint16_t Flags)
 }
 
 /*
- * Begin FreeBsd-specific driver code
+ * Begin OS-specific driver code
  */
 
 #define RP_POLL_INTERVAL	(hz / 100)
@@ -540,7 +540,6 @@ rp_disable_interrupts(struct rp_chan *ch, uint16_t Flags)
 /*
  * The top-level routines begin here
  */
-
 int	rpclose(dev_t dev, int, int, struct proc *);
 void	rphardclose(struct tty *, struct rp_port *);
 //int	rpmodem(struct tty *, int, int);
