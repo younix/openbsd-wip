@@ -522,8 +522,8 @@ rp_disable_interrupts(struct rp_chan *ch, uint16_t Flags)
 	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxControl));
 
 	if (Flags & CHANINT_EN) {	/* Interrupt Mask Register */
-		uint8_t Mask = rp_readch1(ch,_INT_MASK) & rp_sBitMapClrTbl[ch->ChanNum];
-		rp_writech1(ch, _INT_MASK, Mask);
+		uint8_t mask = rp_readch1(ch,_INT_MASK) & rp_sBitMapClrTbl[ch->ChanNum];
+		rp_writech1(ch, _INT_MASK, mask);
 	}
 }
 
