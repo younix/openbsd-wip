@@ -882,7 +882,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		timeout_set(&rp->rp_timer, rp_poll, rp);
 		timeout_add(&rp->rp_timer, RP_POLL_INTERVAL);
 	} else if (ISSET(tp->t_state, TS_XCLUDE) && suser(p) != 0) {
-		return EBUSY;
+		return (EBUSY);
 	} else {
 		s = spltty();
 	}
@@ -892,7 +892,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		if (ISSET(tp->t_state, TS_ISOPEN)) {
 			/* Ah, but someone already is dialed in... */
 			splx(s);
-			return EBUSY;
+			return (EBUSY);
 		}
 		rp->rp_cua = 1;
 	} else {
@@ -901,7 +901,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 			if (rp->rp_cua) {
 				/* Opening TTY non-blocking... but the CUA is busy. */
 				splx(s);
-				return EBUSY;
+				return (EBUSY);
 			}
 		} else {
 			while (rp->rp_cua) {
@@ -917,14 +917,14 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 					CLR(tp->t_state, TS_WOPEN);
  
 					splx(s);
-					return error;
+					return (error);
 				}
 			}
 		}
 	}
 	splx(s);
 
-	return (*linesw[tp->t_line].l_open)(dev, tp, p);
+	return ((*linesw[tp->t_line].l_open)(dev, tp, p));
 }
 
 int
@@ -1103,7 +1103,7 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 	case  TIOCGFLAGS:/* set flags */
 	case  TIOCSFLAGS:/* get flags */
 	default:
-		return ENOTTY;
+		return (ENOTTY);
 	}
 
 	return (0);
@@ -1173,7 +1173,7 @@ rp_convert_baud(int baud)
 		if (baud_table[i].baud == baud)
 			break;
 
-	return baud_table[i].conversion;
+	return (baud_table[i].conversion);
 }
 
 int
