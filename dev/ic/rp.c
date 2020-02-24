@@ -424,9 +424,9 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 
 		DWBuf[2] = Data;		/* data byte value */
 		DWBuf[3] = 0;			/* priority buffer pointer */
-		rp_writech4(ch,_INDX_ADDR,lemtoh32(DWBuf)); /* write it out */
+		rp_writech4(ch, _INDX_ADDR, lemtoh32(DWBuf)); /* write it out */
 
-		htolem16(DWBuf,ch->TxPrioCnt);	/* Tx priority count address */
+		htolem16(DWBuf, ch->TxPrioCnt);	/* Tx priority count address */
 
 		DWBuf[2] = PRI_PEND + 1;	/* indicate 1 byte pending */
 		DWBuf[3] = 0;			/* priority buffer pointer */
