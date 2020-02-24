@@ -666,12 +666,10 @@ rp_poll(void *arg)
 	struct rp_softc	*sc = rp->rp_ctlp;
 	struct tty	*tp = rp->rp_tty;
 	int		 count;
-	unsigned char	 CtlMask;
 	unsigned char	 AiopMask;
 
 //	tty_lock_assert(tp, MA_OWNED);	//XXX: do we need this?
-	CtlMask = sc->ctlmask(sc);
-	if (CtlMask & (1 << rp->rp_aiop)) {
+	if (sc->ctlmask(sc) & (1 << rp->rp_aiop)) {
 		AiopMask = sGetAiopIntStatus(sc, rp->rp_aiop);
 		if (AiopMask & (1 << rp->rp_chan)) {
 			rp_handle_port(rp);
