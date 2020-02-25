@@ -604,14 +604,6 @@ struct rp_chan
 	 (RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR))
 
 /*
- * Purpose:  Get the number of a channel within an AIOP
- *
- * Returns the Channel number within AIOP, or NULLCHAN if channel does not
- * exist.
- */
-#define sGetChanNum(ChP) (ChP)->ChanNum
-
-/*
  * Purpose: Get the channel status
  *
  * Returns the channel status.  Can be any combination of the following flags:

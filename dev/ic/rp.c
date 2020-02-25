@@ -349,7 +349,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 		delay(2);	/* delay 2 uS to allow proc to disable FIFO */
 	}
 	sGetChanStatus(ch);	/* clear any pending Rx errors in chan stat */
-	Ch = (uint8_t)sGetChanNum(ch);
+	Ch = (uint8_t)ch->ChanNum;
 	rp_writech1(ch,_CMD_REG,Ch | RESRXFCNT);	/* apply reset Rx FIFO count */
 	rp_writech1(ch,_CMD_REG,Ch);			/* remove reset Rx FIFO count */
 	rp_writech2(ch,_INDX_ADDR,ch->RxFIFOPtrs);	/* clear Rx out ptr */
@@ -390,7 +390,7 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 
 	rp_stop_rx_processor(ch);	/* stop Rx processor */
 	delay(4);	/* delay 4 uS to allow proc to stop */
-	Ch = (uint8_t)sGetChanNum(ch);
+	Ch = (uint8_t)ch->ChanNum;
 	rp_writech1(ch, _CMD_REG, Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
 	rp_writech1(ch, _CMD_REG, Ch);			/* remove reset Tx FIFO count */
 	rp_writech2(ch, _INDX_ADDR, ch->TxFIFOPtrs);	/* clear Tx in/out ptrs */
