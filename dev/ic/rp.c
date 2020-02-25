@@ -370,20 +370,19 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 void
 rp_flush_tx_fifo(struct rp_chan *ch)
 {
-	uint8_t Ch;		/* channel number within AIOP */
-	int TxEnabled;		/* true if transmitter enabled */
+	int	TxEnabled = false;	/* true if transmitter enabled */
+	uint8_t	Ch;			/* channel number within AIOP */
 
 	if (rp_get_tx_cnt(ch) == 0)	/* Tx FIFO empty */
 		return;		/* don't need to flush */
 
-	TxEnabled = false;
 	if (ch->TxControl[3] & TX_ENABLE) {
 		TxEnabled = true;
 		sDisTransmit(ch);	       /* disable transmitter */
 	}
 
 	rp_stop_rx_processor(ch);	/* stop Rx processor */
-	delay(4);	/* delay 4 uS to allow proc to stop */
+	delay(4);			/* delay 4 uS to allow proc to stop */
 	Ch = (uint8_t)ch->ChanNum;
 	rp_writech1(ch, _CMD_REG, Ch | RESTXFCNT);	/* apply reset Tx FIFO count */
 	rp_writech1(ch, _CMD_REG, Ch);			/* remove reset Tx FIFO count */
