@@ -466,8 +466,6 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 void
 rp_enable_interrupts(struct rp_chan *ch, uint16_t Flags)
 {
-	uint8_t Mask;	/* Interrupt Mask Register */
-
 	ch->RxControl[2] |= ((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
 	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->RxControl));
 
@@ -475,6 +473,8 @@ rp_enable_interrupts(struct rp_chan *ch, uint16_t Flags)
 	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxControl));
 
 	if (Flags & CHANINT_EN) {
+		uint8_t Mask;	/* Interrupt Mask Register */
+
 		Mask = rp_readch1(ch,_INT_MASK) | rp_sBitMapSetTbl[ch->ChanNum];
 		rp_writech1(ch, _INT_MASK, Mask);
 	}
