@@ -350,12 +350,12 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 	}
 	sGetChanStatus(ch);	/* clear any pending Rx errors in chan stat */
 	Ch = (uint8_t)ch->ChanNum;
-	rp_writech1(ch,_CMD_REG,Ch | RESRXFCNT);	/* apply reset Rx FIFO count */
-	rp_writech1(ch,_CMD_REG,Ch);			/* remove reset Rx FIFO count */
-	rp_writech2(ch,_INDX_ADDR,ch->RxFIFOPtrs);	/* clear Rx out ptr */
-	rp_writech2(ch,_INDX_DATA,0);
-	rp_writech2(ch,_INDX_ADDR,ch->RxFIFOPtrs + 2);/* clear Rx in ptr */
-	rp_writech2(ch,_INDX_DATA,0);
+	rp_writech1(ch, _CMD_REG, Ch | RESRXFCNT);	/* apply reset Rx FIFO count */
+	rp_writech1(ch, _CMD_REG, Ch);			/* remove reset Rx FIFO count */
+	rp_writech2(ch, _INDX_ADDR, ch->RxFIFOPtrs);	/* clear Rx out ptr */
+	rp_writech2(ch, _INDX_DATA, 0);
+	rp_writech2(ch, _INDX_ADDR, ch->RxFIFOPtrs + 2);/* clear Rx in ptr */
+	rp_writech2(ch, _INDX_DATA, 0);
 
 	if (RxFIFOEnabled)
 		sEnRxFIFO(ch);	/* enable Rx FIFO */
