@@ -323,9 +323,6 @@ rp_stop_rx_processor(struct rp_chan *ch)
 }
 
 /*
- * Purpose:  Flush the Rx FIFO
- *
- * Comments:
  * To prevent data from being enqueued or dequeued in the Tx FIFO while it is
  * being flushed the receive processor is stopped and the transmitter is
  * disabled.  After these operations a 4 uS delay is done before clearing the
@@ -362,9 +359,6 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 }
 
 /*
- * Purpose: Flush the Tx FIFO
- *
- * Comments:
  * To prevent data from being enqueued or dequeued in the Tx FIFO while it is
  * being flushed the receive processor is stopped and the transmitter is
  * disabled.  After these operations a 4 uS delay is done before clearing the
