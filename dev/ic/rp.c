@@ -374,11 +374,11 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 	uint8_t	Ch;			/* channel number within AIOP */
 
 	if (rp_get_tx_cnt(ch) == 0)	/* Tx FIFO empty */
-		return;		/* don't need to flush */
+		return;			/* don't need to flush */
 
 	if (ch->TxControl[3] & TX_ENABLE) {
 		TxEnabled = true;
-		sDisTransmit(ch);	       /* disable transmitter */
+		sDisTransmit(ch);	/* disable transmitter */
 	}
 
 	rp_stop_rx_processor(ch);	/* stop Rx processor */
