@@ -599,7 +599,7 @@ struct rp_chan
  *	DELTA_CTS: CTS change interrupt
  *	DELTA_DSR: DSR change interrupt
  */
-#define sGetChanIntID(ChP)						\
+#define rp_chan_intr_id(ChP)						\
 	(rp_readch1(ChP, (ChP)->ChanNum+_INT_ID0) &			\
 	 (RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR))
 

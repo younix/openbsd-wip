@@ -624,7 +624,7 @@ rp_handle_port(struct rp_port *rp)
 
 	cp = &rp->rp_channel;
 	tp = rp->rp_tty;
-	IntMask = sGetChanIntID(cp);
+	IntMask = rp_chan_intr_id(cp);
 	IntMask = IntMask & rp->rp_intmask;
 	ChanStatus = sGetChanStatus(cp);
 	if (IntMask & RXF_TRIG)
@@ -866,7 +866,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 //		sSetDTR(&rp->rp_channel);
 //		sSetRTS(&rp->rp_channel);
 
-		IntMask = sGetChanIntID(&rp->rp_channel);
+		IntMask = rp_chan_intr_id(&rp->rp_channel);
 		IntMask = IntMask & rp->rp_intmask;
 		ChanStatus = sGetChanStatus(&rp->rp_channel);
 
