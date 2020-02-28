@@ -147,7 +147,7 @@ rp_pci_attach(struct device *parent, struct device *self, void *aux)
 	num_ports = 0;
 	for (aiop = 0; aiop < num_aiops; aiop++) {
 		sResetAiopByNum(sc, aiop);
-		num_ports += sGetAiopNumChan(sc, aiop);
+		num_ports += sc->AiopNumChan[aiop];
 	}
 
 	rp_attach(sc, num_aiops, num_ports);
