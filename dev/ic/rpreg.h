@@ -583,12 +583,6 @@ struct rp_chan
 	rp_readaiop1((CtlP), (AIOPNUM), _INT_CHAN)
 
 /*
- * Purpose: Get the number of channels supported by an AIOP
- * Return:  The number of channels supported by the AIOP
- */
-#define sGetAiopNumChan(CtlP,AIOPNUM) (CtlP)->AiopNumChan[AIOPNUM]
-
-/*
  * Purpose:  Get a channel's interrupt identification byte
  * Returns the channel interrupt ID.  Can be any combination of the following
  * flags:

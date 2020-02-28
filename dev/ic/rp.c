@@ -717,7 +717,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 
 	port = 0;
 	for (aiop = 0; aiop < num_aiops; aiop++) {
-		num_chan = sGetAiopNumChan(sc, aiop);
+		num_chan = sc->AiopNumChan[aiop];
 		for (chan = 0; chan < num_chan; chan++, port++, rp++) {
 			rp->rp_tty = tp = ttymalloc(0);
 			tp->t_oproc = rpstart;
@@ -866,6 +866,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 //		sSetDTR(&rp->rp_channel);
 //		sSetRTS(&rp->rp_channel);
 
+//XXX: do we need this:
 		IntMask = rp_chan_intr_id(&rp->rp_channel);
 		IntMask = IntMask & rp->rp_intmask;
 		ChanStatus = sGetChanStatus(&rp->rp_channel);
