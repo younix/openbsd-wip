@@ -378,7 +378,7 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 
 	if (ch->TxControl[3] & TX_ENABLE) {
 		TxEnabled = true;
-		sDisTransmit(ch);	/* disable transmitter */
+		rp_disable_transmit(ch);	/* disable transmitter */
 	}
 
 	rp_stop_rx_processor(ch);	/* stop Rx processor */
@@ -960,7 +960,7 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 
 	rp_flush_rx_fifo(cp);
 	rp_flush_tx_fifo(cp);
-	sDisTransmit(cp);
+	rp_disable_transmit(cp);
 	rp_disable_interrupts(cp, TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN);
 	sDisRTSFlowCtl(cp);
 	sDisCTSFlowCtl(cp);

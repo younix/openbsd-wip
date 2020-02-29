@@ -478,17 +478,14 @@ struct rp_chan
 #define sDisRxStatusMode(ChP) rp_writech2((ChP), CHNOFF_CHANSTAT(ChP), 0)
 
 /*
- * Purpose: Disable transmit
- *
- * Comment:
  * This disables movement of Tx data from the Tx FIFO into the 1 byte Tx
  * buffer.  Therefore there could be up to a 2 byte latency between the time
- * sDisTransmit() is called and the transmit buffer and transmit shift register
- * going completely empty.
+ * rp_disable_transmit() is called and the transmit buffer and transmit shift
+ * register going completely empty.
  */
-#define sDisTransmit(ChP) do {					\
-	(ChP)->TxControl[3] &= ~TX_ENABLE;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+#define rp_disable_transmit(cp) do {				\
+	(cp)->TxControl[3] &= ~TX_ENABLE;			\
+	rp_writech4(cp, _INDX_ADDR, lemtoh32((cp)->TxControl));	\
 } while (0)
 
 /* Purpose:  Disable Tx Software Flow Control */
