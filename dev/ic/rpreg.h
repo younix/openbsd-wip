@@ -625,7 +625,7 @@ struct rp_chan
  * 	TXSHRMT:  Tx shift register is empty
  * 	RDA:      Rx data available
  */
-#define sGetChanStatusLo(ChP) rp_readch1((ChP), CHNOFF_CHANSTAT(ChP))
+#define rp_chan_status_lo(ChP) rp_readch1((ChP), CHNOFF_CHANSTAT(ChP))
 
 /*
  * Purpose:  Get the number of data bytes in the Rx FIFO

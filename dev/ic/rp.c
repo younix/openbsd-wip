@@ -1118,7 +1118,7 @@ rpmodem(struct tty *tp, int sigon, int sigoff)
 		rp_writech4(&rp->rp_channel,_INDX_ADDR,
 			lemtoh32(rp->rp_channel.TxControl));
 	} else {
-		i = sGetChanStatusLo(&rp->rp_channel);
+		i = rp_chan_status_lo(&rp->rp_channel);
 		j = rp->rp_channel.TxControl[3];
 		k = 0;
 		if (j & SET_DTR)
