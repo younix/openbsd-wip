@@ -345,7 +345,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 		sDisRxFIFO(ch);	/* disable it */
 		delay(2);	/* delay 2 uS to allow proc to disable FIFO */
 	}
-	sGetChanStatus(ch);	/* clear any pending Rx errors in chan stat */
+	rp_chan_status(ch);	/* clear any pending Rx errors in chan stat */
 	Ch = (uint8_t)ch->ChanNum;
 	rp_writech1(ch, _CMD_REG, Ch | RESRXFCNT);	/* apply reset Rx FIFO count */
 	rp_writech1(ch, _CMD_REG, Ch);			/* remove reset Rx FIFO count */
@@ -626,7 +626,7 @@ rp_handle_port(struct rp_port *rp)
 	tp = rp->rp_tty;
 	IntMask = rp_chan_intr_id(cp);
 	IntMask = IntMask & rp->rp_intmask;
-	ChanStatus = sGetChanStatus(cp);
+	ChanStatus = rp_chan_status(cp);
 	if (IntMask & RXF_TRIG)
 		rp_do_receive(rp, tp, cp, ChanStatus);
 
@@ -733,7 +733,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 			rp->rp_intmask = RXF_TRIG | TXFIFO_MT | SRC_INT |
 				DELTA_CD | DELTA_CTS | DELTA_DSR;
 #ifdef notdef
-			ChanStatus = sGetChanStatus(&rp->rp_channel);
+			ChanStatus = rp_chan_status(&rp->rp_channel);
 #endif /* notdef */
 			if (rp_init_chan(sc, &rp->rp_channel, aiop, chan) == 0){
 				//XXX: fix this message
@@ -742,7 +742,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 				retval = ENXIO;
 				goto nogo;
 			}
-			ChanStatus = sGetChanStatus(&rp->rp_channel);
+			ChanStatus = rp_chan_status(&rp->rp_channel);
 			rp->rp_cts = (ChanStatus & CTS_ACT) != 0;
 //XXX: do we need this:	tty_makedev(tp, NULL, "R%r%r", unit, port);
 		}

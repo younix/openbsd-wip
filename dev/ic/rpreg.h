@@ -595,8 +595,6 @@ struct rp_chan
 	 (RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR))
 
 /*
- * Purpose: Get the channel status
- *
  * Returns the channel status.  Can be any combination of the following flags:
  *
  * LOW BYTE FLAGS			HIGH BYTE FLAGS
@@ -612,7 +610,7 @@ struct rp_chan
  * Warnings:
  * This function will clear the high byte flags in the Channel Status Register.
  */
-#define sGetChanStatus(ChP) rp_readch2((ChP), CHNOFF_CHANSTAT(ChP))
+#define rp_chan_status(ChP) rp_readch2((ChP), CHNOFF_CHANSTAT(ChP))
 
 /*
  * Purpose:  Get the low byte only of the channel status
