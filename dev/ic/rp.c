@@ -796,7 +796,6 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	struct tty	*tp;
 	int		 flags = 0;
 	int		 error = 0;
-	unsigned int	 IntMask, ChanStatus;
 	int		 s;
 
 	if (card >= rp_cd.cd_ndevs || (sc = rp_cd.cd_devs[card]) == NULL)
@@ -865,11 +864,6 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 
 //		sSetDTR(&rp->rp_channel);
 //		sSetRTS(&rp->rp_channel);
-
-//XXX: do we need this:
-		IntMask = rp_chan_intr_id(&rp->rp_channel);
-		IntMask = IntMask & rp->rp_intmask;
-		ChanStatus = sGetChanStatus(&rp->rp_channel);
 
 //XXX:		callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_poll, rp);
 		timeout_set(&rp->rp_timer, rp_poll, rp);
