@@ -426,7 +426,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 		rp_writech4(ch, _INDX_ADDR, lemtoh32(DWBuf));	/* write it out */
 	} else {
 		/* write it to Tx FIFO */
-		sWriteTxByte(ch, sGetTxRxDataIO(ch), Data);
+		sWriteTxByte(ch, rp_txrx_data_io(ch), Data);
 	}
 
 	return (1);	/* 1 byte sent */
@@ -576,7 +576,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	s = spltty();
 	if (ChanStatus & STATMODE) {
 		while (ToRecv) {
-			CharNStat = rp_readch2(cp, sGetTxRxDataIO(cp));
+			CharNStat = rp_readch2(cp, rp_txrx_data_io(cp));
 			ch = CharNStat & 0xff;
 
 			if ((CharNStat & STMBREAK) || (CharNStat & STMFRAMEH))
@@ -601,7 +601,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	} else {
 		ToRecv = rp_get_rx_cnt(cp);
 		while (ToRecv) {
-			ch = rp_readch1(cp, sGetTxRxDataIO(cp));
+			ch = rp_readch1(cp, rp_txrx_data_io(cp));
 			(*linesw[tp->t_line].l_rint)(ch & 0xff, tp);
 			ToRecv--;
 		}
@@ -1312,10 +1312,10 @@ rpstart(struct tty *tp)
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
 	if (xmit_fifo_room > 0) {
 		for (i = 0, wcount = count >> 1; wcount > 0; i += 2, wcount--)
-			rp_writech2(cp, sGetTxRxDataIO(cp), lemtoh16(&rp->TxBuf[i]));
+			rp_writech2(cp, rp_txrx_data_io(cp), lemtoh16(&rp->TxBuf[i]));
 
 		if (count & 1)
-			rp_writech1(cp, sGetTxRxDataIO(cp), rp->TxBuf[(count-1)]);
+			rp_writech1(cp, rp_txrx_data_io(cp), rp->TxBuf[(count-1)]);
 	}
 
  out:

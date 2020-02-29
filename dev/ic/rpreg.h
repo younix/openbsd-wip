@@ -642,7 +642,7 @@ struct rp_chan
 #define rp_get_tx_cnt(ChP) rp_readch1((ChP), CHNOFF_TXRXCOUNT(ChP))
 
 /* Return the offset of a channel's TxRx Data register */
-#define sGetTxRxDataIO(ChP) CHNOFF_TXRXDATA(ChP)
+#define rp_txrx_data_io(ch) CHNOFF_TXRXDATA(ch)
 
 /*
  * Purpose: Initialize a channel structure to its default state.
