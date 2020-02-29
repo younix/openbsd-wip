@@ -789,8 +789,8 @@ printf("free(%p, %d, %zu * %d);\n",
 int
 rpopen(dev_t dev, int flag, int mode, struct proc *p)
 {
-	int  card = RP_CARD(dev);
-	int  port = RP_PORT(dev);
+	int		 card = RP_CARD(dev);
+	int		 port = RP_PORT(dev);
 	struct rp_softc	*sc;
 	struct rp_port	*rp;
 	struct tty	*tp;
