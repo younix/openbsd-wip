@@ -441,7 +441,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
  * 	     of the following flags:
  * 		TXINT_EN:   Interrupt on Tx FIFO empty
  * 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
- * 			    sSetRxTrigger())
+ * 			    rp_rx_trigger())
  * 		SRCINT_EN:  Interrupt on SRC (Special Rx Condition)
  * 		MCINT_EN:   Interrupt on modem input change
  * 		CHANINT_EN: Allow channel interrupt signal to the AIOP's
@@ -489,7 +489,7 @@ rp_enable_interrupts(struct rp_chan *ch, uint16_t Flags)
  * 	     of the following flags:
  * 		TXINT_EN:   Interrupt on Tx FIFO empty
  * 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
- * 			    sSetRxTrigger())
+ * 			    rp_rx_trigger())
  * 		SRCINT_EN:  Interrupt on SRC (Special Rx Condition)
  * 		MCINT_EN:   Interrupt on modem input change
  * 		CHANINT_EN: Disable channel interrupt signal to the
@@ -841,14 +841,14 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		rp->rp_channel.TxControl[3] =
 		    ((rp->rp_channel.TxControl[3] & ~(SET_RTS | SET_DTR)) | flags);
 		rp_writech4(&rp->rp_channel,_INDX_ADDR, lemtoh32(rp->rp_channel.TxControl));
-		sSetRxTrigger(&rp->rp_channel, TRIG_1);
+		rp_rx_trigger(&rp->rp_channel, TRIG_1);
 		sDisRxStatusMode(&rp->rp_channel);
 		rp_flush_rx_fifo(&rp->rp_channel);
 		rp_flush_tx_fifo(&rp->rp_channel);
 
 		rp_enable_interrupts(&rp->rp_channel,
 		    (TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
-		sSetRxTrigger(&rp->rp_channel, TRIG_1);
+		rp_rx_trigger(&rp->rp_channel, TRIG_1);
 
 		sDisRxStatusMode(&rp->rp_channel);
 		sClrTxXOFF(&rp->rp_channel);

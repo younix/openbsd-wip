@@ -743,10 +743,10 @@ struct rp_chan
  * RXF_TRIG flag in the Interrupt Idenfification register will be set whenever
  * the trigger level is reached regardless of the setting of RXINT_EN.
  */
-#define sSetRxTrigger(ChP,LEVEL) do {					\
-	(ChP)->RxControl[2] &= ~TRIG_MASK;				\
-	(ChP)->RxControl[2] |= LEVEL;					\
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->RxControl));	\
+#define rp_rx_trigger(ch, level) do {					\
+	(ch)->RxControl[2] &= ~TRIG_MASK;				\
+	(ch)->RxControl[2] |= (level);					\
+	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->RxControl));	\
 } while (0)
 
 /* Purpose: Set stop bits to 1 */
