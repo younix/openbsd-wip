@@ -663,7 +663,7 @@ rp_poll(void *arg)
 
 //	tty_lock_assert(tp, MA_OWNED);	//XXX: do we need this?
 	if (sc->ctlmask(sc) & (1 << rp->rp_aiop)) {
-		AiopMask = sGetAiopIntStatus(sc, rp->rp_aiop);
+		AiopMask = rp_aiop_intr_status(sc, rp->rp_aiop);
 		if (AiopMask & (1 << rp->rp_chan)) {
 			rp_handle_port(rp);
 		}

@@ -576,8 +576,8 @@ struct rp_chan
  * Returns the AIOP interrupt status.  Bits 0 through 7 represent channels 0
  * through 7 respectively.  If a bit is set that channel is interrupting.
  */
-#define sGetAiopIntStatus(CtlP, AIOPNUM) \
-	rp_readaiop1((CtlP), (AIOPNUM), _INT_CHAN)
+#define rp_aiop_intr_status(sc, AIOPNUM) \
+	rp_readaiop1((sc), (AIOPNUM), _INT_CHAN)
 
 /*
  * Purpose:  Get a channel's interrupt identification byte
