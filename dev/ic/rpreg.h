@@ -475,7 +475,7 @@ struct rp_chan
  * This takes the channel out of the receive status mode.  All subsequent reads
  * of receive data using sReadRxWord() will return two data bytes.
  */
-#define sDisRxStatusMode(ChP) rp_writech2((ChP), CHNOFF_CHANSTAT(ChP), 0)
+#define rp_dis_rx_status_mode(ChP) rp_writech2((ChP), CHNOFF_CHANSTAT(ChP), 0)
 
 /*
  * This disables movement of Tx data from the Tx FIFO into the 1 byte Tx

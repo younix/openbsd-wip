@@ -597,7 +597,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 
 		/* After emtying FIFO in status mode, turn off status mode */
 		if (rp_get_rx_cnt(cp) == 0)
-			sDisRxStatusMode(cp);
+			rp_dis_rx_status_mode(cp);
 	} else {
 		ToRecv = rp_get_rx_cnt(cp);
 		while (ToRecv) {
@@ -842,7 +842,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		    ((rp->rp_channel.TxControl[3] & ~(SET_RTS | SET_DTR)) | flags);
 		rp_writech4(&rp->rp_channel,_INDX_ADDR, lemtoh32(rp->rp_channel.TxControl));
 		rp_rx_trigger(&rp->rp_channel, TRIG_1);
-		sDisRxStatusMode(&rp->rp_channel);
+		rp_dis_rx_status_mode(&rp->rp_channel);
 		rp_flush_rx_fifo(&rp->rp_channel);
 		rp_flush_tx_fifo(&rp->rp_channel);
 
@@ -850,7 +850,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		    (TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN));
 		rp_rx_trigger(&rp->rp_channel, TRIG_1);
 
-		sDisRxStatusMode(&rp->rp_channel);
+		rp_dis_rx_status_mode(&rp->rp_channel);
 		sClrTxXOFF(&rp->rp_channel);
 
 //		sDisRTSFlowCtl(&rp->rp_channel);
