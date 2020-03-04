@@ -469,13 +469,10 @@ struct rp_chan
 } while (0)
 
 /*
- * Purpose:  Disable the Rx status mode
- *
- * Comments:
  * This takes the channel out of the receive status mode.  All subsequent reads
  * of receive data using sReadRxWord() will return two data bytes.
  */
-#define rp_dis_rx_status_mode(ChP) rp_writech2((ChP), CHNOFF_CHANSTAT(ChP), 0)
+#define rp_dis_rx_status_mode(ch) rp_writech2((ch), CHNOFF_CHANSTAT(ch), 0)
 
 /*
  * This disables movement of Tx data from the Tx FIFO into the 1 byte Tx
@@ -524,9 +521,9 @@ struct rp_chan
 	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl));	\
 } while (0)
 
-#define sDisRTSFlowCtl(ChP) do {				\
-	(ChP)->RxControl[2] &= ~RTSFC_EN;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl));	\
+#define rp_disable_RTS_flowctl(ch) do {				\
+	(ch)->RxControl[2] &= ~RTSFC_EN;			\
+	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->RxControl));\
 } while (0)
 
 /* Purpose:  Enable Rx FIFO */

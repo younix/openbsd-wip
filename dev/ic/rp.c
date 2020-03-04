@@ -853,7 +853,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		rp_dis_rx_status_mode(&rp->rp_channel);
 		sClrTxXOFF(&rp->rp_channel);
 
-//		sDisRTSFlowCtl(&rp->rp_channel);
+//		rp_disable_RTS_flowctl(&rp->rp_channel);
 //		sDisCTSFlowCtl(&rp->rp_channel);
 
 		sDisTxSoftFlowCtl(&rp->rp_channel);
@@ -962,7 +962,7 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 	rp_flush_tx_fifo(cp);
 	rp_disable_transmit(cp);
 	rp_disable_interrupts(cp, TXINT_EN|MCINT_EN|RXINT_EN|SRCINT_EN|CHANINT_EN);
-	sDisRTSFlowCtl(cp);
+	rp_disable_RTS_flowctl(cp);
 	sDisCTSFlowCtl(cp);
 	sDisTxSoftFlowCtl(cp);
 	sClrTxXOFF(cp);
@@ -1276,7 +1276,7 @@ rpparam(struct tty *tp, struct termios *t)
 	if (cflag & CRTS_IFLOW)
 		sEnRTSFlowCtl(cp);
 	else
-		sDisRTSFlowCtl(cp);
+		rp_disable_RTS_flowctl(cp);
 
 	/* just to be sure */
 	rpstart(tp);
