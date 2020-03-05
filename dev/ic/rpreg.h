@@ -526,10 +526,9 @@ struct rp_chan
 	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->RxControl));\
 } while (0)
 
-/* Purpose:  Enable Rx FIFO */
-#define sEnRxFIFO(ChP) do {					\
-	(ChP)->R[0x32] = 0x08;					\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30));	\
+#define rp_enable_rx_fifo(ch) do {				\
+	(ch)->R[0x32] = 0x08;					\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->R + 0x30));	\
 } while (0)
 
 /*

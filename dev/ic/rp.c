@@ -355,7 +355,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 	rp_writech2(ch, _INDX_DATA, 0);
 
 	if (RxFIFOEnabled)
-		sEnRxFIFO(ch);	/* enable Rx FIFO */
+		rp_enable_rx_fifo(ch);
 }
 
 /*
@@ -859,7 +859,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		sDisTxSoftFlowCtl(&rp->rp_channel);
 		sStartRxProcessor(&rp->rp_channel);
 
-		sEnRxFIFO(&rp->rp_channel);
+		rp_enable_rx_fifo(&rp->rp_channel);
 		sEnTransmit(&rp->rp_channel);
 
 //		sSetDTR(&rp->rp_channel);
