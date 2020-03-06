@@ -390,7 +390,7 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 	rp_writech2(ch, _INDX_DATA, 0);
 
 	if (TxEnabled)
-		sEnTransmit(ch);	/* enable transmitter */
+		rp_enable_transmit(ch);	/* enable transmitter */
 
 	sStartRxProcessor(ch);		/* restart Rx processor */
 }
@@ -860,7 +860,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		sStartRxProcessor(&rp->rp_channel);
 
 		rp_enable_rx_fifo(&rp->rp_channel);
-		sEnTransmit(&rp->rp_channel);
+		rp_enable_transmit(&rp->rp_channel);
 
 //		sSetDTR(&rp->rp_channel);
 //		sSetRTS(&rp->rp_channel);

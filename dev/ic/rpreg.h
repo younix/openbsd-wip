@@ -555,10 +555,9 @@ struct rp_chan
 #define rp_enable_rx_status_mode(ch) \
 	rp_writech2(ch, CHNOFF_CHANSTAT(ch), STATMODE)
 
-/* Purpose: Enable transmit */
-#define sEnTransmit(ChP) do {					\
-	(ChP)->TxControl[3] |= TX_ENABLE;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+#define rp_enable_transmit(ch) do {				\
+	(ch)->TxControl[3] |= TX_ENABLE;			\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /*
