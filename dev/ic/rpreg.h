@@ -752,14 +752,14 @@ struct rp_chan
 } while (0)
 
 /*
- * Purpose: Start a channel's receive processor
+ * Start a channel's receive processor
  *
- * Comments:
  * This function is used to start a Rx processor after it was stopped with
  * rp_stop_rx_processor().  It will restart both the Rx processor and software
  * input flow control.
  */
-#define sStartRxProcessor(ChP) rp_writech4((ChP), _INDX_ADDR, lemtoh32((ChP)->R))
+#define rp_start_rx_processor(ch) \
+	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->R))
 
 /*
  * Purpose:  Write a transmit data byte to a channel.

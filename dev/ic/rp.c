@@ -391,7 +391,7 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 	if (TxEnabled)
 		rp_enable_transmit(ch);	/* enable transmitter */
 
-	sStartRxProcessor(ch);		/* restart Rx processor */
+	rp_start_rx_processor(ch);	/* restart Rx processor */
 }
 
 /*
@@ -856,7 +856,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 //		sDisCTSFlowCtl(&rp->rp_channel);
 
 		sDisTxSoftFlowCtl(&rp->rp_channel);
-		sStartRxProcessor(&rp->rp_channel);
+		rp_start_rx_processor(&rp->rp_channel);
 
 		rp_enable_rx_fifo(&rp->rp_channel);
 		rp_enable_transmit(&rp->rp_channel);
