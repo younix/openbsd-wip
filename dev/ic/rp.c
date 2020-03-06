@@ -296,12 +296,11 @@ rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 }
 
 /*
- * Purpose:  Stop the receive processor from processing a channel.
+ * Stop the receive processor from processing a channel.
  *
- * Comments:
- * The receive processor can be started again with sStartRxProcessor().  This
- * function causes the receive processor to skip over the stopped channel.  It
- * does not stop it from processing other channels.
+ * The receive processor can be started again with rp_start_rx_processor().
+ * This function causes the receive processor to skip over the stopped channel.
+ * It does not stop it from processing other channels.
  *
  * Warnings:
  * No context switches are allowed while executing this function.
