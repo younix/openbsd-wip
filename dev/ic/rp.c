@@ -290,7 +290,7 @@ rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 	rp_writech2(ch, _INDX_ADDR, ch->TxPrioPtr);
 	rp_writech1(ch, _INDX_DATA, 0);
 	ch->TxPrioBuf = ChOff + _TXP_BUF;
-	sEnRxProcessor(ch);	/* start the Rx processor */
+	rp_enable_rx_processor(ch);	/* start the rx processor */
 
 	return (true);
 }

@@ -532,9 +532,6 @@ struct rp_chan
 } while (0)
 
 /*
- * Purpose: Enable the receive processor
- *
- * Comments:
  * This function is used to start the receive processor.  When the channel is
  * in the reset state the receive processor is not running.  This is done to
  * prevent the receive processor from executing invalid microcode instructions
@@ -545,9 +542,9 @@ struct rp_chan
  * the AIOP, and it must not be called before the microcode has been
  * downloaded.
  */
-#define sEnRxProcessor(ChP) do {				\
-	(ChP)->RxControl[2] |= RXPROC_EN;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl));	\
+#define rp_enable_rx_processor(ch) do {				\
+	(ch)->RxControl[2] |= RXPROC_EN;			\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->RxControl));	\
 } while (0)
 
 /*
