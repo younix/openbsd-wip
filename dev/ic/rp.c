@@ -564,7 +564,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 	if (ChanStatus & (RXFOVERFL | RXBREAK | RXFRAME | RXPARITY)) {
 		if (!(ChanStatus & STATMODE)) {
 			ChanStatus |= STATMODE;
-			sEnRxStatusMode(cp);
+			rp_enable_rx_status_mode(cp);
 		}
 	}
 

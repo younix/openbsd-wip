@@ -548,14 +548,12 @@ struct rp_chan
 } while (0)
 
 /*
- * Purpose:  Enable the Rx status mode
- *
- * Comments:
  * This places the channel in the receive status mode.  All subsequent reads of
  * receive data using sReadRxWord() will return a data byte in the low word and
  * a status byte in the high word.
  */
-#define sEnRxStatusMode(ChP) rp_writech2(ChP, CHNOFF_CHANSTAT(ChP), STATMODE)
+#define rp_enable_rx_status_mode(ch) \
+	rp_writech2(ch, CHNOFF_CHANSTAT(ch), STATMODE)
 
 /* Purpose: Enable transmit */
 #define sEnTransmit(ChP) do {					\
