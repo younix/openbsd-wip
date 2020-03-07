@@ -425,7 +425,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 		rp_writech4(ch, _INDX_ADDR, lemtoh32(DWBuf));	/* write it out */
 	} else {
 		/* write it to Tx FIFO */
-		sWriteTxByte(ch, rp_txrx_data_io(ch), Data);
+		rp_write_tx_byte(ch, rp_txrx_data_io(ch), Data);
 	}
 
 	return (1);	/* 1 byte sent */

@@ -762,13 +762,13 @@ struct rp_chan
 	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->R))
 
 /*
- * Purpose:  Write a transmit data byte to a channel.
+ * Write a transmit data byte to a channel.
  *
  * Warnings:
  * This function writes the data byte without checking to see if sMaxTxSize is
  * exceeded in the Tx FIFO.
  */
-#define sWriteTxByte(ChP,IO,DATA) rp_writech1((ChP), IO, DATA)
+#define rp_write_tx_byte(ch, io, data) rp_writech1((ch), (io), (data))
 
 int rp_read_aiopid(struct rp_softc *, int);
 int rp_read_aiop_numchan(struct rp_softc *sc, int);
