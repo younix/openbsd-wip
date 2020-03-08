@@ -152,12 +152,6 @@
 #define RP_AIOPID_NULL -1	/* no AIOP or channel exists */
 #define RP_AIOPID_0001 0x0001	/* AIOP release 1 */
 
-#define NULLDEV -1		/* identifies non-existant device */
-#define NULLCTL -1		/* identifies non-existant controller */
-#define NULLCTLPTR (CONTROLLER_T *)0	/* identifies non-existant controller */
-#define NULLAIOP -1		/* identifies non-existant AIOP */
-#define NULLCHAN -1		/* identifies non-existant channel */
-
 /*
  * Global Register Offsets - Direct Access - Fixed values
  */
@@ -634,17 +628,16 @@ struct rp_chan
 #define rp_txrx_data_io(ch) CHNOFF_TXRXDATA(ch)
 
 /*
- * Purpose: Initialize a channel structure to its default state.
+ * Initialize a channel structure to its default state.
  *
- * Comments:
  * This function must be called once for every channel structure that exists
  * before any other SSCI calls can be made.
  */
-#define sInitChanDefaults(ChP) do {	\
-	(ChP)->CtlP = NULLCTLPTR;	\
-	(ChP)->AiopNum = NULLAIOP;	\
-	(ChP)->ChanID = AIOPID_NULL;	\
-	(ChP)->ChanNum = NULLCHAN;	\
+#define rp_init_chan_defaults(ch) do {	\
+	(ch)->CtlP = NULL;		\
+	(ch)->AiopNum = -1;		\
+	(ch)->ChanID = -1;		\
+	(ch)->ChanNum = -1;		\
 } while (0)
 
 /* Purpose: Reset the AIOP by number */
