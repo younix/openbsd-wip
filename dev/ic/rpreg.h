@@ -144,10 +144,6 @@
 #define RP_MAX_AIOPS_PER_BOARD	 4
 #define RP_MAX_PORTS_PER_BOARD	32
 
-/* Controller ID numbers */
-#define RP_CTLID_NULL	-1	/* no controller exists */
-#define RP_CTLID_0001	0x0001	/* controller release 1 */
-
 /* AIOP ID numbers, identifies AIOP type implementing channel */
 #define RP_AIOPID_NULL -1	/* no AIOP or channel exists */
 #define RP_AIOPID_0001 0x0001	/* AIOP release 1 */
@@ -360,7 +356,6 @@ struct rp_softc {
 	/* Device and resource management */
 	struct device	sc_dev;	/* device */
 
-	int		CtlID;
 	int		NumAiop;
 	int		AiopID[RP_AIOP_CTL_SIZE];
 	int		AiopNumChan[RP_AIOP_CTL_SIZE];
