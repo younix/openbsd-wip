@@ -101,29 +101,29 @@
 	(rp_writemultiio4((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), addr, count))
 
 #define rp_readch1(chp, offset) \
-	(rp_readaiop1((chp)->CtlP, (chp)->AiopNum, offset))
+	(rp_readaiop1((chp)->sc, (chp)->AiopNum, offset))
 #define rp_readch2(chp, offset) \
-	(rp_readaiop2((chp)->CtlP, (chp)->AiopNum, offset))
+	(rp_readaiop2((chp)->sc, (chp)->AiopNum, offset))
 #define rp_readch4(chp, offset) \
-	(rp_readaiop4((chp)->CtlP, (chp)->AiopNum, offset))
+	(rp_readaiop4((chp)->sc, (chp)->AiopNum, offset))
 #define rp_readmultich1(chp, offset, addr, count) \
-	(rp_readmultiaiop1((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
+	(rp_readmultiaiop1((chp)->sc, (chp)->AiopNum, offset, addr, count))
 #define rp_readmultich2(chp, offset, addr, count) \
-	(rp_readmultiaiop2((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
+	(rp_readmultiaiop2((chp)->sc, (chp)->AiopNum, offset, addr, count))
 #define rp_readmultich4(chp, offset, addr, count) \
-	(rp_readmultiaiop4((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
+	(rp_readmultiaiop4((chp)->sc, (chp)->AiopNum, offset, addr, count))
 #define rp_writech1(chp, offset, data) \
-	(rp_writeaiop1((chp)->CtlP, (chp)->AiopNum, offset, data))
+	(rp_writeaiop1((chp)->sc, (chp)->AiopNum, offset, data))
 #define rp_writech2(chp, offset, data) \
-	(rp_writeaiop2((chp)->CtlP, (chp)->AiopNum, offset, data))
+	(rp_writeaiop2((chp)->sc, (chp)->AiopNum, offset, data))
 #define rp_writech4(chp, offset, data) \
-	(rp_writeaiop4((chp)->CtlP, (chp)->AiopNum, offset, data))
+	(rp_writeaiop4((chp)->sc, (chp)->AiopNum, offset, data))
 #define rp_writemultich1(chp, offset, addr, count) \
-	(rp_writemultiaiop1((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
+	(rp_writemultiaiop1((chp)->sc, (chp)->AiopNum, offset, addr, count))
 #define rp_writemultich2(chp, offset, addr, count) \
-	(rp_writemultiaiop2((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
+	(rp_writemultiaiop2((chp)->sc, (chp)->AiopNum, offset, addr, count))
 #define rp_writemultich4(chp, offset, addr, count) \
-	(rp_writemultiaiop4((chp)->CtlP, (chp)->AiopNum, offset, addr, count))
+	(rp_writemultiaiop4((chp)->sc, (chp)->AiopNum, offset, addr, count))
 
 /*
  * Port number on card encoded in low 5 bits
@@ -386,7 +386,7 @@ struct rp_softc {
 /* Channel level information structure */
 struct rp_chan
 {
-	struct rp_softc	*CtlP;
+	struct rp_softc	*sc;
 	int		 AiopNum;
 	int		 ChanID;
 	int		 ChanNum;
@@ -629,7 +629,7 @@ struct rp_chan
  * before any other SSCI calls can be made.
  */
 #define rp_init_chan_defaults(ch) do {	\
-	(ch)->CtlP = NULL;		\
+	(ch)->sc = NULL;		\
 	(ch)->AiopNum = -1;		\
 	(ch)->ChanID = -1;		\
 	(ch)->ChanNum = -1;		\

@@ -197,7 +197,7 @@ rp_init_chan(struct rp_softc *sc, struct rp_chan *ch, int AiopNum, int ChanNum)
 		return (false);	/* exceeds num chans in AIOP */
 
 	/* Channel, AIOP, and controller identifiers */
-	ch->CtlP = sc;
+	ch->sc = sc;
 	ch->ChanID = sc->AiopID[AiopNum];
 	ch->AiopNum = AiopNum;
 	ch->ChanNum = ChanNum;
