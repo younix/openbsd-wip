@@ -483,9 +483,6 @@ struct rp_chan
 } while (0)
 
 /*
- * Purpose: Enable parity
- *
- * Comments:
  * Function sSetParity() can be used in place of functions sEnParity(),
  * sDisParity(), sSetOddParity(), and sSetEvenParity().
  *
@@ -493,9 +490,9 @@ struct rp_chan
  * Before enabling parity odd or even parity should be chosen using functions
  * sSetOddParity() or sSetEvenParity().
  */
-#define sEnParity(ChP) do {					\
-	(ChP)->TxControl[2] |= PARITY_EN;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+#define rp_enable_parity(ch) do {				\
+	(ch)->TxControl[2] |= PARITY_EN;			\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 #define sEnRTSFlowCtl(ChP) do {					\

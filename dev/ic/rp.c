@@ -1234,7 +1234,7 @@ rpparam(struct tty *tp, struct termios *t)
 		sSetStop1(cp);
 
 	if (cflag & PARENB) {
-		sEnParity(cp);
+		rp_enable_parity(cp);
 
 		if (cflag & PARODD)
 			sSetOddParity(cp);
