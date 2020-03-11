@@ -705,7 +705,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 	printf(" rp%d (Version %s) %d ports\n", unit, RP_Version, num_ports);
 
 	sc->num_ports = num_ports;
-	sc->rp = rp = mallocarray(num_ports, sizeof(*rp), M_DEVBUF, M_NOWAIT|M_ZERO);
+	sc->sc_rp = rp = mallocarray(num_ports, sizeof(*rp), M_DEVBUF, M_NOWAIT|M_ZERO);
 
 	if (rp == NULL) {
 		printf("%s port %d rp_attach: could not malloc\n", DEVNAME(sc),
@@ -758,11 +758,11 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 void
 rp_releaseresource(struct rp_softc *sc)
 {
-	if (sc->rp != NULL) {
+	if (sc->sc_rp != NULL) {
 		int i;
 
 		for (i = 0; i < sc->num_ports; i++) {
-			struct rp_port *rp = sc->rp + i;
+			struct rp_port *rp = sc->sc_rp + i;
 
 			//atomic_inc_int(&sc->free);
 //XXX: do we need this:	s = spltty();	//tty_lock(rp->rp_tty);
@@ -770,9 +770,9 @@ rp_releaseresource(struct rp_softc *sc)
 			ttyfree(rp->rp_tty);
 		}
 printf("free(%p, %d, %zu * %d);\n",
-    sc->rp, M_DEVBUF, sizeof(*(sc->rp)), sc->num_ports);
-		free(sc->rp, M_DEVBUF, sizeof(*(sc->rp)) * sc->num_ports);
-		sc->rp = NULL;
+    sc->sc_rp, M_DEVBUF, sizeof(*(sc->sc_rp)), sc->num_ports);
+		free(sc->sc_rp, M_DEVBUF, sizeof(*(sc->sc_rp)) * sc->num_ports);
+		sc->sc_rp = NULL;
 	}
 
 //XXX: do we need this:
@@ -805,7 +805,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	    mode);
 #endif
 
-	rp = &sc->rp[port];
+	rp = &sc->sc_rp[port];
 
 	s = spltty();
 	if (rp->rp_tty == NULL) {
@@ -919,7 +919,7 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	int		 card = RP_CARD(dev);
 	int		 port = RP_PORT(dev);
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
-	struct rp_port	*rp = &sc->rp[port];
+	struct rp_port	*rp = &sc->sc_rp[port];
 	struct tty	*tp = rp->rp_tty;
 	int		 s;
 
@@ -985,7 +985,7 @@ rpread(dev_t dev, struct uio *uio, int flag)
 	int		 card = RP_CARD(dev);
 	int		 port = RP_PORT(dev);
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
-	struct rp_port	*rp = &sc->rp[port];
+	struct rp_port	*rp = &sc->sc_rp[port];
 	struct tty	*tp = rp->rp_tty;
 
 #ifdef RP_DEBUG1
@@ -1002,7 +1002,7 @@ rpwrite(dev_t dev, struct uio *uio, int flag)
 	int card = RP_CARD(dev);
 	int port = RP_PORT(dev);
 	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
+	struct rp_port *rp = &sc->sc_rp[port];
 	struct tty *tp = rp->rp_tty;
 
 #ifdef RP_DEBUG1
@@ -1019,7 +1019,7 @@ rptty(dev_t dev)
 	int card = RP_CARD(dev);
 	int port = RP_PORT(dev);
 	struct rp_softc *sc = rp_cd.cd_devs[card];
-	struct rp_port *rp = &sc->rp[port];
+	struct rp_port *rp = &sc->sc_rp[port];
 	struct tty *tp = rp->rp_tty;
 
 	return (tp);
@@ -1031,7 +1031,7 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 	int		 card = RP_CARD(dev);
 	int		 port = RP_PORT(dev);
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
-	struct rp_port	*rp = &sc->rp[port];
+	struct rp_port	*rp = &sc->sc_rp[port];
 	struct rp_chan	*cp = &rp->rp_channel;
 	struct tty	*tp = rp->rp_tty;
 	int error;
@@ -1168,7 +1168,7 @@ rpstop(struct tty *tp, int flag)
 	int		 card = RP_CARD(tp->t_dev);
 	int		 port = RP_PORT(tp->t_dev);
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
-	struct rp_port	*rp = &sc->rp[port];
+	struct rp_port	*rp = &sc->sc_rp[port];
 	int		 s;
 
 #ifdef RP_DEBUG
@@ -1194,7 +1194,7 @@ rpparam(struct tty *tp, struct termios *t)
 	int		 card = RP_CARD(tp->t_dev);
 	int		 port = RP_PORT(tp->t_dev);
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
-	struct rp_port	*rp = &sc->rp[port];
+	struct rp_port	*rp = &sc->sc_rp[port];
 	struct rp_chan	*cp = &rp->rp_channel;
 	int		 cflag = t->c_cflag;
 	int		 iflag = t->c_iflag;
@@ -1288,7 +1288,7 @@ rpstart(struct tty *tp)
 	int		 card = RP_CARD(tp->t_dev);
 	int		 port = RP_PORT(tp->t_dev);
 	struct rp_softc	*sc = rp_cd.cd_devs[card];
-	struct rp_port	*rp = &sc->rp[port];
+	struct rp_port	*rp = &sc->sc_rp[port];
 	struct rp_chan	*cp = &rp->rp_channel;
 	int		 xmit_fifo_room;
 	int		 s, i, count, wcount;

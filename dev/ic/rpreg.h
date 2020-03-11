@@ -369,7 +369,7 @@ struct rp_softc {
 	bus_space_handle_t	sc_ioh;
 	bus_size_t		sc_ios;
 
-	struct rp_port		*rp;		/* port */
+	struct rp_port	*sc_rp;		/* port */
 
 	/* Device nodes */
 	struct cdev **dev_nodes;
