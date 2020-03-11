@@ -354,13 +354,13 @@ typedef unsigned char rp_ctlmask_t(struct rp_softc *);
 /* Controller level information structure */
 struct rp_softc {
 	/* Device and resource management */
-	struct device	sc_dev;	/* device */
+	struct device	sc_dev;		/* device */
 
 	int		NumAiop;
 	int		AiopID[RP_AIOP_CTL_SIZE];
 	int		AiopNumChan[RP_AIOP_CTL_SIZE];
 
-        struct mutex	hwmtx;	/* Spinlock protecting hardware. */
+        struct mutex	hwmtx;		/* Spinlock protecting hardware. */
 	int		hwmtx_init;
 //	int		free;
 	int		num_ports;
@@ -370,17 +370,13 @@ struct rp_softc {
 	bus_size_t		sc_ios;
 
 	struct rp_port	*sc_rp;		/* port */
-
-	/* Device nodes */
-	struct cdev **dev_nodes;
-
-	/* Bus-specific properties */
-	void			*bus_ctlp;
+	struct cdev **dev_nodes;	/* Device nodes */
+	void		*bus_ctlp;	/* Bus-specific properties */
 
 	/* Bus-specific methods */
-	rp_aiop2rid_t		*aiop2rid;	/* (aiop, offset) -> rid */
-	rp_aiop2off_t		*aiop2off;	/* (aiop, offset) -> off */
-	rp_ctlmask_t		*ctlmask;	/* Int status */
+	rp_aiop2rid_t	*aiop2rid;	/* (aiop, offset) -> rid */
+	rp_aiop2off_t	*aiop2off;	/* (aiop, offset) -> off */
+	rp_ctlmask_t	*ctlmask;	/* Int status */
 };
 
 /* Channel level information structure */
