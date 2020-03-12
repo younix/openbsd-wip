@@ -495,12 +495,12 @@ struct rp_chan
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
-#define sEnRTSFlowCtl(ChP) do {					\
-	(ChP)->TxControl[2] &= ~RTSTOG_EN;			\
-	(ChP)->TxControl[3] &= ~SET_RTS;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
-	(ChP)->RxControl[2] |= RTSFC_EN;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->RxControl));	\
+#define rp_enable_RTS_flowctl(ch) do {				\
+	(ch)->TxControl[2] &= ~RTSTOG_EN;			\
+	(ch)->TxControl[3] &= ~SET_RTS;				\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
+	(ch)->RxControl[2] |= RTSFC_EN;				\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->RxControl));	\
 } while (0)
 
 #define rp_disable_RTS_flowctl(ch) do {				\

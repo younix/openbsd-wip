@@ -1273,7 +1273,7 @@ rpparam(struct tty *tp, struct termios *t)
 		rp->rp_rts_iflow = 0;
 
 	if (cflag & CRTS_IFLOW)
-		sEnRTSFlowCtl(cp);
+		rp_enable_RTS_flowctl(cp);
 	else
 		rp_disable_RTS_flowctl(cp);
 
