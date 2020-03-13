@@ -440,7 +440,7 @@ struct rp_chan
  *
  * Comments:
  * Function sSetParity() can be used in place of functions sEnParity(),
- * sDisParity(), sSetOddParity(), and sSetEvenParity().
+ * sDisParity(), rp_set_odd_parity(), and sSetEvenParity().
  */
 #define sDisParity(ChP) do {					\
 	(ChP)->TxControl[2] &= ~PARITY_EN;			\
@@ -484,11 +484,11 @@ struct rp_chan
 
 /*
  * Function sSetParity() can be used in place of functions sEnParity(),
- * sDisParity(), sSetOddParity(), and sSetEvenParity().
+ * sDisParity(), rp_set_odd_parity(), and sSetEvenParity().
  *
  * Warnings:
  * Before enabling parity odd or even parity should be chosen using functions
- * sSetOddParity() or sSetEvenParity().
+ * rp_set_odd_parity() or sSetEvenParity().
  */
 #define rp_enable_parity(ch) do {				\
 	(ch)->TxControl[2] |= PARITY_EN;			\
@@ -660,7 +660,7 @@ struct rp_chan
 
 /*
  * Function sSetParity() can be used in place of functions sEnParity(),
- * sDisParity(), sSetOddParity(), and sSetEvenParity().
+ * sDisParity(), rp_set_odd_parity(), and sSetEvenParity().
  *
  * Warnings:
  * This function has no effect unless parity is enabled with function
@@ -672,19 +672,16 @@ struct rp_chan
 } while (0)
 
 /*
- * Purpose: Set odd parity
- *
- * Comments:
  * Function sSetParity() can be used in place of functions sEnParity(),
- * sDisParity(), sSetOddParity(), and sSetEvenParity().
+ * sDisParity(), rp_set_odd_parity(), and sSetEvenParity().
  *
  * Warnings:
  * This function has no effect unless parity is enabled with function
  * sEnParity().
  */
-#define sSetOddParity(ChP) do {						\
-	(ChP)->TxControl[2] &= ~EVEN_PAR;				\
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+#define rp_set_odd_parity(ch) do {				\
+	(ch)->TxControl[2] &= ~EVEN_PAR;			\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /* Purpose:  Set the RTS output */
