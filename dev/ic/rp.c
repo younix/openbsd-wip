@@ -1226,7 +1226,7 @@ rpparam(struct tty *tp, struct termios *t)
 	/* Set baud rate ----- we only pay attention to ispeed */
 	sSetDTR(cp);
 	sSetRTS(cp);
-	sSetBaud(cp, ospeed);
+	rp_set_baud(cp, ospeed);
 
 	if (cflag & CSTOPB)
 		sSetStop2(cp);

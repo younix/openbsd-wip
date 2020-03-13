@@ -633,11 +633,11 @@ struct rp_chan
 	rp_writeaiop1((sc), (AIOPNUM), _CMD_REG, 0x0);		\
 } while (0)
 
-/* Purpose: Set baud rate */
-#define sSetBaud(ChP, DIVISOR) do {				\
-	(ChP)->BaudDiv[2] = (uint8_t)(DIVISOR);			\
-	(ChP)->BaudDiv[3] = (uint8_t)((DIVISOR) >> 8);		\
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->BaudDiv));	\
+/* Set baud rate */
+#define rp_set_baud(ch, DIVISOR) do {				\
+	(ch)->BaudDiv[2] = (uint8_t)(DIVISOR);			\
+	(ch)->BaudDiv[3] = (uint8_t)((DIVISOR) >> 8);		\
+	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->BaudDiv));	\
 } while (0)
 
 /* Purpose: Set data bits to 7 */
