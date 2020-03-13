@@ -628,10 +628,9 @@ struct rp_chan
 	(ch)->ChanNum = -1;		\
 } while (0)
 
-/* Purpose: Reset the AIOP by number */
-#define sResetAiopByNum(CTLP, AIOPNUM) do {			\
-	rp_writeaiop1(CTLP, AIOPNUM, _CMD_REG, RESET_ALL);	\
-	rp_writeaiop1(CTLP, AIOPNUM, _CMD_REG, 0x0);		\
+#define rp_reset_aiop_by_num(sc, AIOPNUM) do {			\
+	rp_writeaiop1((sc), (AIOPNUM), _CMD_REG, RESET_ALL);	\
+	rp_writeaiop1((sc), (AIOPNUM), _CMD_REG, 0x0);		\
 } while (0)
 
 /* Purpose: Set baud rate */
