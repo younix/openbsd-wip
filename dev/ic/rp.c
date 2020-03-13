@@ -1248,7 +1248,7 @@ rpparam(struct tty *tp, struct termios *t)
 		sSetData8(cp);
 		rp->rp_imask = 0xFF;
 	} else {
-		sSetData7(cp);
+		rp_set_data7(cp);
 		rp->rp_imask = 0x7F;
 	}
 
