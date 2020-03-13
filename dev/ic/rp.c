@@ -861,7 +861,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		rp_enable_rx_fifo(&rp->rp_channel);
 		rp_enable_transmit(&rp->rp_channel);
 
-//		sSetDTR(&rp->rp_channel);
+//		rp_set_DTR(&rp->rp_channel);
 //		sSetRTS(&rp->rp_channel);
 
 //XXX:		callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_poll, rp);
@@ -1224,7 +1224,7 @@ rpparam(struct tty *tp, struct termios *t)
 	rp->rp_fifo_lw = ((t->c_ospeed*2) / 1000) +1;
 
 	/* Set baud rate ----- we only pay attention to ispeed */
-	sSetDTR(cp);
+	rp_set_DTR(cp);
 	sSetRTS(cp);
 	rp_set_baud(cp, ospeed);
 

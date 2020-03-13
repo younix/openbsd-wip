@@ -652,10 +652,10 @@ struct rp_chan
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
-/* Purpose: Set the DTR output */
-#define sSetDTR(ChP) do {					\
-	(ChP)->TxControl[3] |= SET_DTR;				\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+/* Set the DTR output */
+#define rp_set_DTR(ch) do {					\
+	(ch)->TxControl[3] |= SET_DTR;				\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /*
