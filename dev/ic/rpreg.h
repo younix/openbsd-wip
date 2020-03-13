@@ -646,10 +646,10 @@ struct rp_chan
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
-/* Purpose: Set data bits to 8 */
-#define sSetData8(ChP) do {						\
-	(ChP)->TxControl[2] |= DATA8BIT;				\
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+/* Set data bits to 8 */
+#define rp_set_data8(ch) do {					\
+	(ch)->TxControl[2] |= DATA8BIT;				\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /* Purpose: Set the DTR output */

@@ -1245,7 +1245,7 @@ rpparam(struct tty *tp, struct termios *t)
 	}
 
 	if ((cflag & CSIZE) == CS8) {
-		sSetData8(cp);
+		rp_set_data8(cp);
 		rp->rp_imask = 0xFF;
 	} else {
 		rp_set_data7(cp);
