@@ -370,7 +370,7 @@ struct rp_softc {
 	bus_size_t		sc_ios;
 
 	struct rp_port	*sc_rp;		/* port */
-	struct cdev **dev_nodes;	/* Device nodes */
+	struct cdev    **dev_nodes;	/* Device nodes */
 	void		*bus_ctlp;	/* Bus-specific properties */
 
 	/* Bus-specific methods */
@@ -406,10 +406,10 @@ struct rp_chan
 	uint8_t		 TxReplace2[4];
 };
 
-#define CHNOFF_TXRXDATA(chp)	((chp)->ChanNum * 2 + _TD0)
-#define CHNOFF_CHANSTAT(chp)	((chp)->ChanNum * 2 + _CHN_STAT0)
-#define CHNOFF_TXRXCOUNT(chp)	((chp)->ChanNum * 2 + _FIFO_CNT0)
-#define CHNOFF_INTID(chp)	((chp)->ChanNum     + _INT_ID0)
+#define CHNOFF_TXRXDATA(ch)	((ch)->ChanNum * 2 + _TD0)
+#define CHNOFF_CHANSTAT(ch)	((ch)->ChanNum * 2 + _CHN_STAT0)
+#define CHNOFF_TXRXCOUNT(ch)	((ch)->ChanNum * 2 + _FIFO_CNT0)
+#define CHNOFF_INTID(ch)	((ch)->ChanNum     + _INT_ID0)
 
 /* Purpose: Clr the DTR output */
 #define rp_clr_DTR(ChP) do {					\
