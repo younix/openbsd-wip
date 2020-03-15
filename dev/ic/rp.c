@@ -850,7 +850,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		rp_rx_trigger(&rp->rp_channel, TRIG_1);
 
 		rp_dis_rx_status_mode(&rp->rp_channel);
-		sClrTxXOFF(&rp->rp_channel);
+		rp_clr_tx_xoff(&rp->rp_channel);
 
 //		rp_disable_RTS_flowctl(&rp->rp_channel);
 //		sDisCTSFlowCtl(&rp->rp_channel);
@@ -964,7 +964,7 @@ rphardclose(struct tty *tp, struct rp_port *rp)
 	rp_disable_RTS_flowctl(cp);
 	sDisCTSFlowCtl(cp);
 	sDisTxSoftFlowCtl(cp);
-	sClrTxXOFF(cp);
+	rp_clr_tx_xoff(cp);
 
 #ifdef DJA
 	if (tp->t_cflag&HUPCL || !(tp->t_state & TS_ISOPEN) || !tp->t_actout)

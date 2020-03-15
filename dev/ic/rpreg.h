@@ -423,10 +423,10 @@ struct rp_chan
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
-/* Purpose: Clear any existing transmit software flow control off condition */
-#define sClrTxXOFF(ChP) do {						\
-	rp_writech1(ChP,_CMD_REG,TXOVERIDE | (uint8_t)(ChP)->ChanNum);	\
-	rp_writech1(ChP,_CMD_REG,(uint8_t)(ChP)->ChanNum);		\
+/* Clear any existing transmit software flow control off condition */
+#define rp_clr_tx_xoff(ch) do {						\
+	rp_writech1(ch, _CMD_REG, TXOVERIDE | (uint8_t)(ch)->ChanNum);	\
+	rp_writech1(ch, _CMD_REG, (uint8_t)(ch)->ChanNum);		\
 } while (0)
 
 /* Purpose: Disable output flow control using CTS */
