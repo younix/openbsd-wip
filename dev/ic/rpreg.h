@@ -430,9 +430,9 @@ struct rp_chan
 } while (0)
 
 /* Purpose: Disable output flow control using CTS */
-#define sDisCTSFlowCtl(ChP) do {				\
-	(ChP)->TxControl[2] &= ~CTSFC_EN;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+#define rp_disable_CTS_flowctl(ch) do {				\
+	(ch)->TxControl[2] &= ~CTSFC_EN;			\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /*
