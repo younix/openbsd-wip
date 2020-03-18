@@ -1241,7 +1241,7 @@ rpparam(struct tty *tp, struct termios *t)
 		else
 			rp_set_even_parity(cp);
 	} else {
-		sDisParity(cp);
+		rp_disable_parity(cp);
 	}
 
 	if ((cflag & CSIZE) == CS8) {
