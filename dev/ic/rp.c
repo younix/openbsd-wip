@@ -341,7 +341,7 @@ rp_flush_rx_fifo(struct rp_chan *ch)
 
 	if (ch->R[0x32] == 0x08) {	/* Rx FIFO is enabled */
 		RxFIFOEnabled = true;
-		sDisRxFIFO(ch);	/* disable it */
+		rp_disable_rx_fifo(ch);	/* disable it */
 		delay(2);	/* delay 2 uS to allow proc to disable FIFO */
 	}
 	rp_chan_status(ch);	/* clear any pending Rx errors in chan stat */

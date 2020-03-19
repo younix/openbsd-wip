@@ -444,10 +444,9 @@ struct rp_chan
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
-/* Purpose: Disable Rx FIFO */
-#define sDisRxFIFO(ChP) do {					\
-	(ChP)->R[0x32] = 0x0a;					\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x30));	\
+#define rp_disable_rx_fifo(ch) do {				\
+	(ch)->R[0x32] = 0x0a;					\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->R + 0x30));	\
 } while (0)
 
 /*
