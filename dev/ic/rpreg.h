@@ -466,10 +466,9 @@ struct rp_chan
 	rp_writech4(cp, _INDX_ADDR, lemtoh32((cp)->TxControl));	\
 } while (0)
 
-/* Purpose:  Disable Tx Software Flow Control */
-#define sDisTxSoftFlowCtl(ChP) do {				\
-	(ChP)->R[0x06] = 0x8a;					\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->R + 0x04));	\
+#define rp_disable_tx_soft_flowctl(ch) do {			\
+	(ch)->R[0x06] = 0x8a;					\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->R + 0x04));	\
 } while (0)
 
 /* Purpose: Enable output flow control using CTS */
