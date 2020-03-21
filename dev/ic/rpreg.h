@@ -471,10 +471,10 @@ struct rp_chan
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->R + 0x04));	\
 } while (0)
 
-/* Purpose: Enable output flow control using CTS */
-#define sEnCTSFlowCtl(ChP) do {					\
-	(ChP)->TxControl[2] |= CTSFC_EN;			\
-	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
+/* enable output flow control using CTS */
+#define rp_enable_CTS_flowctl(ch) do {				\
+	(ch)->TxControl[2] |= CTSFC_EN;				\
+	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /*

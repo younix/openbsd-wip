@@ -1263,7 +1263,7 @@ rpparam(struct tty *tp, struct termios *t)
 	/* Put flow control stuff here */
 
 	if (cflag & CCTS_OFLOW)
-		sEnCTSFlowCtl(cp);
+		rp_enable_CTS_flowctl(cp);
 	else
 		rp_disable_CTS_flowctl(cp);
 
