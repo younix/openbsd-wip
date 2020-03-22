@@ -75,18 +75,18 @@
 #define rp_writemultiio4(ctlp, rid, offset, addr, count) \
 	rp_writemultiio(4, ctlp, rid, offset, addr, count) 
 
-#define rp_readaiop1(ctlp, aiop, offset) \
-	(rp_readio1((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset)))
-#define rp_readaiop2(ctlp, aiop, offset) \
-	(rp_readio2((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset)))
-#define rp_readaiop4(ctlp, aiop, offset) \
-	(rp_readio4((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset)))
-#define rp_readmultiaiop1(ctlp, aiop, offset, addr, count) \
-	(rp_readmultiio1((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), addr, count))
-#define rp_readmultiaiop2(ctlp, aiop, offset, addr, count) \
-	(rp_readmultiio2((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), addr, count))
-#define rp_readmultiaiop4(ctlp, aiop, offset, addr, count) \
-	(rp_readmultiio4((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), addr, count))
+#define rp_readaiop1(sc, aiop, offset) \
+	(rp_readio1((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset)))
+#define rp_readaiop2(sc, aiop, offset) \
+	(rp_readio2((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset)))
+#define rp_readaiop4(sc, aiop, offset) \
+	(rp_readio4((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset)))
+#define rp_readmultiaiop1(sc, aiop, offset, addr, count) \
+	(rp_readmultiio1((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), addr, count))
+#define rp_readmultiaiop2(sc, aiop, offset, addr, count) \
+	(rp_readmultiio2((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), addr, count))
+#define rp_readmultiaiop4(sc, aiop, offset, addr, count) \
+	(rp_readmultiio4((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), addr, count))
 #define rp_writeaiop1(sc, aiop, offset, data) \
 	(rp_writeio1((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), data))
 #define rp_writeaiop2(sc, aiop, offset, data) \
