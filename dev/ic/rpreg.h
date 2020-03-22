@@ -35,7 +35,7 @@
  */
 
 /*
- * Begin OS-specific defines -  rpreg.h - for RocketPort FreeBSD
+ * Begin OS-specific defines for RocketPort
  */
 
 #define rp_readio(size, sc, rid, offset) \
