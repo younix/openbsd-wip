@@ -47,26 +47,23 @@
 #define rp_writemultiio(size, sc, rid, offset, addr, count) \
 	(bus_space_write_multi_##size((sc)->sc_iot, (sc)->sc_ioh, (offset), (addr), (count)))
 
-#define rp_readio1(ctlp, rid, offset) \
-	rp_readio(1, (ctlp), (rid), (offset))
-#define rp_readio2(ctlp, rid, offset) \
-	rp_readio(2, (ctlp), (rid), (offset))
-#define rp_readio4(ctlp, rid, offset) \
-	rp_readio(4, (ctlp), (rid), (offset))
+#define rp_readio1(sc, rid, offset) rp_readio(1, (sc), (rid), (offset))
+#define rp_readio2(sc, rid, offset) rp_readio(2, (sc), (rid), (offset))
+#define rp_readio4(sc, rid, offset) rp_readio(4, (sc), (rid), (offset))
 
-#define rp_writeio1(ctlp, rid, offset, data) \
-	rp_writeio(1, (ctlp), (rid), (offset), (data))
-#define rp_writeio2(ctlp, rid, offset, data) \
-	rp_writeio(2, (ctlp), (rid), (offset), (data))
-#define rp_writeio4(ctlp, rid, offset, data) \
-	rp_writeio(4, (ctlp), (rid), (offset), (data))
+#define rp_writeio1(sc, rid, offset, data) \
+	rp_writeio(1, (sc), (rid), (offset), (data))
+#define rp_writeio2(sc, rid, offset, data) \
+	rp_writeio(2, (sc), (rid), (offset), (data))
+#define rp_writeio4(sc, rid, offset, data) \
+	rp_writeio(4, (sc), (rid), (offset), (data))
 
-#define rp_readmultiio1(ctlp, rid, offset, addr, count) \
-	rp_readmultiio(1, (ctlp), (rid), (offset), (addr), (count))
-#define rp_readmultiio2(ctlp, rid, offset, addr, count) \
-	rp_readmultiio(2, (ctlp), (rid), (offset), (addr), (count))
-#define rp_readmultiio4(ctlp, rid, offset, addr, count) \
-	rp_readmultiio(4, (ctlp), (rid), (offset), (addr), (count))
+#define rp_readmultiio1(sc, rid, offset, addr, count) \
+	rp_readmultiio(1, (sc), (rid), (offset), (addr), (count))
+#define rp_readmultiio2(sc, rid, offset, addr, count) \
+	rp_readmultiio(2, (sc), (rid), (offset), (addr), (count))
+#define rp_readmultiio4(sc, rid, offset, addr, count) \
+	rp_readmultiio(4, (sc), (rid), (offset), (addr), (count))
 
 #define rp_writemultiio1(sc, rid, offset, addr, count) \
 	rp_writemultiio(1, (sc), (rid), (offset), (addr), (count))
