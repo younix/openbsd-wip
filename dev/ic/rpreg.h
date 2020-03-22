@@ -547,9 +547,8 @@ struct rp_chan
 	rp_readaiop1((sc), (AIOPNUM), _INT_CHAN)
 
 /*
- * Purpose:  Get a channel's interrupt identification byte
- * Returns the channel interrupt ID.  Can be any combination of the following
- * flags:
+ * Get a channel's interrupt identification byte and returns the channel
+ * interrupt ID.  Can be any combination of the following flags:
  *	RXF_TRIG:  Rx FIFO trigger level interrupt
  *	TXFIFO_MT: Tx FIFO empty interrupt
  *	SRC_INT:   Special receive condition interrupt
@@ -557,8 +556,8 @@ struct rp_chan
  *	DELTA_CTS: CTS change interrupt
  *	DELTA_DSR: DSR change interrupt
  */
-#define rp_chan_intr_id(ChP)						\
-	(rp_readch1(ChP, (ChP)->ChanNum+_INT_ID0) &			\
+#define rp_chan_intr_id(ch)					\
+	(rp_readch1(ch, (ch)->ChanNum+_INT_ID0) &		\
 	 (RXF_TRIG | TXFIFO_MT | SRC_INT | DELTA_CD | DELTA_CTS | DELTA_DSR))
 
 /*
