@@ -68,12 +68,12 @@
 #define rp_readmultiio4(ctlp, rid, offset, addr, count) \
 	rp_readmultiio(4, (ctlp), (rid), (offset), (addr), (count))
 
-#define rp_writemultiio1(ctlp, rid, offset, addr, count) \
-	rp_writemultiio(1, (ctlp), (rid), (offset), (addr), (count))
-#define rp_writemultiio2(ctlp, rid, offset, addr, count) \
-	rp_writemultiio(2, ctlp, rid, offset, addr, count) 
-#define rp_writemultiio4(ctlp, rid, offset, addr, count) \
-	rp_writemultiio(4, ctlp, rid, offset, addr, count) 
+#define rp_writemultiio1(sc, rid, offset, addr, count) \
+	rp_writemultiio(1, (sc), (rid), (offset), (addr), (count))
+#define rp_writemultiio2(sc, rid, offset, addr, count) \
+	rp_writemultiio(2, (sc), (rid), (offset), (addr), (count)) 
+#define rp_writemultiio4(sc, rid, offset, addr, count) \
+	rp_writemultiio(4, (sc), (rid), (offset), (addr), (count)) 
 
 #define rp_readaiop1(sc, aiop, offset) \
 	(rp_readio1((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset)))
