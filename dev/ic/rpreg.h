@@ -97,30 +97,30 @@
 #define rp_writemultiaiop4(sc, aiop, offset, addr, count) \
 	(rp_writemultiio4((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), addr, count))
 
-#define rp_readch1(chp, offset) \
-	(rp_readaiop1((chp)->sc, (chp)->AiopNum, offset))
-#define rp_readch2(chp, offset) \
-	(rp_readaiop2((chp)->sc, (chp)->AiopNum, offset))
-#define rp_readch4(chp, offset) \
-	(rp_readaiop4((chp)->sc, (chp)->AiopNum, offset))
-#define rp_readmultich1(chp, offset, addr, count) \
-	(rp_readmultiaiop1((chp)->sc, (chp)->AiopNum, offset, addr, count))
-#define rp_readmultich2(chp, offset, addr, count) \
-	(rp_readmultiaiop2((chp)->sc, (chp)->AiopNum, offset, addr, count))
-#define rp_readmultich4(chp, offset, addr, count) \
-	(rp_readmultiaiop4((chp)->sc, (chp)->AiopNum, offset, addr, count))
-#define rp_writech1(chp, offset, data) \
-	(rp_writeaiop1((chp)->sc, (chp)->AiopNum, offset, data))
-#define rp_writech2(chp, offset, data) \
-	(rp_writeaiop2((chp)->sc, (chp)->AiopNum, offset, data))
-#define rp_writech4(chp, offset, data) \
-	(rp_writeaiop4((chp)->sc, (chp)->AiopNum, offset, data))
-#define rp_writemultich1(chp, offset, addr, count) \
-	(rp_writemultiaiop1((chp)->sc, (chp)->AiopNum, offset, addr, count))
-#define rp_writemultich2(chp, offset, addr, count) \
-	(rp_writemultiaiop2((chp)->sc, (chp)->AiopNum, offset, addr, count))
-#define rp_writemultich4(chp, offset, addr, count) \
-	(rp_writemultiaiop4((chp)->sc, (chp)->AiopNum, offset, addr, count))
+#define rp_readch1(ch, offset) \
+	(rp_readaiop1((ch)->sc, (ch)->AiopNum, offset))
+#define rp_readch2(ch, offset) \
+	(rp_readaiop2((ch)->sc, (ch)->AiopNum, offset))
+#define rp_readch4(ch, offset) \
+	(rp_readaiop4((ch)->sc, (ch)->AiopNum, offset))
+#define rp_readmultich1(ch, offset, addr, count) \
+	(rp_readmultiaiop1((ch)->sc, (ch)->AiopNum, offset, addr, count))
+#define rp_readmultich2(ch, offset, addr, count) \
+	(rp_readmultiaiop2((ch)->sc, (ch)->AiopNum, offset, addr, count))
+#define rp_readmultich4(ch, offset, addr, count) \
+	(rp_readmultiaiop4((ch)->sc, (ch)->AiopNum, offset, addr, count))
+#define rp_writech1(ch, offset, data) \
+	(rp_writeaiop1((ch)->sc, (ch)->AiopNum, offset, data))
+#define rp_writech2(ch, offset, data) \
+	(rp_writeaiop2((ch)->sc, (ch)->AiopNum, offset, data))
+#define rp_writech4(ch, offset, data) \
+	(rp_writeaiop4((ch)->sc, (ch)->AiopNum, offset, data))
+#define rp_writemultich1(ch, offset, addr, count) \
+	(rp_writemultiaiop1((ch)->sc, (ch)->AiopNum, offset, addr, count))
+#define rp_writemultich2(ch, offset, addr, count) \
+	(rp_writemultiaiop2((ch)->sc, (ch)->AiopNum, offset, addr, count))
+#define rp_writemultich4(ch, offset, addr, count) \
+	(rp_writemultiaiop4((ch)->sc, (ch)->AiopNum, offset, addr, count))
 
 /*
  * Port number on card encoded in low 5 bits
