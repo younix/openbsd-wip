@@ -91,10 +91,10 @@
 	(rp_writeio1((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), data))
 #define rp_writeaiop2(ctlp, aiop, offset, data) \
 	(rp_writeio2((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), data))
-#define rp_writeaiop4(ctlp, aiop, offset, data) \
-	(rp_writeio4((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), data))
-#define rp_writemultiaiop1(ctlp, aiop, offset, addr, count) \
-	(rp_writemultiio1((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), addr, count))
+#define rp_writeaiop4(sc, aiop, offset, data) \
+	(rp_writeio4((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), data))
+#define rp_writemultiaiop1(sc, aiop, offset, addr, count) \
+	(rp_writemultiio1((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), addr, count))
 #define rp_writemultiaiop2(sc, aiop, offset, addr, count) \
 	(rp_writemultiio2((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), addr, count))
 #define rp_writemultiaiop4(sc, aiop, offset, addr, count) \
