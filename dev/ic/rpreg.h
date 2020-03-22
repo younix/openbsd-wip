@@ -87,10 +87,10 @@
 	(rp_readmultiio2((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), addr, count))
 #define rp_readmultiaiop4(ctlp, aiop, offset, addr, count) \
 	(rp_readmultiio4((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), addr, count))
-#define rp_writeaiop1(ctlp, aiop, offset, data) \
-	(rp_writeio1((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), data))
-#define rp_writeaiop2(ctlp, aiop, offset, data) \
-	(rp_writeio2((ctlp), (ctlp)->aiop2rid(aiop, offset), (ctlp)->aiop2off(aiop, offset), data))
+#define rp_writeaiop1(sc, aiop, offset, data) \
+	(rp_writeio1((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), data))
+#define rp_writeaiop2(sc, aiop, offset, data) \
+	(rp_writeio2((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), data))
 #define rp_writeaiop4(sc, aiop, offset, data) \
 	(rp_writeio4((sc), (sc)->aiop2rid(aiop, offset), (sc)->aiop2off(aiop, offset), data))
 #define rp_writemultiaiop1(sc, aiop, offset, addr, count) \
