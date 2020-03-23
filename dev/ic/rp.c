@@ -173,13 +173,12 @@ rp_read_aiop_numchan(struct rp_softc *sc, int aiop)
 }
 
 /*
- * Purpose: Initialization of a channel and channel structure
+ * Initialization of a channel and channel structure
  *
- * Return:
- * True if initialization succeeded, false if it fails because channel number
- * exceeds number of channels available in AIOP.
+ * Return: True if initialization succeeded, false if it fails because channel
+ * number exceeds number of channels available in AIOP.
  *
- * Comments: This function must be called before a channel can be used.
+ * This function must be called before a channel can be used.
  *
  * Warnings:
  * No range checking on any of the parameters is done.
