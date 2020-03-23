@@ -139,12 +139,10 @@ rp_read_aiopid(struct rp_softc *sc, int aiop)
 }
 
 /*
- * Purpose:
  * Read the number of channels available in an AIOP directly from an AIOP.
  *
  * Return: The number of channels available
  *
- * Comments:
  * The number of channels is determined by write/reads from identical offsets
  * within the SRAM address spaces for channels 0 and 4.  If the channel 4 space
  * is mirrored to channel 0 it is a 4 channel AIOP, otherwise it is an 8
