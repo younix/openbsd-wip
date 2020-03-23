@@ -119,7 +119,7 @@ struct cfdriver rp_cd = {
  *
  * Return:
  * Flag AIOPID_XXXX if a valid AIOP is found, where X is replace by an
- * identifying number.  Flag AIOPID_NULL if no valid AIOP is found.
+ * identifying number.  Returns -1 if no valid AIOP is found.
  *
  * Warnings: No context switches are allowed while executing this function.
  */
