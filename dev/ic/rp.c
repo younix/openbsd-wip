@@ -115,7 +115,7 @@ struct cfdriver rp_cd = {
 };
 
 /*
- * Purpose:  Read the AIOP idenfication number directly from an AIOP.
+ * Read the AIOP idenfication number directly from an AIOP.
  *
  * Return:
  * Flag AIOPID_XXXX if a valid AIOP is found, where X is replace by an
@@ -126,7 +126,7 @@ struct cfdriver rp_cd = {
 int
 rp_read_aiopid(struct rp_softc *sc, int aiop)
 {
-	uint8_t AiopID;		/* ID byte from AIOP */
+	uint8_t AiopID;	/* ID byte from AIOP */
 
 	rp_writeaiop1(sc, aiop, _CMD_REG, RESET_ALL);	/* reset AIOP */
 	rp_writeaiop1(sc, aiop, _CMD_REG, 0x0);
@@ -135,7 +135,7 @@ rp_read_aiopid(struct rp_softc *sc, int aiop)
 	if (AiopID == 0x06)
 		return (1);
 
-	return (-1); /* AIOP does not exist */
+	return (-1);	/* AIOP does not exist */
 }
 
 /*
