@@ -429,11 +429,11 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 }
 
 /*
- * Purpose: Enable one or more interrupts for a channel
+ * Enable one or more interrupts for a channel
  *
- * Call:	rp_enable_interrupts(ch, Flags)
- * 	  struct rp_chan *ch; Ptr to channel structure
- * 	  uint16_t Flags: Interrupt enable flags, can be any combination
+ * rp_enable_interrupts(ch, Flags)
+ * 	struct rp_chan *ch; Ptr to channel structure
+ * 	uint16_t Flags: Interrupt enable flags, can be any combination
  * 	     of the following flags:
  * 		TXINT_EN:   Interrupt on Tx FIFO empty
  * 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
@@ -443,7 +443,6 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
  * 		CHANINT_EN: Allow channel interrupt signal to the AIOP's
  * 			    Interrupt Channel Register.
  *
- * Comments:
  * If an interrupt enable flag is set in Flags, that interrupt will be enabled.
  * If an interrupt enable flag is not set in Flags, that interrupt will not be
  * changed.  Interrupts can be disabled with function rp_disable_interrupts().
