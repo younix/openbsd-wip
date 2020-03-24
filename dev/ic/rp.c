@@ -857,7 +857,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		rp_enable_transmit(&rp->rp_channel);
 
 //		rp_set_DTR(&rp->rp_channel);
-//		sSetRTS(&rp->rp_channel);
+//		rp_set_RTS(&rp->rp_channel);
 
 //XXX:		callout_reset(&rp->rp_timer, POLL_INTERVAL, rp_poll, rp);
 		timeout_set(&rp->rp_timer, rp_poll, rp);
@@ -1220,7 +1220,7 @@ rpparam(struct tty *tp, struct termios *t)
 
 	/* Set baud rate ----- we only pay attention to ispeed */
 	rp_set_DTR(cp);
-	sSetRTS(cp);
+	rp_set_RTS(cp);
 	rp_set_baud(cp, ospeed);
 
 	if (cflag & CSTOPB)

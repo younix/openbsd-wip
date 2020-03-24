@@ -675,10 +675,10 @@ struct rp_chan
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
-/* Purpose:  Set the RTS output */
-#define sSetRTS(ChP) do {						\
-	(ChP)->TxControl[3] |= SET_RTS;					\
-	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+/* Set the RTS output */
+#define rp_set_RTS(ch) do {						\
+	(ch)->TxControl[3] |= SET_RTS;					\
+	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /*
