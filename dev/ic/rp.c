@@ -476,9 +476,9 @@ rp_enable_interrupts(struct rp_chan *ch, uint16_t Flags)
 }
 
 /*
- * Purpose: Disable one or more interrupts for a channel
+ * Disable one or more interrupts for a channel
  *
- * Call:	rp_disable_interrupts(ch, Flags)
+ * rp_disable_interrupts(ch, Flags)
  * 	  struct rp_chan *ch; Ptr to channel structure
  * 	  uint16_t Flags: Interrupt flags, can be any combination
  * 	     of the following flags:
@@ -490,7 +490,6 @@ rp_enable_interrupts(struct rp_chan *ch, uint16_t Flags)
  * 		CHANINT_EN: Disable channel interrupt signal to the
  * 			    AIOP's Interrupt Channel Register.
  *
- * Comments:
  * If an interrupt flag is set in Flags, that interrupt will be disabled.  If
  * an interrupt flag is not set in Flags, that interrupt will not be changed.
  * Interrupts can be enabled with function rp_enable_interrupts().
