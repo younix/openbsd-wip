@@ -573,7 +573,7 @@ struct rp_chan
  * Warnings:
  * This function will clear the high byte flags in the Channel Status Register.
  */
-#define rp_chan_status(ChP) rp_readch2((ChP), CHNOFF_CHANSTAT(ChP))
+#define rp_chan_status(ch) rp_readch2((ch), CHNOFF_CHANSTAT(ch))
 
 /*
  * Get the low byte only of the channel status
