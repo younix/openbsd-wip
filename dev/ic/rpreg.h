@@ -408,13 +408,13 @@ struct rp_chan
 #define CHNOFF_TXRXCOUNT(ch)	((ch)->ChanNum * 2 + _FIFO_CNT0)
 #define CHNOFF_INTID(ch)	((ch)->ChanNum     + _INT_ID0)
 
-/* Purpose: Clr the DTR output */
+/* Clear the DTR output */
 #define rp_clr_DTR(ChP) do {					\
 	(ChP)->TxControl[3] &= ~SET_DTR;			\
 	rp_writech4(ChP,_INDX_ADDR,lemtoh32((ChP)->TxControl));	\
 } while (0)
 
-/* Clr the RTS output */
+/* Clear the RTS output */
 #define rp_clr_RTS(ch) do {					\
 	(ch)->TxControl[3] &= ~SET_RTS;				\
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
