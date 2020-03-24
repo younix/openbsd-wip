@@ -1226,7 +1226,7 @@ rpparam(struct tty *tp, struct termios *t)
 	if (cflag & CSTOPB)
 		rp_set_stop2(cp);
 	else
-		sSetStop1(cp);
+		rp_set_stop1(cp);
 
 	if (cflag & PARENB) {
 		rp_enable_parity(cp);
