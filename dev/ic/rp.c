@@ -545,7 +545,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 
 	ToRecv = rp_get_rx_cnt(cp);
 #ifdef RP_DEBUG2
-	printf("%s port %d receive: %d bytes\n", DEVNAME(rp->rp_ctlp),
+	printf("%s port %d receive: %d bytes\n", DEVNAME(rp->rp_sc),
 	    RP_PORT(tp->t_dev), ToRecv);
 #endif
 	if (ToRecv == 0)
@@ -581,7 +581,7 @@ rp_do_receive(struct rp_port *rp, struct tty *tp, struct rp_chan *cp,
 				rp->rp_overflows++;
 
 				printf("%s port %d tty overrun\n",
-				    DEVNAME(rp->rp_ctlp), RP_PORT(tp->t_dev));
+				    DEVNAME(rp->rp_sc), RP_PORT(tp->t_dev));
 			}
 
 			//ttydisc_rint(tp, ch, err);
@@ -650,7 +650,7 @@ void
 rp_poll(void *arg)
 {
 	struct rp_port	*rp = arg;
-	struct rp_softc	*sc = rp->rp_ctlp;
+	struct rp_softc	*sc = rp->rp_sc;
 	struct tty	*tp = rp->rp_tty;
 	int		 count;
 	unsigned char	 AiopMask;
@@ -678,7 +678,7 @@ void
 rpfree(void *softc)
 {
 	struct rp_port *rp = softc;
-	struct rp_softc *sc = rp->rp_ctlp;
+	struct rp_softc *sc = rp->rp_sc;
 
 	atomic_dec_int(&sc->free);
 }
@@ -719,7 +719,7 @@ rp_attach(struct rp_softc *sc, int num_aiops, int num_ports)
 
 //XXX: do we need this:	callout_init_mtx(&rp->rp_timer, tty_getlock(tp), 0);
 			rp->rp_port = port;
-			rp->rp_ctlp = sc;
+			rp->rp_sc = sc;
 			rp->rp_unit = unit;
 			rp->rp_chan = chan;
 			rp->rp_aiop = aiop;
@@ -868,7 +868,7 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		s = spltty();
 	}
 
-//XXX:	device_busy(rp->rp_ctlp->dev);
+//XXX:	device_busy(rp->rp_sc->dev);
 	if (DEVCUA(dev)) {
 		if (ISSET(tp->t_state, TS_ISOPEN)) {
 			/* Ah, but someone already is dialed in... */
@@ -927,7 +927,7 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 
 	timeout_del(&rp->rp_timer);
 	rphardclose(tp, rp);
-//XXX:	device_unbusy(rp->rp_ctlp->dev);
+//XXX:	device_unbusy(rp->rp_sc->dev);
 
 	s = spltty();
 	if (ISSET(tp->t_state, TS_WOPEN)) {
