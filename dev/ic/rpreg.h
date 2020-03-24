@@ -576,7 +576,7 @@ struct rp_chan
 #define rp_chan_status(ChP) rp_readch2((ChP), CHNOFF_CHANSTAT(ChP))
 
 /*
- * Purpose:  Get the low byte only of the channel status
+ * Get the low byte only of the channel status
  *
  * Returns the channel status low byte.  Can be any combination of the
  * following flags:
@@ -588,7 +588,7 @@ struct rp_chan
  * 	TXSHRMT:  Tx shift register is empty
  * 	RDA:      Rx data available
  */
-#define rp_chan_status_lo(ChP) rp_readch1((ChP), CHNOFF_CHANSTAT(ChP))
+#define rp_chan_status_lo(ch) rp_readch1((ch), CHNOFF_CHANSTAT(ch))
 
 /*
  * Purpose:  Get the number of data bytes in the Rx FIFO
