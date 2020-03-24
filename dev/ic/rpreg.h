@@ -426,7 +426,7 @@ struct rp_chan
 	rp_writech1(ch, _CMD_REG, (uint8_t)(ch)->ChanNum);		\
 } while (0)
 
-/* Purpose: Disable output flow control using CTS */
+/* Disable output flow control using CTS */
 #define rp_disable_CTS_flowctl(ch) do {				\
 	(ch)->TxControl[2] &= ~CTSFC_EN;			\
 	rp_writech4(ch, _INDX_ADDR, lemtoh32((ch)->TxControl));	\
