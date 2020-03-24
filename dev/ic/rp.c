@@ -1224,7 +1224,7 @@ rpparam(struct tty *tp, struct termios *t)
 	rp_set_baud(cp, ospeed);
 
 	if (cflag & CSTOPB)
-		sSetStop2(cp);
+		rp_set_stop2(cp);
 	else
 		sSetStop1(cp);
 

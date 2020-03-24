@@ -710,10 +710,10 @@ struct rp_chan
 	rp_writech4(ChP, _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
 } while (0)
 
-/* Purpose: Set stop bits to 2 */
-#define sSetStop2(ChP) do {						\
-	(ChP)->TxControl[2] |= STOP2;					\
-	rp_writech4((ChP), _INDX_ADDR, lemtoh32((ChP)->TxControl));	\
+/* Set stop bits to 2 */
+#define rp_set_stop2(ch) do {						\
+	(ch)->TxControl[2] |= STOP2;					\
+	rp_writech4((ch), _INDX_ADDR, lemtoh32((ch)->TxControl));	\
 } while (0)
 
 /*
