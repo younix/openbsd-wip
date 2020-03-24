@@ -682,7 +682,7 @@ struct rp_chan
 } while (0)
 
 /*
- * Purpose: Set the Rx FIFO trigger level
+ * Set the Rx FIFO trigger level
  *
  * Number of characters in Rx FIFO at which the interrupt will be generated.
  * Can be any of the following flags:
@@ -692,7 +692,6 @@ struct rp_chan
  *	TRIG_1_2: FIFO 1/2 full
  *	TRIG_7_8: FIFO 7/8 full
  *
- * Comments:
  * An interrupt will be generated when the trigger level is reached only if
  * function sEnInterrupt() has been called with flag RXINT_EN set.  The
  * RXF_TRIG flag in the Interrupt Idenfification register will be set whenever
