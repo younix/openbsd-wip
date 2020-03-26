@@ -480,9 +480,9 @@ rp_enable_interrupts(struct rp_chan *ch, uint16_t flags)
 /*
  * Disable one or more interrupts for a channel
  *
- * rp_disable_interrupts(ch, Flags)
+ * rp_disable_interrupts(ch, flags)
  * 	  struct rp_chan *ch; Ptr to channel structure
- * 	  uint16_t Flags: Interrupt flags, can be any combination
+ * 	  uint16_t flags: Interrupt flags, can be any combination
  * 	     of the following flags:
  * 		TXINT_EN:   Interrupt on Tx FIFO empty
  * 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
@@ -492,8 +492,8 @@ rp_enable_interrupts(struct rp_chan *ch, uint16_t flags)
  * 		CHANINT_EN: Disable channel interrupt signal to the
  * 			    AIOP's Interrupt Channel Register.
  *
- * If an interrupt flag is set in Flags, that interrupt will be disabled.  If
- * an interrupt flag is not set in Flags, that interrupt will not be changed.
+ * If an interrupt flag is set in flags, that interrupt will be disabled.  If
+ * an interrupt flag is not set in flags, that interrupt will not be changed.
  * Interrupts can be enabled with function rp_enable_interrupts().
  *
  * This function clears the appropriate bit for the channel in the AIOP's
@@ -501,16 +501,16 @@ rp_enable_interrupts(struct rp_chan *ch, uint16_t flags)
  * channel's bit from being set in the AIOP's Interrupt Channel Register.
  */
 void
-rp_disable_interrupts(struct rp_chan *ch, uint16_t Flags)
+rp_disable_interrupts(struct rp_chan *ch, uint16_t flags)
 {
 	ch->RxControl[2] &=
-	    ~((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+	    ~((uint8_t)flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
 	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->RxControl));
 
-	ch->TxControl[2] &= ~((uint8_t)Flags & TXINT_EN);
+	ch->TxControl[2] &= ~((uint8_t)flags & TXINT_EN);
 	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxControl));
 
-	if (Flags & CHANINT_EN) {	/* Interrupt Mask Register */
+	if (flags & CHANINT_EN) {	/* Interrupt Mask Register */
 		uint8_t mask = rp_readch1(ch,_INT_MASK) & rp_sBitMapClrTbl[ch->ChanNum];
 		rp_writech1(ch, _INT_MASK, mask);
 	}
