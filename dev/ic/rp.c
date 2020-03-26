@@ -433,9 +433,9 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t data)
 /*
  * Enable one or more interrupts for a channel
  *
- * rp_enable_interrupts(ch, Flags)
+ * rp_enable_interrupts(ch, flags)
  * 	struct rp_chan *ch; Ptr to channel structure
- * 	uint16_t Flags: Interrupt enable flags, can be any combination
+ * 	uint16_t flags: Interrupt enable flags, can be any combination
  * 	     of the following flags:
  * 		TXINT_EN:   Interrupt on Tx FIFO empty
  * 		RXINT_EN:   Interrupt on Rx FIFO at trigger level (see
@@ -445,8 +445,8 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t data)
  * 		CHANINT_EN: Allow channel interrupt signal to the AIOP's
  * 			    Interrupt Channel Register.
  *
- * If an interrupt enable flag is set in Flags, that interrupt will be enabled.
- * If an interrupt enable flag is not set in Flags, that interrupt will not be
+ * If an interrupt enable flag is set in flags, that interrupt will be enabled.
+ * If an interrupt enable flag is not set in flags, that interrupt will not be
  * changed.  Interrupts can be disabled with function rp_disable_interrupts().
  *
  * This function sets the appropriate bit for the channel in the AIOP's
@@ -461,15 +461,15 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t data)
  * to be used to determine which AIOPs need service.
  */
 void
-rp_enable_interrupts(struct rp_chan *ch, uint16_t Flags)
+rp_enable_interrupts(struct rp_chan *ch, uint16_t flags)
 {
-	ch->RxControl[2] |= ((uint8_t)Flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
+	ch->RxControl[2] |= ((uint8_t)flags & (RXINT_EN | SRCINT_EN | MCINT_EN));
 	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->RxControl));
 
-	ch->TxControl[2] |= ((uint8_t)Flags & TXINT_EN);
+	ch->TxControl[2] |= ((uint8_t)flags & TXINT_EN);
 	rp_writech4(ch, _INDX_ADDR, lemtoh32(ch->TxControl));
 
-	if (Flags & CHANINT_EN) {
+	if (flags & CHANINT_EN) {
 		uint8_t Mask;	/* Interrupt Mask Register */
 
 		Mask = rp_readch1(ch,_INT_MASK) | rp_sBitMapSetTbl[ch->ChanNum];
