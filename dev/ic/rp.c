@@ -392,13 +392,15 @@ rp_flush_tx_fifo(struct rp_chan *ch)
 }
 
 /*
- * Purpose : Write a byte of priority transmit data to a channel.
- * Return  : 1 if the bytes is successfully written, otherwise 0.
- * Comments: The priority byte is transmitted before any data in the Tx FIFO.
+ * Write a byte of priority transmit data to a channel.
+ *
+ * Returns 1 if the bytes is successfully written, otherwise 0.  The priority
+ * byte is transmitted before any data in the Tx FIFO.
+ *
  * Warnings: No context switches are allowed while executing this function.
  */
 int
-rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
+rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t data)
 {
 	uint8_t DWBuf[4];		/* buffer for double word writes */
 
@@ -411,7 +413,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 
 		htolem16(DWBuf, ch->TxPrioBuf);/* data byte address */
 
-		DWBuf[2] = Data;		/* data byte value */
+		DWBuf[2] = data;		/* data byte value */
 		DWBuf[3] = 0;			/* priority buffer pointer */
 		rp_writech4(ch, _INDX_ADDR, lemtoh32(DWBuf)); /* write it out */
 
@@ -422,7 +424,7 @@ rp_write_tx_prio_byte(struct rp_chan *ch, uint8_t Data)
 		rp_writech4(ch, _INDX_ADDR, lemtoh32(DWBuf));	/* write it out */
 	} else {
 		/* write it to Tx FIFO */
-		rp_write_tx_byte(ch, rp_txrx_data_io(ch), Data);
+		rp_write_tx_byte(ch, rp_txrx_data_io(ch), data);
 	}
 
 	return (1);	/* 1 byte sent */
