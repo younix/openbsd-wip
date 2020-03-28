@@ -1303,6 +1303,7 @@ rpstart(struct tty *tp)
 
 	if (tp->t_outq.c_cc == 0)
 		goto out;
+	SET(tp->t_state, TS_BUSY);
 
 	xmit_fifo_room = TXFIFO_SIZE - rp_get_tx_cnt(cp);
 	count = q_to_b(&tp->t_outq, rp->TxBuf, xmit_fifo_room);
