@@ -1317,5 +1317,4 @@ rpstart(struct tty *tp)
 
  out:
 	splx(s);
-	return;
 }
