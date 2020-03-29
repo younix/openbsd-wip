@@ -927,6 +927,9 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	    flag, mode);
 #endif
 
+	if (!ISSET(tp->t_state, TS_ISOPEN))
+		return (0);
+
 	(*linesw[tp->t_line].l_close)(tp, flag, p);
 
 	timeout_del(&rp->rp_timer);
