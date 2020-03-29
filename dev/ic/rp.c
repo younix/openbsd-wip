@@ -807,9 +807,8 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 	rp = &sc->sc_rp[port];
 
 	s = spltty();
-	if (rp->rp_tty == NULL) {
+	if (rp->rp_tty == NULL)
 		rp->rp_tty = ttymalloc(0);
-	}
 	splx(s);
 
 	tp = rp->rp_tty;
@@ -891,16 +890,17 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		} else {
 			while (rp->rp_cua) {
 				SET(tp->t_state, TS_WOPEN);
-				error = ttysleep(tp, &tp->t_rawq, TTIPRI | PCATCH, ttopen);
+				error = ttysleep(tp, &tp->t_rawq,
+				    TTIPRI | PCATCH, ttopen);
 
 				/*
-				 * If TS_WOPEN has been reset, that means the cua device
-				 * has been closed.  We don't want to fail in that case,
+				 * If TS_WOPEN has been reset, that means the
+				 * cua device has been closed.
+				 * We don't want to fail in that case,
 				 * so just go around again.
 				 */
 				if (error && ISSET(tp->t_state, TS_WOPEN)) {
 					CLR(tp->t_state, TS_WOPEN);
- 
 					splx(s);
 					return (error);
 				}
@@ -955,9 +955,7 @@ printf("%s:%d close: NOT TS_WOPEN\n", __func__, __LINE__);
 void
 rphardclose(struct tty *tp, struct rp_port *rp)
 {
-	struct rp_chan	*cp;
-
-	cp = &rp->rp_channel;
+	struct rp_chan	*cp = &rp->rp_channel;
 
 	rp_flush_rx_fifo(cp);
 	rp_flush_tx_fifo(cp);
