@@ -871,7 +871,6 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		s = spltty();
 	}
 
-//XXX:	device_busy(rp->rp_sc->dev);
 	if (DEVCUA(dev)) {
 		if (ISSET(tp->t_state, TS_ISOPEN)) {
 			/* Ah, but someone already is dialed in... */
@@ -933,17 +932,14 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	(*linesw[tp->t_line].l_close)(tp, flag, p);
 
 	timeout_del(&rp->rp_timer);
-	rphardclose(tp, rp);
-//XXX:	device_unbusy(rp->rp_sc->dev);
-
 	s = spltty();
-	if (ISSET(tp->t_state, TS_WOPEN)) {
-printf("%s:%d close: TS_WOPEN\n", __func__, __LINE__);
-		/* TODO: */
-	} else {
-printf("%s:%d close: NOT TS_WOPEN\n", __func__, __LINE__);
+
+	if (!ISSET(tp->t_state, TS_WOPEN)) {
+		rphardclose(tp, rp);
+printf("%s:%d close: !TS_WOPEN\n", __func__, __LINE__);
 		/* TODO: */
 	}
+
 	CLR(tp->t_state, TS_BUSY | TS_FLUSH);
 	rp->rp_cua = 0;
 	splx(s);
