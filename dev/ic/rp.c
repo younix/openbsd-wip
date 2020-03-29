@@ -642,7 +642,9 @@ rp_handle_port(struct rp_port *rp)
 	oldcts = rp->rp_cts;
 	rp->rp_cts = ((ChanStatus & CTS_ACT) != 0);
 	//if (oldcts != rp->rp_cts && ISSET(tp->t_cflag, CRTSCTS)) {
+	CLR(tp->t_state, TS_BUSY);	// XXX: not sure with this
 	if (oldcts != rp->rp_cts) {
+		CLR(tp->t_state, TS_BUSY | TS_FLUSH);
 		printf("CTS change (now %s)... on port %d\n", rp->rp_cts ? "on" : "off", rp->rp_port);
 		(*linesw[tp->t_line].l_start)(tp);
 	}
