@@ -934,11 +934,8 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 	timeout_del(&rp->rp_timer);
 	s = spltty();
 
-	if (!ISSET(tp->t_state, TS_WOPEN)) {
+	if (!ISSET(tp->t_state, TS_WOPEN))
 		rphardclose(tp, rp);
-printf("%s:%d close: !TS_WOPEN\n", __func__, __LINE__);
-		/* TODO: */
-	}
 
 	CLR(tp->t_state, TS_BUSY | TS_FLUSH);
 	rp->rp_cua = 0;
