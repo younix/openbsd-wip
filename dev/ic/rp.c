@@ -931,11 +931,12 @@ rpclose(dev_t dev, int flag, int mode, struct proc *p)
 
 	(*linesw[tp->t_line].l_close)(tp, flag, p);
 
-	timeout_del(&rp->rp_timer);
 	s = spltty();
 
-	if (!ISSET(tp->t_state, TS_WOPEN))
+	if (!ISSET(tp->t_state, TS_WOPEN)) {
+		timeout_del(&rp->rp_timer);
 		rphardclose(tp, rp);
+	}
 
 	CLR(tp->t_state, TS_BUSY | TS_FLUSH);
 	rp->rp_cua = 0;
