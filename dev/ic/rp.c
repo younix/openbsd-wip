@@ -1261,6 +1261,7 @@ rpparam(struct tty *tp, struct termios *t)
 	else
 		rp_disable_CTS_flowctl(cp);
 
+	/* XXX: dead code: rp_rts_iflow is never used */
 	if (cflag & CRTS_IFLOW)
 		rp->rp_rts_iflow = 1;
 	else
