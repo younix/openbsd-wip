@@ -824,6 +824,9 @@ rpopen(dev_t dev, int flag, int mode, struct proc *p)
 		tp->t_lflag = TTYDEF_LFLAG;
 		tp->t_ispeed = tp->t_ospeed = TTYDEF_SPEED;
 
+		if (ISSET(rp->rp_swflags, TIOCFLAG_CLOCAL))
+			SET(tp->t_termios.c_cflag, CLOCAL);
+
 		s = spltty();
 
 		rpparam(tp, &tp->t_termios);
