@@ -1083,8 +1083,16 @@ rpioctl(dev_t dev, u_long cmd, caddr_t data, int flag, struct proc *p)
 		rp_writech4(cp, _INDX_ADDR, lemtoh32(cp->TxControl));
 		break;
 	case  TIOCMGET:	/* get modem control/status line state */
-	case  TIOCGFLAGS:/* set flags */
-	case  TIOCSFLAGS:/* get flags */
+		return (ENOTTY);
+	case  TIOCGFLAGS:/* get flags */
+		*(int *)data = rp->rp_swflags;
+		break;
+	case  TIOCSFLAGS:/* set flags */
+		error = suser(p);
+		if (error)
+			return (EPERM);
+		rp->rp_swflags = *(int *)data;
+		break;
 	default:
 		return (ENOTTY);
 	}
