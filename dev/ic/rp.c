@@ -52,7 +52,6 @@
 #include <sys/kernel.h>
 #include <machine/bus.h>
 
-#define ROCKET_C
 #include <dev/ic/rpreg.h>
 
 #define DEVNAME(_s)	((_s)->sc_dev.dv_xname)

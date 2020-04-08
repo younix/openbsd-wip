@@ -758,11 +758,11 @@ rp_unlock(struct rp_softc *sc)
 		mtx_leave(&sc->hwmtx);
 }
 
-#ifndef ROCKET_C
-extern uint8_t R[RDATASIZE];
+/* XXX: useless block */
+//extern uint8_t R[RDATASIZE];
 //XXX: extern struct rp_softc sController[CTL_SIZE];
-extern uint8_t sIRQMap[16];
-#endif
+//extern uint8_t sIRQMap[16];
+
 extern uint8_t rp_sBitMapClrTbl[8];
 extern uint8_t rp_sBitMapSetTbl[8];
 
